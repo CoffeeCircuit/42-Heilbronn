@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 09:04:13 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/15 00:20:50 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/16 01:02:00 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,6 @@
 int	ft_isalnum(int c)
 {
 	if (ft_isalpha(c) || ft_isdigit(c))
-		return (IS_ALLNUM);
+		return (8);
 	return (0);
 }

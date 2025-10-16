@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 08:53:21 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/15 00:25:02 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/16 01:50:11 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,7 @@
 
 int	ft_isascii(int c)
 {
-	unsigned char	chr;
-
-	chr = (unsigned char)c;
-	if ((chr & ~0x7f) == 0)
+	if ((c & ~127) == 0)
 		return (1);
 	return (0);
 }

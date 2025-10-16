@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 09:08:02 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/14 08:32:33 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/16 01:51:39 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,7 @@
 
 int	ft_isprint(int c)
 {
-	unsigned char	chr;
-
-	chr = (unsigned char)c;
-	if (chr >= 32 && chr <= 126)
-		return (IS_PRINT);
+	if (c >= 32 && c <= 126)
+		return (16384);
 	return (0);
 }

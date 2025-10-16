@@ -6,12 +6,12 @@
 #    By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/10/08 08:25:57 by abalcu            #+#    #+#              #
-#    Updated: 2025/10/15 01:32:17 by abalcu           ###   ########.fr        #
+#    Updated: 2025/10/16 02:55:06 by abalcu           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC = cc
-CFLAGS = -g -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror
 
 NAME = 		libft.a
 CFILES = 	ft_isalnum.c ft_isalpha.c ft_isascii.c ft_isdigit.c \

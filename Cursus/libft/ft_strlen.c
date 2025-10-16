@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 09:34:40 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/13 11:53:48 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/16 02:19:38 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,6 @@ size_t	ft_strlen(const char *s)
 	size_t	len;
 
 	len = 0;
-	if (s == NULL)
-		return (0);
 	while (s[len] != '\0')
 		len++;
 	return (len);

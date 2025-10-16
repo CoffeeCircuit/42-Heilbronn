@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 10:02:51 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/13 11:53:17 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/16 03:23:19 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,16 +14,15 @@
 
 void	*ft_memcpy(void *dest, const void *src, size_t n)
 {
-	unsigned char	*cdest;
-	unsigned char	*csrc;
+	size_t	i;
 
-	cdest = (unsigned char *)dest;
-	csrc = (unsigned char *)src;
-	while (n--)
+	i = 0;
+	if (!dest && !src)
+		return (NULL);
+	while (i < n)
 	{
-		*cdest = *csrc;
-		cdest++;
-		csrc++;
+		((unsigned char *)dest)[i] = ((unsigned char *)src)[i];
+		i++;
 	}
 	return (dest);
 }

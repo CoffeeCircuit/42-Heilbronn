@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 08:29:31 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/15 00:26:10 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/16 01:03:04 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,43 +23,35 @@ typedef struct s_list
 	struct s_list	*next;
 }					t_list;
 
-enum				e_ctype
-{
-	IS_ALLNUM = 8,
-	IS_ALPHA = 1024,
-	IS_DIGIT = 2048,
-	IS_PRINT = 16384,
-};
-
 /// @brief Checks if char c is a ASCII chararcher [A-Za-z]
-/// @param c
+/// @param c a character
 /// @return Returns 1 if true and 0 if false
 int					ft_isalpha(int c);
 
 /// @brief Checks if the character c is in the range [0-9]
-/// @param c
+/// @param c a character
 /// @return Returns 1 if true and 0 if false
 int					ft_isdigit(int c);
 
 /// @brief Checks if the character c is alphanumeric, ie [A-Za-z0-9]
-/// @param c
+/// @param c a character
 /// @return Returns 1 if true and 0 if false
 int					ft_isalnum(int c);
 
 /// @brief Checks if the byte c is in ASCII range, i.e. [0-127]
-/// @param c
+/// @param c a character
 /// @return Returns 1 if true and 0 if false
 int					ft_isascii(int c);
 
 /// @brief Checks if the character c is printable, i.e. range [32-126],
 /// this includes space
-/// @param c
+/// @param c a character
 /// @return Returns 1 if true and 0 if false
 int					ft_isprint(int c);
 
 /// @brief Calculates the length of the string pointed to by s,
 /// excluding the terminating null byte ('\0')
-/// @param s
+/// @param s the string
 /// @return String length or zero if s is NULL
 size_t				ft_strlen(const char *s);
 
@@ -92,28 +84,51 @@ void				*ft_memcpy(void *dest, const void *src, size_t n);
 /// @return Returns a pointer to 'dest'.
 void				*ft_memmove(void *dest, const void *src, size_t n);
 
+/// @brief Copies up to size - 1 characters from the NUL-terminated string
+/// 'src' to dst, NUL-terminating the result
+/// @param dst destination string
+/// @param src source string
+/// @param size the number of bytes to copy
+/// @return The length of 'src'
 size_t				ft_strlcpy(char *dst, const char *src, size_t size);
 
+/// @brief Cappends the NUL-terminated string 'src' to the end of 'dst'.
+/// @param dst destination string
+/// @param src source string
+/// @param size the number of bytes to copy
+/// @return The initial length of dst plus the length of src
 size_t				ft_strlcat(char *dst, const char *src, size_t size);
 
+/// @brief Converts a character to uppercase
+/// @param c the character
+/// @return The uppercase of 'c' or 'c' if conversion fails
 int					ft_toupper(int c);
 
+/// @brief Converts a character to lowercase
+/// @param c the character
+/// @return The lowercase of 'c' or 'c' if conversion fails
 int					ft_tolower(int c);
 
 /// @brief Returns a pointer to the FIRST occurrence of the character 'c'
 /// in the string 's'. For LAST use ft_strrchr()
-/// @param s
-/// @param c
+/// @param s the search string
+/// @param c the comparator
 /// @return Position of FIRST occurence of 'c' in 's' or NULL if 'c' not found
 char				*ft_strchr(const char *s, int c);
 
 /// @brief Returns a pointer to the LAST occurrence of the character 'c'
 /// in the string 's'.
-/// @param s
-/// @param c
+/// @param s the search string
+/// @param c the comparator
 /// @return Position of LAST occurence of 'c' in 's' or NULL if 'c' not found
 char				*ft_strrchr(const char *s, int c);
 
+/// @brief Compares n-bytes between 's1' and 's2
+/// @param s1 a string to be compared
+/// @param s2 a string to compare to
+/// @param n number of bytes to compare
+/// @return Returns zero if the strings are identical or the difference between
+/// 's1' and 's2' if the stirngs are different
 int					ft_strncmp(const char *s1, const char *s2, size_t n);
 
 /// @brief Scans 'n' bytes of the memory pointed to by 's' for the
@@ -126,47 +141,67 @@ int					ft_strncmp(const char *s1, const char *s2, size_t n);
 void				*ft_memchr(const void *s, int c, size_t n);
 
 /// @brief Compares the first 'n' bytes of the memory areas s1 and s2.
-/// @param s1
-/// @param s2
-/// @param n
+/// @param s1 memory area
+/// @param s2 memory area
+/// @param n number of bytes to compare
 /// @return An int < 0 if s1 < s2 or 0 if s1 == s2 or > 0 if s1 > s2
 int					ft_memcmp(const void *s1, const void *s2, size_t n);
 
 /// @brief Finds the first occurrence of 'little' string in the 'big' string
-/// @param big
-/// @param little
-/// @param len
+/// @param big the string to search in
+/// @param little the searched string
+/// @param len the number of characters to search
 /// @return Returns 'big' if 'little' is empty or NULL if 'little' is not
 /// found in 'big' or pointer to location where 'little' starts in 'big'
 char				*ft_strnstr(const char *big, const char *little,
 						size_t len);
 
+/// @brief Returns the int for a given string containing only numbers
+/// @param nptr the string representing an int
+/// @return An int specified in text
 int					ft_atoi(const char *nptr);
 
+/// @brief Allocates new memory on the heap, and fills the area with zero
+/// @param nmemb number of elements
+/// @param size size of each element
+/// @return A newly allocated region of memory and fills the area with zeros
 void				*ft_calloc(size_t nmemb, size_t size);
 
+/// @brief Makes a duplicate of the given string
+/// @param s the orginial string
+/// @return A newly MALLOC'd string that can be freed with 'free()' or NULL if
+/// allocation fails
 char				*ft_strdup(const char *s);
 
+/// @brief Returns a new string from 's' from a given starting position and
+/// a given lenth
+/// @param s the original string
+/// @param start the starting position of 's' from which to make the substring
+/// @param len the length of the substring
+/// @return A newly MALLOC'd string that can be freed with 'free()' or NULL if
+/// allocation fails
 char				*ft_substr(char const *s, unsigned int start, size_t len);
 
-/// @brief Concatenates two strings and mallocs memmore for a new string
+/// @brief Concatenates two string, with 's2' appended to 's1'
 /// @param s1 the prefix string
 /// @param s2 the suffix string
-/// @return Returns a malloced string resulting from concatenating 's1' and 's2'
+/// @return A newly MALLOC'd string that can be freed with 'free()' or NULL if
+/// allocation fails
 char				*ft_strjoin(char const *s1, char const *s2);
 
-/// @brief returns a copy of ’s1’ with characters from ’set’ removed
-/// from the beginning and the end.
+/// @brief Returns a copy of ’s1’ with the characters from ’set’ removed
+/// from the beginning and the end of 's1'
 /// @param s1 string to be trimmed
 /// @param set set of characters to trim front and back of 's1'
-/// @return Returns malloced string with fron and back trimed
+/// @return A newly MALLOC'd string that can be freed with 'free()' or NULL if
+/// allocation fails
 char				*ft_strtrim(char const *s1, char const *set);
 
 /// @brief Creates an array of strings by splitting 's' by the character 'c'
 /// @param s the string to be split
 /// @param c the delimiter character
-/// @return Returs a malloced array of strinft_putnbr_fdgs with a NULL pointer
-/// as the last element
+/// @return A newly MALLOC'd string that can be freed with 'free()' or NULL if
+/// allocation fails
 char				**ft_split(char const *s, char c);
 
 /// @brief String representation of an int
@@ -230,12 +265,27 @@ t_list				*ft_lstlast(t_list *lst);
 /// @param new address of a pointer to the node to be added
 void				ft_lstadd_back(t_list **lst, t_list *new);
 
+/// @brief Deletes a node and it's content, but does not free the next node
+/// @param lst the node to be freed
+/// @param del the function used to free the content
 void				ft_lstdelone(t_list *lst, void (*del)(void *));
 
+/// @brief Deletes and frees the given node and all its successors
+/// @param lst a pointer to a node of the list
+/// @param del the function used to free the content
 void				ft_lstclear(t_list **lst, void (*del)(void *));
 
+/// @brief Applies the function 'f' to the content of each node of the list
+/// @param lst a pointer to a node of the list
+/// @param f the function to be applied to the content of each node
 void				ft_lstiter(t_list *lst, void (*f)(void *));
 
+/// @brief Applies the function 'f' to the content of each node of the list
+/// and returns a new list
+/// @param lst the original list
+/// @param f the function applied to the content
+/// @param del the functions used to free the content in case allocation fails
+/// @return A new MALLOC'd list. Points to the begining of the list
 t_list				*ft_lstmap(t_list *lst, void *(*f)(void *),
 						void (*del)(void *));
 

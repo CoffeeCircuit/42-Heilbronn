@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 08:52:45 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/15 05:48:43 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/16 01:47:58 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,7 @@
 
 int	ft_isalpha(int c)
 {
-	unsigned char	chr;
-
-	chr = (unsigned char)c;
-	if ((chr >= 'A' && chr <= 'Z') || (chr >= 'a' && chr <= 'z'))
-		return (IS_ALPHA);
+	if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
+		return (1024);
 	return (0);
 }

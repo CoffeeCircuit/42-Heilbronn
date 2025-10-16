@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 12:50:49 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/13 11:53:33 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/16 02:12:41 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ char	*ft_strchr(const char *s, int c)
 	i = 0;
 	size = ft_strlen(s) + 1;
 	chr = (unsigned char)c;
-	while (i <= size)
+	while (i < size)
 	{
 		if (s[i] == chr)
 			return (&((char *)s)[i]);

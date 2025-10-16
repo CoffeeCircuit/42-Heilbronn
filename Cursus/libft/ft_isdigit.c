@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 08:59:11 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/14 08:32:26 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/16 01:49:33 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,7 @@
 
 int	ft_isdigit(int c)
 {
-	unsigned char	chr;
-
-	chr = (unsigned char)c;
-	if (chr >= '0' && chr <= '9')
-		return (IS_DIGIT);
+	if (c >= '0' && c <= '9')
+		return (2048);
 	return (0);
 }
