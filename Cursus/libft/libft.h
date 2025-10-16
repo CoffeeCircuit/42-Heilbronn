@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 08:29:31 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/16 01:03:04 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/16 04:07:39 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,7 +150,7 @@ int					ft_memcmp(const void *s1, const void *s2, size_t n);
 /// @brief Finds the first occurrence of 'little' string in the 'big' string
 /// @param big the string to search in
 /// @param little the searched string
-/// @param len the number of characters to search
+/// @param len the number of characters from 'big' to search
 /// @return Returns 'big' if 'little' is empty or NULL if 'little' is not
 /// found in 'big' or pointer to location where 'little' starts in 'big'
 char				*ft_strnstr(const char *big, const char *little,
