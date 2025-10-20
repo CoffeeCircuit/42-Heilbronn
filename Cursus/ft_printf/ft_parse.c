@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/18 08:56:17 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/19 14:41:42 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/20 09:11:49 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,9 +93,9 @@ void	ft_puthex(int nbr, t_spec *fmt)
 {
 	const char	*lc_base = "0123456789abcdef";
 	const char	*uc_base = "0123456789ABCDEF";
-	long long	n;
+	size_t	n;
 
-	n = (long long)nbr;
+	n = (size_t)nbr;
 	if (n == 0)
 		return ;
 	if (nbr < 0)
@@ -159,8 +159,9 @@ int	ft_printf(const char *format, ...)
 
 int	main(void)
 {
-	ft_printf("test: %c, %c\n", 'a', 'b');
-	ft_printf("test: %s\n", "foo");
-	ft_printf("test: %x\n", 255);
-	ft_printf("test: %X\n", 255);
+	size_t test = -255;
+
 }
+
+
+
