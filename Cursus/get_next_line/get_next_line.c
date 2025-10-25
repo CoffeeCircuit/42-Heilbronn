@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/24 02:39:17 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/24 06:50:30 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/25 06:29:16 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ char	*ft_append(char *data, char *buf)
 	return (tmp);
 }
 
-char	*ft_read_err(char **data, char **buf, ssize_t *bread)
+char	*ft_read_err(char **data, ssize_t *bread)
 {
 	char	*tmp;
 
@@ -57,12 +57,10 @@ char	*ft_read_err(char **data, char **buf, ssize_t *bread)
 			tmp = ft_strdup(*data);
 			free(*data);
 			*data = NULL;
-			free(*buf);
 			return (tmp);
 		}
 		free(*data);
 		*data = NULL;
-		free(*buf);
 		return (NULL);
 	}
 	return (NULL);
@@ -83,9 +81,9 @@ char	*get_next_line(int fd)
 		if (data && ft_has_nl(&line, &data))
 			break ;
 		bread = read(fd, buf, BUFFER_SIZE);
-		line = ft_read_err(&data, &buf, &bread);
+		line = ft_read_err(&data, &bread);
 		if (line || bread <= 0)
-			return (line);
+			return (free(buf), line);
 		buf[bread] = '\0';
 		if (!data)
 			data = ft_strdup(buf);
