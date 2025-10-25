@@ -6,162 +6,100 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/18 08:56:17 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/20 09:11:49 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/21 07:11:24 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../ft_printf.h"
-#include <stdio.h>
-#include <stdlib.h>
 
-char	*ft_flag(t_spec *f, char **str)
+char	*ft_flag(t_format *fmt, char **s)
+{
+	unsigned int	bitmask;
+	int				l;
+
+	l = 0;
+	bitmask = (1 << 1) | (1 << 4) | (1 << 12) | (1 << 14) | (1 << 17);
+	while ((*s)[l] >= 32 && (*s)[l] <= 48 && bitmask & (1 << ((*s)[l] - 31)))
+	{
+		if (l > 5 || strchr(fmt->flags, **s))
+			return (NULL);
+		fmt->flags[l] = (*s)[l];
+		l++;
+	}
+	fmt->flags[l] = '\0';
+	*s += l;
+	return (*s);
+}
+
+char	*ft_width(t_format *fmt, va_list args, char **s)
+{
+	if (**s == '*')
+	{
+		fmt->width = va_arg(args, int);
+		(*s)++;
+	}
+	else if (ft_isdigit(**s))
+	{
+		fmt->width = ft_atoi(*s);
+		*s += ft_strlen(ft_itoa(fmt->width));
+	}
+	return (*s);
+}
+
+char	*ft_spec(t_format *fmt, char **s)
+{
+	unsigned long long	bitmask;
+
+	bitmask = 9965940738;
+	if (**s >= 88 && **s <= 120 && bitmask & (1 << (**s - 87)))
+	{
+		fmt->spec = **s;
+		(*s)++;
+	}
+	return (*s);
+}
+
+void	ft_validate_flags(t_format *fmt)
 {
 	int	i;
 
 	i = 0;
-	f->flags = ft_calloc(6, sizeof(char));
-	if (!(f->flags))
-		return (NULL);
-	while (**str >= 32 && **str <= 48 && 151571U >> (**str - 31) & 1)
+	fmt->isvalid = 1;
+	while (fmt->flags[i])
 	{
-		ft_memset(&f->flags[i], **str, 1);
-		(*str)++;
+		if (fmt->spec == 'c' && !((VALID_CS) & (1 << (fmt->flags[i] - 31))))
+			fmt->isvalid = 0;
+		if (fmt->spec == 's' && !((VALID_CS) & (1 << (fmt->flags[i] - 31))))
+			fmt->isvalid = 0;
+		if (fmt->spec == 'u' && !((VALID_U) & (1 << (fmt->flags[i] - 31))))
+			fmt->isvalid = 0;
+		if (fmt->spec == 'p' && !((VALID_P) & (1 << (fmt->flags[i] - 31))))
+			fmt->isvalid = 0;
+		if (fmt->spec == 'h' && !((VALID_H) & (1 << (fmt->flags[i] - 31))))
+			fmt->isvalid = 0;
+		if (fmt->spec == 'd' && !((VALID_DI) & (1 << (fmt->flags[i] - 31))))
+			fmt->isvalid = 0;
+		if (fmt->spec == 'i' && !((VALID_DI) & (1 << (fmt->flags[i] - 31))))
+			fmt->isvalid = 0;
+		break ;
 		i++;
 	}
-	return (*str);
 }
 
-char	*ft_width(t_spec *f, char **str)
+t_format	*ft_parse(char *str, va_list args)
 {
-	if (**str == '*')
-	{
-		f->width = -1;
-		(*str)++;
-	}
-	else if (ft_isdigit(**str))
-	{
-		f->width = ft_atoi(*str);
-		*str = *str + ft_strlen(ft_itoa(f->width));
-	}
-	return (*str);
-}
+	t_format	*out;
 
-int	ft_isvalid(char s, char *f)
-{
-	if ((s == 'c' || s == 's') && ft_strlen(f) <= 1 && (*f == '-'
-			|| *f == '\0'))
-		return (1);
-	if ((s == 'd' || s == 'i') && !(ft_strchr(f, '#')))
-		return (1);
-	if ((s == 'x' || s == 'X'))
-		return (1);
-	return (0);
-}
-
-char	*ft_spec(t_spec *f, char **str)
-{
-	if (**str >= 88 && **str <= 120 && 9965940739ULL >> (**str - 87) & 1)
-	{
-		f->specifier = **str;
-		(*str)++;
-	}
-	if (!(ft_isvalid(f->specifier, f->flags)))
-	{
-		f->specifier = '\0';
-		return (NULL);
-	}
-	return (*str);
-}
-
-t_spec	*ft_parse(char *str)
-{
-	t_spec	*out;
-
-	out = ft_calloc(1, sizeof(t_spec));
+	out = ft_calloc(1, sizeof(t_format));
 	if (!out)
 		return (NULL);
 	ft_flag(out, &str);
-	ft_width(out, &str);
+	ft_width(out, args, &str);
 	ft_spec(out, &str);
-	out->position = &(*str);
-	if (!out->specifier)
+	ft_validate_flags(out);
+	if (!out->isvalid)
 		return (NULL);
 	return (out);
 }
-
-void	ft_puthex(int nbr, t_spec *fmt)
-{
-	const char	*lc_base = "0123456789abcdef";
-	const char	*uc_base = "0123456789ABCDEF";
-	size_t	n;
-
-	n = (size_t)nbr;
-	if (n == 0)
-		return ;
-	if (nbr < 0)
-	{
-		ft_putchar_fd('-', STDOUT_FILENO);
-		n = -n;
-	}
-	ft_puthex(n / 16, fmt);
-	if (fmt->specifier == 'x')
-		ft_putchar_fd(lc_base[n % 16], STDOUT_FILENO);
-	else if (fmt->specifier == 'X')
-		ft_putchar_fd(uc_base[n % 16], STDOUT_FILENO);
-}
-
-void	ft_putarg(t_spec *spec, va_list args)
-{
-	if (spec->specifier == 'c')
-		ft_putchar_fd(va_arg(args, int), STDOUT_FILENO);
-	else if (spec->specifier == 's')
-		ft_putstr_fd(va_arg(args, char *), STDOUT_FILENO);
-	else if (spec->specifier == 'x' || spec->specifier == 'X')
-		ft_puthex(va_arg(args, int), spec);
-}
-
-void	ft_clear_spec(t_spec *spec)
-{
-	free(spec->flags);
-	spec->flags = NULL;
-	spec->width = 0;
-	spec->specifier = '\0';
-	spec->position = NULL;
-	free(spec);
-	spec = NULL;
-}
-
-int	ft_printf(const char *format, ...)
-{
-	int		len;
-	va_list	args;
-	t_spec	*spec;
-	char	*str;
-
-	len = 0;
-	str = (char *)format;
-	va_start(args, format);
-	while (str[len])
-	{
-		if (str[len] == '%')
-		{
-			spec = ft_parse(&str[++len]);
-			ft_putarg(spec, args);
-			len += spec->position - &str[len];
-			ft_clear_spec(spec);
-		}
-		else
-			ft_putchar_fd(str[len++], STDOUT_FILENO);
-	}
-	va_end(args);
-	return (len);
-}
-
-int	main(void)
-{
-	size_t test = -255;
-
-}
-
 
 

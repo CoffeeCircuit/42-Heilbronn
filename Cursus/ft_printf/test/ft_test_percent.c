@@ -6,15 +6,14 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/18 09:03:15 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/18 09:53:25 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/21 06:11:05 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../ft_printf.h"
+#include "ft_test.h"
 
 void	ft_test_percent(void)
 {
-	ft_printf("=== Literal %% ===\n");
-	ft_printf("Just a percent: %%|\n");
-	ft_printf("Formatted: %-5%%|\n");
+	printf("Percent literal            : [%%]\n");
 }

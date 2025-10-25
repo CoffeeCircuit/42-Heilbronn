@@ -6,12 +6,13 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/18 09:49:36 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/18 09:52:31 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/21 06:02:43 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FT_TEST_H
 # define FT_TEST_H
+# include <stdio.h>
 
 void	ft_test_char(void);
 void	ft_test_digits(void);

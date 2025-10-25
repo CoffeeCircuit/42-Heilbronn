@@ -6,15 +6,16 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/18 09:03:15 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/18 09:53:18 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/21 06:10:53 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../ft_printf.h"
+#include "ft_test.h"
 
 void	ft_test_char(void)
 {
-	ft_printf("=== %%c (char) ===\n");
-	ft_printf("Default: %c|\n", 'A');
-	ft_printf("With -: %-5c|\n", 'A');
+	printf("Char default               : [%c]\n", 'A');
+	printf("Char with width            : [%10c]\n", 'A');
+	printf("Char with -                : [%-10c]\n", 'A');
 }

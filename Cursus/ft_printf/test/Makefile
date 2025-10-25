@@ -1,38 +1,28 @@
-SHELL = /bin/bash
 
-# Format strings to test
-FORMATS = "%d" "%+d" "% d" "%05d" "%-5d" "%+05d" "%-+5d" \
-	"%x" "%#x" "%05x" "%-5x" "%#05x" \
-	"%f" "%+f" "% f" "%05.2f" "%-5.2f" "%+05.2f" \
-	"%o" "%#o" "%05o" "%-5o" "%#05o" \
-	"%c" "%-5c" \
-	"%s" "%-10s"
+CC = cc
+CFLAGS = -Wall -Wextra -Werror
+NAME = test
 
-# Matching arguments for each format
-ARGS = "42" "42" "42" "42" "42" "42" "42" \
-	"255" "255" "255" "255" "255" \
-	"3.14" "3.14" "3.14" "3.14" "3.14" "3.14" \
-	"10" "10" "10" "10" "10" \
-	"'A'" "'A'" \
-	"\"Hi\"" "\"Hi\""
+CFILES = 	ft_test.c ft_test_digits.c ft_test_hex.c ft_test_pointer.c \
+			ft_test_unsigned.c ft_test_char.c ft_test_percent.c \
+			ft_test_string.c
 
-OK = "[ \033[0;32mOK\033[0m ]"
-KO = "[ \033[0;31mKO\033[0m ]"
+OFILES = $(CFILES:.c=.o)
 
-all: test run
+.PHONY: all re fclean clean
 
-test:
-	@cc -g ft_test.c -o test
+all:$(NAME)
 
-run:
-	@formats=($(FORMATS)); \
-	args=($(ARGS)); \
-	for i in $${!formats[@]}; do \
-		fmt=$${formats[$$i]}; \
-		arg=$${args[$$i]}; \
-		echo -n $$'\t'; \
-		echo ft_printf\(\"$$fmt\", $$arg\); \
-		echo -n $$'\tGot: "'; ./test "$$fmt" $$arg; echo -n '", '; \
-		echo -n 'Expected: "'; printf "$$fmt" $$arg; echo '"'; \
-		echo ; \
-	done
+$(NAME): $(OFILES)
+	$(CC) $(OFILES) -o $@
+
+%.o: %.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -c $< -o $@
+
+re:fclean all
+
+fclean:clean
+	rm -f $(NAME)
+
+clean:
+	rm -f $(OFILES)
