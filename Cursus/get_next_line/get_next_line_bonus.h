@@ -5,28 +5,35 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/21 12:53:42 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/25 01:16:29 by abalcu           ###   ########.fr       */
+/*   Created: 2025/10/26 13:19:06 by abalcu            #+#    #+#             */
+/*   Updated: 2025/10/26 17:43:16 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_BONUS_H
 # define GET_NEXT_LINE_BONUS_H
-
-# ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 1024
-# endif
 # define MAX_FD 1024
+# define CHUNK 1024
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 4096
+# endif
+
+# include <stddef.h>
 # include <stdint.h>
 # include <stdlib.h>
 # include <unistd.h>
 
-size_t	ft_strlen(const char *s);
-void	*ft_memcpy(void *dest, const void *src, size_t n);
-char	*ft_strjoin(char const *s1, char const *s2);
-char	*ft_strdup(const char *s);
-char	*ft_strchr(const char *s, int c);
+typedef struct s_buffer
+{
+	char	*data;
+	size_t	len;
+	size_t	capacity;
+}			t_buffer;
 
-char	*get_next_line(int fd);
+void		*ft_memmove(void *dest, const void *src, size_t n);
+void		*ft_memset(void *s, int c, size_t n);
+void		*ft_calloc(size_t nmemb, size_t size);
+void		*ft_memchr(const void *s, int c, size_t n);
+char		*get_next_line(int fd);
 
 #endif

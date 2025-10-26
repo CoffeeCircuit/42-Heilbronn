@@ -5,91 +5,113 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/24 02:39:17 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/25 18:43:20 by abalcu           ###   ########.fr       */
+/*   Created: 2025/10/26 16:56:52 by abalcu            #+#    #+#             */
+/*   Updated: 2025/10/26 17:53:59 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-int	ft_has_nl(char **line, char **data)
+static int	free_buf(t_buffer *buf)
 {
-	char	*nl;
-	char	*tmp;
-	int		nl_len;
-
-	nl = ft_strchr(*data, '\n');
-	if (nl)
-	{
-		nl_len = ft_strlen(nl + 1);
-		*line = (char *)malloc(nl - *data + 2);
-		if (!(*line))
-			return (0);
-		(*line)[nl - *data + 1] = '\0';
-		ft_memcpy(*line, *data, nl - *data + 1);
-		tmp = (char *)malloc(nl_len + 1);
-		tmp[nl_len] = '\0';
-		ft_memcpy(tmp, nl + 1, nl_len);
-		free(*data);
-		*data = tmp;
-		return (1);
-	}
+	free(buf->data);
+	buf->data = NULL;
+	buf->len = 0;
+	buf->capacity = 0;
 	return (0);
 }
 
-char	*ft_append(char *data, char *buf)
+static int	ensure_capacity(t_buffer *buf, size_t required)
 {
-	char	*tmp;
+	size_t	new_capacity;
+	char	*new_data;
 
-	tmp = ft_strjoin(data, buf);
-	free(data);
-	return (tmp);
+	if (required <= buf->capacity)
+		return (1);
+	new_capacity = buf->capacity;
+	while (new_capacity < required)
+		new_capacity += CHUNK;
+	new_data = (char *)malloc(new_capacity);
+	if (new_data == NULL)
+		return (0);
+	if (buf->data && buf->len > 0)
+		ft_memmove(new_data, buf->data, buf->len);
+	free(buf->data);
+	buf->data = new_data;
+	buf->capacity = new_capacity;
+	return (1);
 }
 
-char	*ft_read_err(char **data, ssize_t *bread)
+static int	read_into_buffer(t_buffer *buf, int fd)
 {
+	ssize_t	bread;
 	char	*tmp;
 
-	if (*bread <= 0)
+	tmp = (char *)malloc(BUFFER_SIZE + 1);
+	if (tmp == NULL)
+		return (0);
+	while (ft_memchr(buf->data, '\n', buf->len) == NULL)
 	{
-		if (*bread == 0 && *data && **data)
-		{
-			tmp = ft_strdup(*data);
-			free(*data);
-			*data = NULL;
-			return (tmp);
-		}
-		free(*data);
-		*data = NULL;
-		return (NULL);
+		bread = read(fd, tmp, BUFFER_SIZE);
+		if (bread < 0 || !ensure_capacity(buf, buf->len + bread + 1))
+			return (free(tmp), free_buf(buf));
+		if (bread == 0)
+			break ;
+		ft_memmove(buf->data + buf->len, tmp, bread);
+		buf->len += bread;
 	}
-	return (NULL);
+	free(tmp);
+	if (buf->len > 0)
+		return (1);
+	return (0);
+}
+
+static char	*extract_line(t_buffer *buf)
+{
+	char	*newline;
+	char	*line;
+	size_t	line_len;
+
+	newline = ft_memchr(buf->data, '\n', buf->len);
+	if (newline != NULL)
+		line_len = (size_t)(newline - buf->data + 1);
+	else
+		line_len = buf->len;
+	line = (char *)malloc(line_len + 1);
+	if (line == NULL)
+		return (NULL);
+	ft_memmove(line, buf->data, line_len);
+	line[line_len] = '\0';
+	if (newline != NULL)
+		ft_memmove(buf->data, newline + 1, buf->len - line_len);
+	else if (buf->len > 0)
+		buf->data[0] = '\0';
+	buf->len -= line_len;
+	return (line);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	*data;
-	char		*buf;
-	char		*line;
-	ssize_t		bread;
+	static t_buffer	buf;
+	char			*line;
 
-	buf = (char *)malloc(BUFFER_SIZE + 1);
-	if (!buf)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	while (1)
+	if (buf.data == NULL)
 	{
-		if (data && ft_has_nl(&line, &data))
-			break ;
-		bread = read(fd, buf, BUFFER_SIZE);
-		line = ft_read_err(&data, &bread);
-		if (line || bread <= 0)
-			return (free(buf), line);
-		buf[bread] = '\0';
-		if (!data)
-			data = ft_strdup(buf);
-		else
-			data = ft_append(data, buf);
+		buf.capacity = CHUNK;
+		buf.data = (char *)ft_calloc(buf.capacity, sizeof(char));
+		if (buf.data == NULL)
+			return (NULL);
 	}
-	free(buf);
+	if (!read_into_buffer(&buf, fd))
+	{
+		if (buf.data != NULL)
+			free_buf(&buf);
+		return (NULL);
+	}
+	line = extract_line(&buf);
+	if (line == NULL || buf.len == 0)
+		free_buf(&buf);
 	return (line);
 }
