@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/18 08:50:07 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/21 06:30:49 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/27 14:29:16 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,33 +14,18 @@
 
 int	ft_printf(const char *format, ...)
 {
-	int			len;
-	va_list		args;
-	t_format	*fmt;
-	char		*str;
+	int		len;
+	va_list	args;
 
 	len = 0;
-	str = (char *)format;
 	va_start(args, format);
-	while (str[len])
+	while (*format)
 	{
-		if (str[len] == '%')
-		{
-			fmt = ft_parse(&str[++len]);
-			ft_putarg(fmt, args);
-			len += fmt->position - &str[len];
-			free(fmt);
-		}
+		if (*format != '%')
+			len += write(STDOUT_FILENO, &(*format++), 1);
 		else
-			ft_putchar_fd(str[len++], STDOUT_FILENO);
+			len += ft_format_output(&format, args);
 	}
 	va_end(args);
 	return (len);
-}
-
-int	main(void)
-{
-	size_t	test;
-
-	test = -255;
 }

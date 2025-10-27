@@ -6,100 +6,78 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/18 08:56:17 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/21 07:11:24 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/27 14:37:25 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../ft_printf.h"
+#include "ft_printf.h"
 
-char	*ft_flag(t_format *fmt, char **s)
+void	ft_parse_flags(char **s, t_format *fmt)
 {
-	unsigned int	bitmask;
-	int				l;
+	const char	*flags = "+-0 #";
 
-	l = 0;
-	bitmask = (1 << 1) | (1 << 4) | (1 << 12) | (1 << 14) | (1 << 17);
-	while ((*s)[l] >= 32 && (*s)[l] <= 48 && bitmask & (1 << ((*s)[l] - 31)))
+	while (**s && strchr(flags, **s))
 	{
-		if (l > 5 || strchr(fmt->flags, **s))
-			return (NULL);
-		fmt->flags[l] = (*s)[l];
-		l++;
-	}
-	fmt->flags[l] = '\0';
-	*s += l;
-	return (*s);
-}
-
-char	*ft_width(t_format *fmt, va_list args, char **s)
-{
-	if (**s == '*')
-	{
-		fmt->width = va_arg(args, int);
+		if (**s == '-')
+			fmt->has_minus = 1;
+		else if (**s == '+')
+			fmt->has_plus = 1;
+		else if (**s == ' ')
+			fmt->has_space = 1;
+		else if (**s == '0')
+			fmt->has_zero = 1;
+		else if (**s == '#')
+			fmt->has_hash = 1;
 		(*s)++;
 	}
-	else if (ft_isdigit(**s))
-	{
-		fmt->width = ft_atoi(*s);
-		*s += ft_strlen(ft_itoa(fmt->width));
-	}
-	return (*s);
 }
 
-char	*ft_spec(t_format *fmt, char **s)
+void	ft_parse_width(char **s, t_format *fmt)
 {
-	unsigned long long	bitmask;
+	int	nbr;
 
-	bitmask = 9965940738;
-	if (**s >= 88 && **s <= 120 && bitmask & (1 << (**s - 87)))
+	nbr = 0;
+	while (**s && isdigit(**s))
 	{
-		fmt->spec = **s;
+		nbr = nbr * 10 + (**s - '0');
 		(*s)++;
 	}
-	return (*s);
+	fmt->width = nbr;
 }
 
-void	ft_validate_flags(t_format *fmt)
+int	ft_validate_flags(t_format *fmt)
 {
-	int	i;
+	char	sp;
 
-	i = 0;
-	fmt->isvalid = 1;
-	while (fmt->flags[i])
+	sp = fmt->specifier;
+	if (sp == 'c' || sp == 's' || sp == '%')
+		return (!(fmt->has_plus || fmt->has_space || fmt->has_hash
+				|| fmt->has_zero));
+	if (sp == 'p')
+		return (!(fmt->has_plus || fmt->has_space));
+	if (sp == 'd' || sp == 'i')
+		return (1);
+	if (sp == 'u')
+		return (!(fmt->has_plus || fmt->has_space));
+	if (sp == 'x' || sp == 'X')
+		return (1);
+	return (0);
+}
+
+void	ft_parse_spec(char **s, t_format *fmt)
+{
+	const char	*specs = "cspdiuxX%";
+
+	if (**s && strchr(specs, **s))
 	{
-		if (fmt->spec == 'c' && !((VALID_CS) & (1 << (fmt->flags[i] - 31))))
-			fmt->isvalid = 0;
-		if (fmt->spec == 's' && !((VALID_CS) & (1 << (fmt->flags[i] - 31))))
-			fmt->isvalid = 0;
-		if (fmt->spec == 'u' && !((VALID_U) & (1 << (fmt->flags[i] - 31))))
-			fmt->isvalid = 0;
-		if (fmt->spec == 'p' && !((VALID_P) & (1 << (fmt->flags[i] - 31))))
-			fmt->isvalid = 0;
-		if (fmt->spec == 'h' && !((VALID_H) & (1 << (fmt->flags[i] - 31))))
-			fmt->isvalid = 0;
-		if (fmt->spec == 'd' && !((VALID_DI) & (1 << (fmt->flags[i] - 31))))
-			fmt->isvalid = 0;
-		if (fmt->spec == 'i' && !((VALID_DI) & (1 << (fmt->flags[i] - 31))))
-			fmt->isvalid = 0;
-		break ;
-		i++;
+		fmt->specifier = **s;
+		fmt->is_valid = ft_validate_flags(fmt);
+		(*s)++;
 	}
+	else
+	{
+		fmt->specifier = **s;
+		fmt->is_valid = 0;
+	}
+	(*s)++;
 }
-
-t_format	*ft_parse(char *str, va_list args)
-{
-	t_format	*out;
-
-	out = ft_calloc(1, sizeof(t_format));
-	if (!out)
-		return (NULL);
-	ft_flag(out, &str);
-	ft_width(out, args, &str);
-	ft_spec(out, &str);
-	ft_validate_flags(out);
-	if (!out->isvalid)
-		return (NULL);
-	return (out);
-}
-
-
