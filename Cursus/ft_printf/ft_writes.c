@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/27 15:45:13 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/27 17:23:50 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/27 18:15:03 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,33 @@ int	ft_write_int(t_format *fmt, int n)
 	int	len;
 	int	n_len;
 	int	padding;
+	int	has_sign;
+
+	len = 0;
+	padding = 0;
+	has_sign = (n < 0 || fmt->has_minus || fmt->has_space);
+	n_len = ft_nbrlen(n, 10);
+	if (fmt->width > n_len + has_sign)
+		padding = fmt->width - n_len - has_sign;
+	if (n < 0)
+		len += write(STDOUT_FILENO, "-", 1);
+	else if (fmt->has_plus)
+		len += write(STDOUT_FILENO, "+", 1);
+	else if (fmt->has_space)
+		len += write(STDOUT_FILENO, " ", 1);
+	if (!fmt->has_minus)
+		len += ft_write_padding(fmt, padding);
+	len += ft_write_base(n, "0123456789", 10);
+	if (fmt->has_minus)
+		len += ft_write_padding(fmt, padding);
+	return (len);
+}
+
+int	ft_write_unsigned(t_format *fmt, unsigned int n)
+{
+	int	len;
+	int	n_len;
+	int	padding;
 
 	len = 0;
 	padding = 0;
@@ -64,5 +91,3 @@ int	ft_write_int(t_format *fmt, int n)
 		len += ft_write_padding(fmt, padding);
 	return (len);
 }
-
-int	ft_write_unsigned(t_format *fmt, unsigned int n);

@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/27 14:35:33 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/27 17:23:59 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/27 17:46:23 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,11 +44,8 @@ int	ft_write_base(long n, const char *base_chars, int base)
 	unsigned long	us_n;
 
 	len = 0;
-	if (n < 0 && base == 10)
-	{
-		len += write(STDOUT_FILENO, "-", 1);
+	if (n < 0)
 		us_n = (unsigned long)(-n);
-	}
 	else
 		us_n = (unsigned long)n;
 	len += ft_write_rec_nbr(us_n, base_chars, base);

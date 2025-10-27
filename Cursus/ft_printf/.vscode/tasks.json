@@ -8,12 +8,9 @@
                 "-fdiagnostics-color=always",
                 "-fsanitize=address",
                 "-g",
-                "-Iinclude",
-                "-Llib",
-                "${file}",
+                "*.c",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
-                "-lft"
             ],
             "options": {
                 "cwd": "${fileDirname}"

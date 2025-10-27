@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/18 08:56:17 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/27 14:37:25 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/27 18:42:31 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,12 +72,6 @@ void	ft_parse_spec(char **s, t_format *fmt)
 	{
 		fmt->specifier = **s;
 		fmt->is_valid = ft_validate_flags(fmt);
-		(*s)++;
-	}
-	else
-	{
-		fmt->specifier = **s;
-		fmt->is_valid = 0;
 	}
 	(*s)++;
 }
