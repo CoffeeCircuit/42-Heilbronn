@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 06:31:38 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/27 18:21:37 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/28 07:19:14 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,10 +36,10 @@ int	ft_dispatch_format(t_format *fmt, va_list args)
 		return (ft_write_int(fmt, va_arg(args, int)));
 	else if (fmt->specifier == 'u')
 		return (ft_write_unsigned(fmt, va_arg(args, unsigned int)));
-	// else if (fmt->specifier == 'x')
-	// 	return (ft_write_hex(fmt, va_arg(args, unsigned int), 0));
-	// else if (fmt->specifier == 'X')
-	// 	return (ft_write_hex(fmt, va_arg(args, unsigned int), 1));
+	else if (fmt->specifier == 'x')
+		return (ft_write_hex(fmt, va_arg(args, unsigned int), 0));
+	else if (fmt->specifier == 'X')
+		return (ft_write_hex(fmt, va_arg(args, unsigned int), 1));
 	// else if (fmt->specifier == 'p')
 	// 	return (ft_write_pointer(fmt, va_arg(args, void *)));
 	// else if (fmt->specifier == '%')
