@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 06:31:38 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/31 04:27:05 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/31 16:48:27 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,14 @@ void	ft_init_format(t_format *fmt)
 {
 	fmt->specifier = '\0';
 	fmt->width = 0;
+	fmt->precision = 0;
 	fmt->is_valid = 0;
 	fmt->has_plus = 0;
 	fmt->has_minus = 0;
 	fmt->has_zero = 0;
 	fmt->has_hash = 0;
 	fmt->has_space = 0;
+	fmt->has_dot = 0;
 }
 
 int	ft_dispatch_format(t_format *fmt, va_list args)
@@ -62,6 +64,7 @@ int	ft_format_output(char **s, va_list args)
 			return (write(STDOUT_FILENO, "%", 1));
 		ft_parse_flags(s, &fmt);
 		ft_parse_width(s, &fmt);
+		ft_parse_precision(s, &fmt);
 		ft_parse_spec(s, &fmt);
 		if (fmt.is_valid)
 			len += ft_dispatch_format(&fmt, args);

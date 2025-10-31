@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/27 14:35:33 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/31 04:27:17 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/31 17:14:00 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,20 @@ int	ft_write_base(long n, const char *base_chars, int base)
 	return (len);
 }
 
+int	ft_write_ubase(unsigned long n, const char *base_chars, int base)
+{
+	int				len;
+	unsigned long	us_n;
+
+	len = 0;
+	if (n < 0)
+		us_n = (unsigned long)(-n);
+	else
+		us_n = (unsigned long)n;
+	len += ft_write_rec_nbr(us_n, base_chars, base);
+	return (len);
+}
+
 int	ft_write_padding(t_format *fmt, int size)
 {
 	int	len;
@@ -59,7 +73,7 @@ int	ft_write_padding(t_format *fmt, int size)
 	len = 0;
 	while (size--)
 	{
-		if (fmt->has_zero)
+		if (fmt->has_zero && !fmt->has_dot)
 			len += write(STDOUT_FILENO, "0", 1);
 		else
 			len += write(STDOUT_FILENO, " ", 1);

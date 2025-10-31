@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/18 08:56:17 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/31 04:45:41 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/31 17:35:37 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,24 @@ void	ft_parse_flags(char **s, t_format *fmt)
 			fmt->has_hash = 1;
 		(*s)++;
 	}
+}
+
+void	ft_parse_precision(char **s, t_format *fmt)
+{
+	int	nbr;
+
+	nbr = 0;
+	if (**s == '.')
+	{
+		fmt->has_dot = 1;
+		(*s)++;
+	}
+	while (**s && ft_isdigit(**s))
+	{
+		nbr = nbr * 10 + (**s - '0');
+		(*s)++;
+	}
+	fmt->precision = nbr;
 }
 
 void	ft_parse_width(char **s, t_format *fmt)
