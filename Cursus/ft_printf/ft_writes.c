@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/27 15:45:13 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/28 06:35:51 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/31 03:52:22 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,34 @@ int	ft_write_unsigned(t_format *fmt, unsigned int n)
 	if (!fmt->has_minus)
 		len += ft_write_padding(fmt, padding);
 	len += ft_write_base(n, "0123456789", 10);
+	if (fmt->has_minus)
+		len += ft_write_padding(fmt, padding);
+	return (len);
+}
+
+int	ft_write_hex(t_format *fmt, unsigned int n, int uppercase)
+{
+	int			len;
+	int			n_len;
+	int			padding;
+	char const	*hex[2] = {"0123456789abcdef", "0123456789ABCDEF"};
+	char const	*hex_prefix[2] = {"0x", "0X"};
+
+	len = 0;
+	padding = 0;
+	n_len = ft_nbrlen(n, 16);
+	if (n == 0)
+		return (write(STDOUT_FILENO, "0", 1));
+	if (fmt->has_hash)
+	{
+		len += 2;
+		write(STDOUT_FILENO, hex_prefix[uppercase], 2);
+	}
+	if (fmt->width > n_len + 2 * fmt->has_hash)
+		padding = fmt->width - n_len - 2 * fmt->has_hash;
+	if (!fmt->has_minus)
+		len += ft_write_padding(fmt, padding);
+	len += ft_write_base(n, hex[uppercase], 16);
 	if (fmt->has_minus)
 		len += ft_write_padding(fmt, padding);
 	return (len);

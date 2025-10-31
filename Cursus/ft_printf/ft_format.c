@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 06:31:38 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/28 07:19:14 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/31 03:19:48 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,8 @@ int	ft_dispatch_format(t_format *fmt, va_list args)
 		return (ft_write_hex(fmt, va_arg(args, unsigned int), 1));
 	// else if (fmt->specifier == 'p')
 	// 	return (ft_write_pointer(fmt, va_arg(args, void *)));
-	// else if (fmt->specifier == '%')
-	// 	return (write(STDOUT_FILENO, "%", 1));
+	else if (fmt->specifier == '%')
+		return (write(STDOUT_FILENO, "%", 1));
 	else
 		return (0);
 }

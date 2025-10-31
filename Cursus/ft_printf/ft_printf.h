@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/17 09:58:43 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/28 06:51:31 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/31 03:04:16 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,8 @@
 
 typedef struct s_format
 {
-	char			specifier;
 	int				width;
+	char			specifier;
 	unsigned int	is_valid : 1;
 	unsigned int	has_plus : 1;
 	unsigned int	has_minus : 1;
@@ -44,7 +44,7 @@ int			ft_write_char(t_format *fmt, int c);
 int			ft_write_string(t_format *fmt, char *str);
 int			ft_write_int(t_format *fmt, int n);
 int			ft_write_unsigned(t_format *fmt, unsigned int n);
-// int			ft_write_hex(t_format *fmt, unsigned int n, int uppercase);
+int			ft_write_hex(t_format *fmt, unsigned int n, int uppercase);
 // int			ft_write_pointer(t_format *fmt, void *ptr);
 
 int			ft_nbrlen(long long nbr, int base);

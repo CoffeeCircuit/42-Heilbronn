@@ -66,6 +66,61 @@ int	main(void)
 	ret_std = printf("STD: [%5u]\n", 4294967295u);
 	ret_ft = ft_printf("FT : [%5u]\n", 4294967295u);
 	printf("Return values → STD: %d, FT: %d\n\n", ret_std, ret_ft);
-	
+
+
+    printf("=== %%x / %%X Tests ===\n");
+
+    ret_std = printf("STD: [%x]\n", 255);
+    ret_ft  = ft_printf("FT : [%x]\n", 255);
+    printf("Return values → STD: %d, FT: %d\n\n", ret_std, ret_ft);
+
+
+    ret_std = printf("STD: [%X]\n", 255);
+    ret_ft  = ft_printf("FT : [%X]\n", 255);
+    printf("Return values → STD: %d, FT: %d\n\n", ret_std, ret_ft);
+
+
+    ret_std = printf("STD: [%8x]\n", 255);
+    ret_ft  = ft_printf("FT : [%8x]\n", 255);
+    printf("Return values → STD: %d, FT: %d\n\n", ret_std, ret_ft);
+
+    ret_std = printf("STD: [%-8x]\n", 255);
+    ret_ft  = ft_printf("FT : [%-8x]\n", 255);
+    printf("Return values → STD: %d, FT: %d\n\n", ret_std, ret_ft);
+
+    ret_std = printf("STD: [%08x]\n", 255);
+    ret_ft  = ft_printf("FT : [%08x]\n", 255);
+    printf("Return values → STD: %d, FT: %d\n\n", ret_std, ret_ft);
+
+
+    ret_std = printf("STD: [%#x]\n", 255);
+    ret_ft  = ft_printf("FT : [%#x]\n", 255);
+    printf("Return values → STD: %d, FT: %d\n\n", ret_std, ret_ft);
+
+    ret_std = printf("STD: [%#X]\n", 255);
+    ret_ft  = ft_printf("FT : [%#X]\n", 255);
+    printf("Return values → STD: %d, FT: %d\n\n", ret_std, ret_ft);
+
+
+    ret_std = printf("STD: [%#08x]\n", 255);
+    ret_ft  = ft_printf("FT : [%#08x]\n", 255);
+    printf("Return values → STD: %d, FT: %d\n\n", ret_std, ret_ft);
+
+    ret_std = printf("STD: [%#08X]\n", 255);
+    ret_ft  = ft_printf("FT : [%#08X]\n", 255);
+    printf("Return values → STD: %d, FT: %d\n\n", ret_std, ret_ft);
+
+
+    ret_std = printf("STD: [%#x]\n", 0);
+    ret_ft  = ft_printf("FT : [%#x]\n", 0);
+    printf("Return values → STD: %d, FT: %d\n\n", ret_std, ret_ft);
+
+
+    ret_std = printf("STD: [%#x]\n", 4294967295u);
+    ret_ft  = ft_printf("FT : [%#x]\n", 4294967295u);
+    printf("Return values → STD: %d, FT: %d\n\n", ret_std, ret_ft);
+
+
+
 	return (0);
 }
