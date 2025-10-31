@@ -6,22 +6,19 @@
 #    By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/10/08 08:25:57 by abalcu            #+#    #+#              #
-#    Updated: 2025/10/19 11:02:15 by abalcu           ###   ########.fr        #
+#    Updated: 2025/10/31 04:53:56 by abalcu           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = 		libftprintf.a
 SRCD = 		src/
-INCLUDED = 	include/
-LIBD =		lib/
-LIB =		libft.a
 
-CFILES = 	$(SRCD)ft_parse.c \
-			ft_printf.c
+CFILES = 	$(SRCD)ft_format.c $(SRCD)ft_parse.c $(SRCD)ft_utils.c \
+			$(SRCD)ft_writes2.c $(SRCD)ft_writes.c  $(SRCD)ft_isdigit.c \
+			$(SRCD)ft_strchr.c $(SRCD)ft_strlen.c ft_printf.c
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
-LDFLAGS = -I$(INCLUDED) -L$(LIBD) -l$(subst lib,,$(basename $(LIB)))
 
 OFILES = $(CFILES:.c=.o)
 
@@ -30,8 +27,7 @@ OFILES = $(CFILES:.c=.o)
 all:$(NAME)
 
 $(NAME): $(OFILES)
-	@cp $(LIBD)$(LIB) $@
-	ar -rs $@ $(OFILES)
+	ar -rcs $@ $(OFILES)
 
 $(SRCD)%.o: $(SRCD)%.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -c $< -o $@

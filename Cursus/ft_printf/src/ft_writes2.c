@@ -6,11 +6,11 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/27 15:45:13 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/31 04:10:55 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/31 04:26:43 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include "../ft_printf.h"
 
 int	ft_write_pointer(t_format *fmt, void *ptr)
 {

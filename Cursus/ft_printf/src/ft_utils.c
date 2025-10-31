@@ -6,11 +6,11 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/27 14:35:33 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/28 06:51:13 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/31 04:27:17 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include "../ft_printf.h"
 
 int	ft_nbrlen(long long nbr, int base)
 {

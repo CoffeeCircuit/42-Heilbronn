@@ -6,11 +6,11 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 06:31:38 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/31 04:02:54 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/31 04:27:05 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include "../ft_printf.h"
 
 void	ft_init_format(t_format *fmt)
 {

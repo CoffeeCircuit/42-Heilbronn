@@ -6,17 +6,17 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/18 08:56:17 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/27 18:42:31 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/31 04:45:41 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include "../ft_printf.h"
 
 void	ft_parse_flags(char **s, t_format *fmt)
 {
 	const char	*flags = "+-0 #";
 
-	while (**s && strchr(flags, **s))
+	while (**s && ft_strchr(flags, **s))
 	{
 		if (**s == '-')
 			fmt->has_minus = 1;
@@ -37,7 +37,7 @@ void	ft_parse_width(char **s, t_format *fmt)
 	int	nbr;
 
 	nbr = 0;
-	while (**s && isdigit(**s))
+	while (**s && ft_isdigit(**s))
 	{
 		nbr = nbr * 10 + (**s - '0');
 		(*s)++;
@@ -68,7 +68,7 @@ void	ft_parse_spec(char **s, t_format *fmt)
 {
 	const char	*specs = "cspdiuxX%";
 
-	if (**s && strchr(specs, **s))
+	if (**s && ft_strchr(specs, **s))
 	{
 		fmt->specifier = **s;
 		fmt->is_valid = ft_validate_flags(fmt);

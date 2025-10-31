@@ -6,11 +6,11 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/27 15:45:13 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/31 03:52:22 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/10/31 04:48:34 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include "../ft_printf.h"
 
 int	ft_write_char(t_format *fmt, int c)
 {
@@ -35,7 +35,7 @@ int	ft_write_string(t_format *fmt, char *str)
 	padding = 0;
 	if (!str)
 		str = "(null)";
-	slen = strlen(str);
+	slen = ft_strlen(str);
 	if (fmt->width > slen)
 		padding = fmt->width - slen;
 	if (!fmt->has_minus)
