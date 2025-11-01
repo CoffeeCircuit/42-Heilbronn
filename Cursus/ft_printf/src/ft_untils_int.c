@@ -1,33 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_printf.c                                        :+:      :+:    :+:   */
+/*   ft_untils_int.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/18 08:50:07 by abalcu            #+#    #+#             */
-/*   Updated: 2025/11/01 17:47:31 by abalcu           ###   ########.fr       */
+/*   Created: 2025/11/01 18:22:25 by abalcu            #+#    #+#             */
+/*   Updated: 2025/11/01 18:34:52 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include "../ft_printf.h"
 
-int	ft_printf(const char *format, ...)
+int	ft_print_neg_int(t_format *fmt, int *len, int *pad, int n)
 {
-	int		len;
-	char	*iformat;
-	va_list	args;
-
-	len = 0;
-	iformat = (char *)format;
-	va_start(args, format);
-	while (*iformat)
-	{
-		if (*iformat != '%')
-			len += write(STDOUT_FILENO, &(*iformat++), 1);
-		else
-			len += ft_format_output(&iformat, args);
-	}
-	va_end(args);
-	return (len);
+	if (*pad < 0)
+		*pad = 0;
+	if (!fmt->has_minus && !(fmt->has_zero && !fmt->has_dot))
+		*len += ft_write_padding(fmt, *pad);
+	if (n < 0)
+		*len += write(1, "-", 1);
+	else if (fmt->has_plus)
+		*len += write(1, "+", 1);
+	else if (fmt->has_space)
+		*len += write(1, " ", 1);
+	return (*len);
 }

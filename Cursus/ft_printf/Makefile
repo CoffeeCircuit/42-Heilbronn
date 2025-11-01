@@ -6,7 +6,7 @@
 #    By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/10/08 08:25:57 by abalcu            #+#    #+#              #
-#    Updated: 2025/10/31 06:59:43 by abalcu           ###   ########.fr        #
+#    Updated: 2025/11/01 18:25:17 by abalcu           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,7 @@ SRCD = 		src/
 
 CFILES = 	$(SRCD)ft_format.c $(SRCD)ft_parse.c $(SRCD)ft_utils.c \
 			$(SRCD)ft_writes2.c $(SRCD)ft_writes.c  $(SRCD)ft_isdigit.c \
-			$(SRCD)ft_strchr.c $(SRCD)ft_strlen.c \
+			$(SRCD)ft_strchr.c $(SRCD)ft_strlen.c $(SRCD)ft_untils_int.c\
 			ft_printf.c
 
 CC = cc

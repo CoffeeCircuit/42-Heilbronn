@@ -6,13 +6,13 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/27 14:35:33 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/31 17:14:00 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/11/01 17:41:30 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../ft_printf.h"
 
-int	ft_nbrlen(long long nbr, int base)
+int	ft_nbrlen(long nbr, int base)
 {
 	int	len;
 

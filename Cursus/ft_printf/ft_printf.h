@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/17 09:58:43 by abalcu            #+#    #+#             */
-/*   Updated: 2025/10/31 16:47:18 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/11/01 18:29:06 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ int			ft_write_int(t_format *fmt, int n);
 int			ft_write_unsigned(t_format *fmt, unsigned int n);
 int			ft_write_hex(t_format *fmt, unsigned int n, int uppercase);
 int			ft_write_pointer(t_format *fmt, void *ptr);
-int			ft_nbrlen(long long nbr, int base);
+int			ft_nbrlen(long nbr, int base);
 int			ft_write_rec_nbr(unsigned long n, const char *base_chars, int base);
 int			ft_write_base(long n, const char *base_chars, int base);
 int			ft_write_ubase(unsigned long n, const char *base_chars, int base);
@@ -55,5 +55,7 @@ int			ft_write_zeros(t_format *fmt, int size);
 char		*ft_strchr(const char *s, int c);
 int			ft_isdigit(int c);
 size_t		ft_strlen(const char *s);
+void		ft_zero_ints(int len, ...);
+int			ft_print_neg_int(t_format *fmt, int *len, int *pad, int n);
 
 #endif
