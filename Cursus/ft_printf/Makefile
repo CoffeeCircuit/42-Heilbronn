@@ -6,7 +6,7 @@
 #    By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/10/08 08:25:57 by abalcu            #+#    #+#              #
-#    Updated: 2025/11/01 18:55:30 by abalcu           ###   ########.fr        #
+#    Updated: 2025/11/10 03:28:40 by abalcu           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,7 +19,7 @@ CFILES = 	$(SRCD)ft_format.c $(SRCD)ft_parse.c $(SRCD)ft_utils.c \
 			ft_printf.c
 
 CC = cc
-CFLAGS = -g -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -fPIE
 
 OFILES = $(CFILES:.c=.o)
 
