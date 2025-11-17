@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 04:15:44 by abalcu            #+#    #+#             */
-/*   Updated: 2025/11/17 02:40:41 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/11/17 05:44:37 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,33 +18,25 @@ typedef struct s_limit
 	int	max;
 }		t_limit;
 
-int	max_val(int *a, size_t len)
+int	max_index(int *a, size_t len)
 {
 	int	i;
 	int	max;
+	int	idx;
 
-	i = 1;
+	i = 0;
 	max = a[0];
+	idx = 0;
 	while (i < len)
 	{
-		if (max > a[i])
+		if (a[i] > max)
+		{
 			max = a[i];
+			idx = i;
+		}
 		i++;
 	}
-	return (max);
-}
-
-int	count_digits(int nbr)
-{
-	int	count;
-
-	count = 0;
-	while (nbr)
-	{
-		count++;
-		nbr /= 10;
-	}
-	return (count);
+	return (idx);
 }
 
 int	*sort_(int *arr, int len)
@@ -73,7 +65,7 @@ int	*sort_(int *arr, int len)
 }
 
 // value to index
-int	*vtoi_arr(int *arr, int len)
+int	*val_to_idx(int *arr, int len)
 {
 	int	i;
 	int	j;
@@ -92,30 +84,98 @@ int	*vtoi_arr(int *arr, int len)
 			if (sorted_arr[j++] == *arr)
 				break ;
 		arr++;
-		iarr[i++] = j-1;
+		iarr[i++] = j - 1;
 	}
 	free(sorted_arr);
 	return (iarr);
 }
 
-
-int	main(void)
+t_limit	*get_chunck_range(int size, int count)
 {
-	int	arr[] = {49,48,47,46,45,44,43,42,41,40};
-	int	*iarr;
+    int     i;
+    t_limit *chunks;
 
-	iarr = vtoi_arr(arr, sizeof(arr)/sizeof(int));
-	for (int i = 0; i < sizeof(arr)/sizeof(int); i++)
-		ft_putnbr_fd(iarr[i], 1);
+    chunks = (t_limit *)ft_calloc(count, sizeof(t_limit));
+    if (!chunks)
+        return (NULL);
+    i = 0;
+    while (i < count)
+    {
+        chunks[i].min = i * size;
+        chunks[i].max = (i + 1) * size - 1;
+        i++;
+    }
+    return (chunks);
 }
 
-// Bucket sort
-void	medium_sort(t_stk *a, t_stk *b)
+int	find_next_in_chunk(int *arr, int len, t_limit chunk)
 {
-	int	*s_a;
-	int	chunck_size;
-	int	chunck_count;
+	int	i;
 
-	s_a = sort_(a->vals, a->len);
-	chunck_size = a->len / 5;
+	i = 0;
+	while (i < len)
+	{
+		if (arr[i] >= chunk.min && arr[i] <= chunk.max)
+			return (i);
+		i++;
+	}
+	return (-1);
+}
+
+// Chunk sorting
+void medium_sort(t_stk *a, t_stk *b)
+{
+	int		pos;
+	int		cnk_c;
+	t_limit	*cnks;
+	int		i;
+	int		max_i;
+	int		mid;
+	int		*tmp;
+
+	cnk_c = 5;
+	tmp = val_to_idx(a->vals, a->len);
+	free(a->vals);
+	a->vals = tmp;
+	cnks = get_chunck_range(a->len / cnk_c, cnk_c);
+	i = 0;
+	while (i < cnk_c)
+	{
+		while ((pos = find_next_in_chunk(a->vals, a->len, cnks[i])) != -1)
+		{
+			if (pos < a->len / 2)
+				while (pos--)
+					r(a);
+			else
+			{
+				pos = a->len - pos;
+				while (pos--)
+					rr(a);
+			}
+			mid = (cnks[i].min + cnks[i].max) / 2;
+			if (a->vals[0] < mid)
+			{
+				p(b, a);
+				r(b);
+			}
+			else
+				p(b, a);
+		}
+		i++;
+	}
+	while (b->len)
+	{
+		max_i = max_index(b->vals, b->len);
+		if (max_i < b->len / 2)
+			while (max_i--)
+				r(b);
+		else
+		{
+			max_i = b->len - max_i;
+			while (max_i--)
+				rr(b);
+		}
+		p(a, b);
+	}
+	free(cnks);
 }
