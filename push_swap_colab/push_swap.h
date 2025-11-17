@@ -6,14 +6,13 @@
 /*   By: mawelsch <mawelsch@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/08 16:13:02 by mawelsch          #+#    #+#             */
-/*   Updated: 2025/11/16 20:15:58 by mawelsch         ###   ########.fr       */
+/*   Updated: 2025/11/17 02:00:07 by mawelsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PUSH_SWAP_H
 # define PUSH_SWAP_H
 # include "libft/libft.h"
-# include "merge_sort.h"
 
 typedef enum e_strat
 {
@@ -84,17 +83,9 @@ void	push(int val, int *arr, size_t *len);
 
 void	ps_sort(t_stk *a, t_stk *b);
 
-void	small_merger(t_stk *a, t_stk *b, t_lists *lsts);
-void	big_merger(t_stk *a, t_stk *b, t_lists *lsts);
-
 void	simple_sort(t_stk *a, t_stk *b);
 void	medium_sort(t_stk *a, t_stk *b);
 void	complex_sort(t_stk *a, t_stk *b);
 void	adaptive_sort(t_stk *a, t_stk *b);
-
-size_t	get_first_list_size_a(t_stk *stk);
-size_t	get_first_list_size_b(t_stk *stk);
-size_t	get_last_list_size_a(t_stk *stk, size_t l1l);
-size_t	get_last_list_size_b(t_stk *stk, size_t l1l);
 
 #endif // PUSH_SWAP_H

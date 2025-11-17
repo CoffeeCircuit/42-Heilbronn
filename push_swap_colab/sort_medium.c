@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 04:15:44 by abalcu            #+#    #+#             */
-/*   Updated: 2025/11/17 05:44:37 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/11/17 06:55:20 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,20 +92,22 @@ int	*val_to_idx(int *arr, int len)
 
 t_limit	*get_chunck_range(int size, int count)
 {
-    int     i;
-    t_limit *chunks;
+	int		i;
+	t_limit	*chunks;
 
-    chunks = (t_limit *)ft_calloc(count, sizeof(t_limit));
-    if (!chunks)
-        return (NULL);
-    i = 0;
-    while (i < count)
-    {
-        chunks[i].min = i * size;
-        chunks[i].max = (i + 1) * size - 1;
-        i++;
-    }
-    return (chunks);
+	chunks = (t_limit *)ft_calloc(count + 1, sizeof(t_limit));
+	if (!chunks)
+		return (NULL);
+	i = 0;
+	while (i < count - 1)
+	{
+		chunks[i].min = i * size;
+		chunks[i].max = (i + 1) * size - 1;
+		i++;
+	}
+	chunks[i].min = i * size;
+	chunks[i].max = (i + 1) * size;
+	return (chunks);
 }
 
 int	find_next_in_chunk(int *arr, int len, t_limit chunk)
@@ -123,7 +125,7 @@ int	find_next_in_chunk(int *arr, int len, t_limit chunk)
 }
 
 // Chunk sorting
-void medium_sort(t_stk *a, t_stk *b)
+void	medium_sort(t_stk *a, t_stk *b)
 {
 	int		pos;
 	int		cnk_c;
@@ -141,8 +143,11 @@ void medium_sort(t_stk *a, t_stk *b)
 	i = 0;
 	while (i < cnk_c)
 	{
-		while ((pos = find_next_in_chunk(a->vals, a->len, cnks[i])) != -1)
+		while (1)
 		{
+			pos = find_next_in_chunk(a->vals, a->len, cnks[i]);
+			if (pos == -1)
+				break ;
 			if (pos < a->len / 2)
 				while (pos--)
 					r(a);
@@ -179,3 +184,30 @@ void medium_sort(t_stk *a, t_stk *b)
 	}
 	free(cnks);
 }
+
+
+//TODO
+// check logic, sometimes it works other times it doesn't
+// check parser since when 0 is give then if prints Error
+// Downloads ARG="3 2"; ./push_swap --medium $ARG | ./checker_linux $ARG
+// OK
+// ➜  Downloads ARG="3 2 1"; ./push_swap --medium $ARG | ./checker_linux $ARG
+// KO
+// ➜  Downloads ARG="4 3 2 1"; ./push_swap --medium $ARG | ./checker_linux $ARG
+// KO
+// ➜  Downloads ARG="5 4 3 2 1"; ./push_swap --medium $ARG | ./checker_linux $ARG
+// OK
+// ➜  Downloads ARG="6 5 4 3 2 1"; ./push_swap --medium $ARG | ./checker_linux $ARG
+// OK
+// ➜  Downloads ARG="7 6 5 4 3 2 1"; ./push_swap --medium $ARG | ./checker_linux $ARG
+// OK
+// ➜  Downloads ARG="8 7 6 5 4 3 2 1"; ./push_swap --medium $ARG | ./checker_linux $ARG
+// KO
+// ➜  Downloads ARG="9 8 7 6 5 4 3 2 1"; ./push_swap --medium $ARG | ./checker_linux $ARG
+// KO
+// ➜  Downloads ARG="10 9 8 7 6 5 4 3 2 1"; ./push_swap --medium $ARG | ./checker_linux $ARG
+// OK
+// ➜  Downloads ARG="10 9 8 7 6 5 4 3 2 1 0"; ./push_swap --medium $ARG | ./checker_linux $ARG
+// Error
+// KO
+
