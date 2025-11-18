@@ -6,7 +6,7 @@
 /*   By: mawelsch <mawelsch@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 18:33:12 by mawelsch          #+#    #+#             */
-/*   Updated: 2025/11/17 02:19:29 by mawelsch         ###   ########.fr       */
+/*   Updated: 2025/11/18 06:26:59 by mawelsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ typedef struct s_lists
 	size_t	sublists;
 	size_t	l1l;
 	size_t	l2l;
+	size_t	l3l;
 	int		must_rotate;
 }	t_lists;
 

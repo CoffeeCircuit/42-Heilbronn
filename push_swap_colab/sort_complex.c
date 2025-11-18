@@ -6,7 +6,7 @@
 /*   By: mawelsch <mawelsch@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 04:15:33 by abalcu            #+#    #+#             */
-/*   Updated: 2025/11/17 03:22:16 by mawelsch         ###   ########.fr       */
+/*   Updated: 2025/11/18 06:52:52 by mawelsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ void	switch_sublist(t_lists *lsts, t_stk *stk, int *active_list)
 			*active_list = 2;
 		else
 			*active_list = 1;
-	}	
+	}
 }
 
 void	empty_b(t_stk *stk_1, t_stk *stk_2)
@@ -47,26 +47,22 @@ void	merge_from_a(t_stk *stk_1, t_stk *stk_2, t_mrg *mrg)
 	t_lists	lsts;
 	int		active_list;
 
-	active_list = 1;
-	while (stk_1->len)
+	active_list = 2;
+	lsts.l2l = get_first_list_size_a(stk_1);
+	lsts.l1l = get_last_list_size_a(stk_1, lsts.l2l);
+	while (lsts.l1l && lsts.l2l)
 	{
-		lsts.l1l = get_first_list_size_a(stk_1);
-		lsts.l2l = get_last_list_size_a(stk_1, lsts.l1l);
-		slide_to_top_bottom_a(stk_1, stk_2, &lsts.l1l);
-		while (lsts.l1l && lsts.l2l)
-		{
-			if (active_list == 1)
-				small_merger_list_1(stk_1, stk_2, &lsts, &active_list);
-			else
-				small_merger_list_2(stk_1, stk_2, &lsts, &active_list);
-		}
-		if (active_list == 2)
-			switch_sublist(&lsts, stk_1, &active_list);
-		while (lsts.l1l--)
-			p(stk_2, stk_1);
-		while (lsts.l2l--)
-			p(stk_2, stk_1);
+		if (active_list == 1)
+			small_merger_list_1(stk_1, stk_2, &lsts, &active_list);
+		else
+			small_merger_list_2(stk_1, stk_2, &lsts, &active_list);
 	}
+	if (active_list == 2)
+		switch_sublist(&lsts, stk_1, &active_list);
+	while (lsts.l1l--)
+		p(stk_2, stk_1);
+	while (lsts.l2l--)
+		p(stk_2, stk_1);
 }
 
 void	merge_from_b(t_stk *stk_1, t_stk *stk_2, t_mrg *mrg)
@@ -75,25 +71,22 @@ void	merge_from_b(t_stk *stk_1, t_stk *stk_2, t_mrg *mrg)
 	int		active_list;
 
 	active_list = 1;
-	while (stk_2->len)
+	lsts.l1l = get_first_list_size_b(stk_2);
+	lsts.l2l = get_last_list_size_b(stk_2, lsts.l2l);
+	lsts.l3l = get_last_list_size_a(stk_1, get_first_list_size_a(stk_1));
+	while (lsts.l1l && lsts.l2l)
 	{
-		lsts.l1l = get_first_list_size_b(stk_2);
-		lsts.l2l = get_last_list_size_b(stk_2, lsts.l1l);
-		slide_to_top_bottom_b(stk_1, stk_2, &lsts.l1l);
-		while (lsts.l1l && lsts.l2l)
-		{
-			if (active_list == 1)
-				big_merger_list_1(stk_1, stk_2, &lsts, &active_list);
-			else
-				big_merger_list_2(stk_1, stk_2, &lsts, &active_list);
-		}
-		if (active_list == 2)
-			switch_sublist(&lsts, stk_2, &active_list);
-		while (lsts.l1l--)
-			p(stk_1, stk_2);
-		while (lsts.l2l--)
-			p(stk_1, stk_2);
+		if (active_list == 1)
+			big_merger_list_1(stk_1, stk_2, &lsts, &active_list);
+		else
+			big_merger_list_2(stk_1, stk_2, &lsts, &active_list);
 	}
+	if (active_list == 2)
+		switch_sublist(&lsts, stk_2, &active_list);
+	while (lsts.l1l--)
+		p(stk_1, stk_2);
+	while (lsts.l2l--)
+		p(stk_1, stk_2);
 }
 
 void	complex_sort(t_stk *a, t_stk *b)
@@ -105,15 +98,17 @@ void	complex_sort(t_stk *a, t_stk *b)
 	mrg.full_size = mrg.sublist_count;
 	while (1)
 	{
-		if (get_disorder(a->vals, a->len) == 0 && a->len != 0)
+		if (get_disorder(a->vals, a->len) == 0 && b->len == 0)
 			break ;
-		if (get_disorder(b->vals, b->len) == 1 && b->len != 0)
+		if (get_disorder(b->vals, b->len) == 1 && a->len == 0)
 			break ;
+		merge_from_a(a, b, &mrg);
 		if (a->len)
+		{
 			merge_from_a(a, b, &mrg);
-		else
 			merge_from_b(a, b, &mrg);
+		}
 	}
-	if (b->len)
-		empty_b(a, b);
+	while (b->len)
+		p(a, b);
 }

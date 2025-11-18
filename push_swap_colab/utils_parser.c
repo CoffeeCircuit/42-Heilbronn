@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/08 16:39:52 by mawelsch          #+#    #+#             */
-/*   Updated: 2025/11/12 09:37:07 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/11/18 09:33:46 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ int	contains(int *arr, int nbr, size_t len)
 		return (0);
 	while (len--)
 	{
-		if (*arr == nbr)
+		if (*arr == nbr && len != 0)
 			return (1);
 		arr++;
 	}
