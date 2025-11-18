@@ -10,7 +10,7 @@
 			"request": "launch",
 			// "preLaunchTask": "build",
 			"program": "${workspaceFolder}/${fileBasenameNoExtension}",
-			"args": ["3 2 1 0"],
+			"args": ["--medium", "args.txt"],
 			"stopAtEntry": false,
 			"cwd": "${fileDirname}",
 			"environment": [],
