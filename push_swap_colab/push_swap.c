@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   push_swap.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mawelsch <mawelsch@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/07 13:43:22 by mawelsch          #+#    #+#             */
-/*   Updated: 2025/11/16 19:25:40 by mawelsch         ###   ########.fr       */
+/*   Updated: 2025/11/19 02:06:56 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ int	main(int argc, char const *argv[])
 	a.sts->disorder = get_disorder(a.vals, a.len);
 	b.vals = (int *)ft_calloc(a.cap, sizeof(int));
 	if (!b.vals)
-		return (perror(), 1);
+		return (free(a.vals), perror(), 1);
 	b.cap = a.cap;
 	ps_sort(&a, &b);
 	return (free(a.vals), free(b.vals), 0);

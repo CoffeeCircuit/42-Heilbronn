@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 07:35:03 by abalcu            #+#    #+#             */
-/*   Updated: 2025/11/12 09:33:35 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/11/19 02:11:32 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,5 +70,5 @@ int	parse_args_str(t_stk *stk, size_t *len, const char *argv)
 		stk->vals[i + old_len] = nbr;
 		i++;
 	}
-	return (free_arglst(arglst), 1);
+	return (free_arglst(arglst), free(arglst), 1);
 }
