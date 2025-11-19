@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   merge_utils_b.c                                    :+:      :+:    :+:   */
+/*   merge_utils_b_backup.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mawelsch <mawelsch@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/16 03:36:24 by mawelsch          #+#    #+#             */
-/*   Updated: 2025/11/18 20:36:40 by mawelsch         ###   ########.fr       */
+/*   Created: 2025/11/18 20:36:02 by mawelsch          #+#    #+#             */
+/*   Updated: 2025/11/18 20:36:14 by mawelsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,14 @@ void	big_merger_list_1(t_stk *a, t_stk *b, t_lists *lsts, int *active_lst)
 {
 	int	rotator;
 
-	if (b->vals[0] > b->vals[lsts->l1l])
+	if (a->vals[a->len - 1] > b->vals[lsts->l1l]
+		&& (a->vals[a->len - 1] > b->vals[0])
+		&& lsts->l3l != 0)
+	{
+		rr(a);
+		lsts->l3l -= 1;
+	}
+	else if (b->vals[0] > b->vals[lsts->l1l])
 	{
 		p(a, b);
 		lsts->l1l -= 1;
@@ -53,7 +60,14 @@ void	big_merger_list_2(t_stk *a, t_stk *b, t_lists *lsts, int *active_lst)
 {
 	int	rotator;
 
-	if (b->vals[0] > b->vals[b->len - lsts->l1l])
+	if (a->vals[a->len - 1] > b->vals[b->len - lsts->l1l]
+		&& (a->vals[a->len - 1] > b->vals[0])
+		&& lsts->l3l != 0)
+	{
+		rr(a);
+		lsts->l3l -= 1;
+	}
+	else if (b->vals[0] > b->vals[b->len - lsts->l1l])
 	{
 		p(a, b);
 		lsts->l2l -= 1;

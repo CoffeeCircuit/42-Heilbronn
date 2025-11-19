@@ -6,7 +6,7 @@
 /*   By: mawelsch <mawelsch@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 04:15:33 by abalcu            #+#    #+#             */
-/*   Updated: 2025/11/18 06:52:52 by mawelsch         ###   ########.fr       */
+/*   Updated: 2025/11/18 21:55:25 by mawelsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,8 @@ void	merge_from_a(t_stk *stk_1, t_stk *stk_2, t_mrg *mrg)
 	active_list = 2;
 	lsts.l2l = get_first_list_size_a(stk_1);
 	lsts.l1l = get_last_list_size_a(stk_1, lsts.l2l);
-	while (lsts.l1l && lsts.l2l)
+	lsts.l3l = stk_2->len;
+	while (lsts.l1l || lsts.l2l || lsts.l3l)
 	{
 		if (active_list == 1)
 			small_merger_list_1(stk_1, stk_2, &lsts, &active_list);
@@ -73,7 +74,6 @@ void	merge_from_b(t_stk *stk_1, t_stk *stk_2, t_mrg *mrg)
 	active_list = 1;
 	lsts.l1l = get_first_list_size_b(stk_2);
 	lsts.l2l = get_last_list_size_b(stk_2, lsts.l2l);
-	lsts.l3l = get_last_list_size_a(stk_1, get_first_list_size_a(stk_1));
 	while (lsts.l1l && lsts.l2l)
 	{
 		if (active_list == 1)
@@ -103,11 +103,6 @@ void	complex_sort(t_stk *a, t_stk *b)
 		if (get_disorder(b->vals, b->len) == 1 && a->len == 0)
 			break ;
 		merge_from_a(a, b, &mrg);
-		if (a->len)
-		{
-			merge_from_a(a, b, &mrg);
-			merge_from_b(a, b, &mrg);
-		}
 	}
 	while (b->len)
 		p(a, b);

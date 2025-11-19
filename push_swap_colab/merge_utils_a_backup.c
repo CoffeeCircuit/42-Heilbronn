@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   merge_utils_a.c                                    :+:      :+:    :+:   */
+/*   merge_utils_a_backup.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mawelsch <mawelsch@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/12 18:23:06 by mawelsch          #+#    #+#             */
-/*   Updated: 2025/11/18 21:52:23 by mawelsch         ###   ########.fr       */
+/*   Created: 2025/11/18 20:32:15 by mawelsch          #+#    #+#             */
+/*   Updated: 2025/11/18 20:32:41 by mawelsch         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,15 +36,7 @@ void	slide_to_top_bottom_a(t_stk *a, t_stk *b, size_t *list)
 
 void	small_merger_list_1(t_stk *a, t_stk *b, t_lists *lsts, int *active_lst)
 {
-	if ((b->vals[b->len - 1] < a->vals[0] || lsts->l1l == 0)
-		&& (b->vals[b->len - 1] < a->vals[lsts->l1l] || lsts->l2l == 0)
-		&& lsts->l3l)
-	{
-		rr(b);
-		lsts->l3l -= 1;
-	}
-	else if ((a->vals[0] < a->vals[lsts->l1l] || lsts->l2l == 0)
-		&& lsts->l1l)
+	if (a->vals[0] < a->vals[lsts->l1l])
 	{
 		p(b, a);
 		lsts->l1l -= 1;
@@ -57,15 +49,7 @@ void	small_merger_list_1(t_stk *a, t_stk *b, t_lists *lsts, int *active_lst)
 
 void	small_merger_list_2(t_stk *a, t_stk *b, t_lists *lsts, int *active_lst)
 {
-	if ((b->vals[b->len - 1] < a->vals[0] || lsts->l2l == 0)
-		&& (b->vals[b->len - 1] < a->vals[a->len - lsts->l1l] || lsts->l1l == 0)
-		&& lsts->l3l)
-	{
-		rr(b);
-		lsts->l3l -= 1;
-	}
-	else if ((a->vals[0] < a->vals[a->len - lsts->l1l] || lsts->l1l == 0)
-		&& lsts->l2l)
+	if (a->vals[0] < a->vals[a->len - lsts->l1l])
 	{
 		p(b, a);
 		lsts->l2l -= 1;

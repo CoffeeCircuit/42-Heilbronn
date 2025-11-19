@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 04:15:44 by abalcu            #+#    #+#             */
-/*   Updated: 2025/11/18 13:07:47 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/11/19 01:20:56 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ static void	index_a(t_stk *a)
 static void	chunk(t_mcounter *counter, t_limit *cnks, t_stk *a, t_stk *b)
 {
 	int	mid;
+	int	tpos;
 
 	if (counter->p < a->len / 2)
 		while ((counter->p)--)
@@ -84,9 +85,11 @@ void	medium_sort(t_stk *a, t_stk *b)
 	cnks = get_chunck_range(a->len / cnk_c, cnk_c);
 	while (counter.i <= cnk_c)
 	{
-		while (counter.p != -1)
+		while (1)
 		{
 			counter.p = find_next_in_chunk(a->vals, a->len, cnks[counter.i]);
+			if (counter.p == -1)
+				break ;
 			chunk(&counter, cnks, a, b);
 		}
 		counter.i++;
