@@ -2,7 +2,14 @@
 
 Resource: [Learn Git Branching](https://learngitbranching.js.org/)
 
-## Commands
+### Show commits
+
+```bash
+git log             # show all commits, hashes, and messages
+git log -n5         # last 5 commits
+git log --oneline   # show short form of commits and messages
+git log --pretty=%H # show full hash on one line
+```
 
 ### Commit a new change
 
@@ -14,19 +21,20 @@ Resource: [Learn Git Branching](https://learngitbranching.js.org/)
 
 `git branch <bname> <ref_commit>|<ref_branch>` 
 
-ex1 branch of a relative ref: `git branch bugFix HEAD^2~2`
+Examples
+```bash
+git branch bugFix HEAD^2~2    # 1. branch of a relative reference
+git branch branch1 commit1    # 2. branch of commit1
+git branch branch2 branch1    # 3. branch of branch1
+```
 
-ex2 branch of an arbitrary commit: `git branch branch1 commit1`
+**Note**: ex1..3 will not move the head off of main
 
-ex3 branch of another branch: `git branch branch2 branch1`
-
-Note: ex1..3 will not move the head off of main
-
-**or**:
+**or** you can branch of the currently active branch:
 
 - make `git branch <bname>`
-- move `git checkout <bname>`
-- make and move `git checkout -b <bname>`
+- move into `git checkout <bname>`
+- make and move into `git checkout -b <bname>`
 
 As you commit on the new branch the head moves with the commits
 
