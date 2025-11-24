@@ -28,7 +28,7 @@ if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
 fi
 
 # Check for unstaged changes
-if ! git status --porcelain | grep -E "^ M|^\?\?|^A"; then
+if ! git status --porcelain | grep -E "^ M|^\?\?|^A|^ D"; then
   echo -e "${GREEN}No changes to commit. Project is clean.${NC}"
   exit 0
 fi

@@ -16,6 +16,7 @@ See `~/.gitconfig` for the global configuration
 
 ## remove a key 
 `git config --unset <key>.<val>`
+
 `git config --unset-all <key>.<val>`
 
 ## Default branch
