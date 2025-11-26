@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Define paths
-my_repo=~/ab
+my_repo=~/ab/Cusrsus
 project=$(pwd)
 project_name=$(basename "$project")
 target="$my_repo/$project_name"
