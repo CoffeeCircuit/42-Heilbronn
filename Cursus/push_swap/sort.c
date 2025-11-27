@@ -6,13 +6,13 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 04:15:44 by abalcu            #+#    #+#             */
-/*   Updated: 2025/11/25 04:58:00 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/11/26 23:37:27 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "push_swap.h"
 
-static void	index_a(t_stk *a)
+void	index_a(t_stk *a)
 {
 	int	*tmp;
 

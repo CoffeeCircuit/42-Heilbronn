@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 07:35:03 by abalcu            #+#    #+#             */
-/*   Updated: 2025/11/26 06:13:20 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/11/26 21:45:52 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,10 +63,11 @@ static int	contains(t_stk *stk, int nbr)
 int	parse_args_str(t_stk *stk, const char *argv)
 {
 	int		i;
+	int		j;
 	int		nbr;
 	char	**arglst;
 
-	i = 0;
+	j = 0;
 	arglst = ft_split(argv, ' ');
 	stk->cap += lstlen(arglst);
 	if (!stk->vals)
@@ -75,14 +76,15 @@ int	parse_args_str(t_stk *stk, const char *argv)
 		realloc_stk(stk, stk->len, stk->cap);
 	if (!stk->vals)
 		return (0);
-	while (arglst[i])
+	i = stk->len;
+	while (arglst[j])
 	{
-		nbr = ft_atoi(arglst[i]);
-		if (!is_num(arglst[i]) || contains(stk, nbr))
+		nbr = ft_atoi(arglst[j]);
+		if (!is_num(arglst[j]) || contains(stk, nbr))
 			return (free_arglst(arglst), 0);
-		stk->vals[i] = nbr;
+		stk->vals[i + j] = nbr;
 		stk->len++;
-		i++;
+		j++;
 	}
 	return (free_arglst(arglst), free(arglst), 1);
 }

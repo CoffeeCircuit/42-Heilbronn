@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/24 23:01:41 by abalcu            #+#    #+#             */
-/*   Updated: 2025/11/26 01:26:10 by abalcu           ###   ########.fr       */
+/*   Updated: 2025/11/26 23:37:48 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,9 +69,11 @@ void		push(int val, int *arr, size_t *len);
 
 void		ps_sort(t_stk *a, t_stk *b);
 
+void		index_a(t_stk *a);
 int			max_index(int *a, size_t len);
 int			*sort_(int *arr, int len);
 int			*val_to_idx(int *arr, int len);
+
 t_limit		*get_chunck_range(int len, int count);
 int			find_next_in_chunk(int *arr, int len, t_limit chunk);
 
