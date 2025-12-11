@@ -1,61 +1,10 @@
 #!/usr/bin/env python3
 
 
-class GardenStats:
-
-    def __init__(self) -> None:
-        self.name: str | None = None
-        self.regular: int
-        self.flowering: int
-        self.prize: int
-
-
-class GardenManager:
-    max_tokens: int = 4
-    used_tokens: int = 0
-    session: int | None = None
-
-    def __init__(self) -> None:
-        self._gardens: list[GardenStats] = [
-            GardenStats(),
-            GardenStats(),
-            GardenStats(),
-            GardenStats(),
-        ]
-
-    @staticmethod
-    def log(message: str, is_error: bool = False) -> None:
-        """Handler for loging messages"""
-        status: str = "Info"
-        if is_error == 1:
-            status = "Error"
-        print(f"G:> [ {status:^5} ] {message}")
-
-    def add_garden(self, name: str):
-        i = 0
-        while i < self.max_tokens:
-            if self._gardens[i].name is None:
-                self.log(f"'{name}' garden added.")
-                self._gardens[i].name = name
-                return
-            if self._gardens[i].name == name:
-                self.log("Name taken.", is_error=True)
-                exit()
-            i += 1
-        if i == 4:
-            self.log("Max number of gardens exceeded", is_error=True)
-            exit()
-
-
 class Plant:
     """Plant class"""
 
-    def __init__(self):
-        self._name: str
-        self._height: int
-        self._age: int
-
-    def add(self, name: str, height: int, age: int):
+    def __init__(self, name: str, height: int, age: int):
         self._name = name
         self._height = height
         self._age = age
@@ -64,28 +13,59 @@ class Plant:
 class FloweringPlant(Plant):
     """Flower class"""
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, name: str, height: int, age: int):
+        super().__init__(name, height, age)
 
 
 class PrizeFlower(FloweringPlant):
     """Tree class"""
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, name: str, height: int, age: int):
+        super().__init__(name, height, age)
+
+
+class GardenManager:
+    count = 0
+
+    class GardenStats:
+
+        def __init__(self, name: str) -> None:
+            self.name = name
+            self.plants: dict[str, Plant] = {}
+            self.regular: int
+            self.flowering: int
+            self.prize: int
+
+    @classmethod
+    def _new_garden(cls, name: str) -> GardenStats:
+        return cls.GardenStats(name)
+
+    def __init__(self) -> None:
+        self.gardens: dict[str, GardenManager.GardenStats] = {}
+
+    def add_garden(self, *names: str):
+        for name in names:
+            self.gardens[name] = self._new_garden(name)
+            GardenManager.count += 1
+
+    def show_gardens(self):
+        print("Existing gardens: ", end="")
+        for key in self.gardens:
+            print(key, end=", ")
+        print()
 
 
 def main():
-    print("=== Garden Management System [GMS] ===")
     manager = GardenManager()
-    active_seesion = True
-    while (active_seesion):
-        kb_read = input("G:> ")
-        if kb_read == "exit":
-            manager.log("Exiting")
-            active_seesion = False
+    manager.add_garden("Alice")
+    manager.add_garden("Bob")
+    manager.add_garden("Mike", "Ross")
 
+    manager.show_gardens()
 
+    print(manager.count)
+
+    print(manager.gardens["Alice"])
 
 
 if __name__ == "__main__":
