@@ -67,7 +67,7 @@ class GardenManager:
             print(key, end=", ")
         print()
 
-    def add_garden(self, *names: str):
+    def create_garden_network(self, *names: str):
         """Handler to add new garden instance
         Note! Takes a variable number of arguments
         """
@@ -90,22 +90,25 @@ class GardenManager:
     def update(self):
         pass
 
-    def report(self, garden: str):
+    def report(self, garden: str | None = None):
+        """Prints a report of existing (or specific) garden(s)"""
+        print("=== Garden Management System ===")
+        print()
+        if garden is None:
+            GardenManager.list_gardens(self)
         pass
 
 
 def main():
     manager = GardenManager()
-    manager.add_garden("Alice")
-    manager.add_garden("Bob")
-    manager.add_garden("Mike", "Ross")
-    manager.list_gardens()
-    print("Garden count: ", manager.garden_count)
+    manager.create_garden_network("Alice", "Bob", "Mike")
 
     manager.add_plant("Alice", Plant("Rose", 10, 5))
     manager.add_plant("X", Plant("Rose", 10, 5))
     manager.add_plant("Alice", Plant("Rose", 10, 5))
     manager.add_plant("Bob", Plant("Rose", 10, 5))
+    print()
+    manager.report()
 
 
 if __name__ == "__main__":
