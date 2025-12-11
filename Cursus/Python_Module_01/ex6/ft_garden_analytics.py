@@ -90,6 +90,9 @@ class GardenManager:
     def update(self):
         pass
 
+    def report(self, garden: str):
+        pass
+
 
 def main():
     manager = GardenManager()
