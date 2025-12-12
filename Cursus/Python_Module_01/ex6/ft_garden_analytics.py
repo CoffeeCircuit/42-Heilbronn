@@ -4,12 +4,19 @@
 class Plant:
     """Plant class"""
 
-    plant_data = {"Rose": {"growth_rate": 1, "blooming_age": 20}}
+    plant_data = {
+        "Rose": {"growth_rate": 2, "blooming_age": 1},
+        "Tulip": {"growth_rate": 3, "blooming_age": 10},
+        "Sunflower": {"growth_rate": 5, "blooming_age": 4},
+        "Cactus": {"growth_rate": 1, "blooming_age": 25},
+        "Oak": {"growth_rate": 1, "blooming_age": 150},
+    }
 
-    def __init__(self, name: str, height: int, age: int):
+    def __init__(self, name: str, height: int):
+        self.type = "regular"
         self.name = name
         self.height = height
-        self.age = age
+        self.age: int = 0
 
     def info(self):
         print(f"{self.name}: {self.height}cm")
@@ -24,15 +31,32 @@ class Plant:
 class FloweringPlant(Plant):
     """Flower class"""
 
-    def __init__(self, name: str, height: int, age: int):
-        super().__init__(name, height, age)
+    def __init__(self, name: str, height: int, color: str):
+        super().__init__(name, height)
+        self.type = "flowering"
+        self.color = color
+        self.blooming = False
+
+    def bloom(self):
+        if self.age >= self.plant_data[self.name]["blooming_age"]:
+            self.blooming = True
+
+    def info(self):
+        print(f"{self.name}: {self.height}cm, {self.color} flowers ", end="")
+        self.bloom()
+        if self.blooming is True:
+            print("(blooming)")
+        else:
+            print()
 
 
 class PrizeFlower(FloweringPlant):
-    """Tree class"""
+    """Prize class"""
 
-    def __init__(self, name: str, height: int, age: int):
-        super().__init__(name, height, age)
+    def __init__(self, name: str, height: int, color: str):
+        super().__init__(name, height, color)
+        self.type = "prize"
+        self.prize = 0
 
 
 class GardenManager:
@@ -64,6 +88,14 @@ class GardenManager:
         return existing
 
     @staticmethod
+    def score(plants: dict[str, Plant | FloweringPlant | PrizeFlower]) -> int:
+        score = 0
+        for pkey in plants:
+            plant = plants[pkey]
+            score += plant.age + plant.height
+        return score
+
+    @staticmethod
     def log(msg: str, is_serror: bool = False):
         if is_serror:
             print(f"[ Garden Error ] {msg}")
@@ -90,14 +122,25 @@ class GardenManager:
             return
         else:
             if GardenManager.exists(plant.name, self.gardens[garden].plants):
-                GardenManager.log("Plant type exists. Use update", True)
+                GardenManager.log("Plant type exists.", True)
                 return
             self.gardens[garden].plants[plant.name] = plant
             GardenManager.log(f"Added {plant.name} to {garden} garden")
             self.gardens[garden].count += 1
+            if plant.type == "flowering":
+                self.gardens[garden].flowering += 1
+            elif plant.type == "prize":
+                self.gardens[garden].prize += 1
+            else:
+                self.gardens[garden].regular += 1
 
-    def update(self):
-        pass
+    def grow(self, garden: str):
+        plants = self.gardens[garden].plants
+        for pkey in plants:
+            plant = plants[pkey]
+            plant.age += 1
+            plant.height += Plant.plant_data[pkey]["growth_rate"]
+        self.log(f"{garden} is growing")
 
     def validate_height(self):
         valid = True
@@ -126,9 +169,10 @@ class GardenManager:
             print(f"{garden.prize} prize flowers")
             print()
         print(f"Height validation test: {self.validate_height()}")
-
-        print("Garden scores -:", end="")
-
+        print("Garden scores")
+        for key in self.gardens:
+            garden = self.gardens[key]
+            print(f"    - {garden.name}: {self.score(garden.plants)}")
         print(f"Total gardesns managed: {self.garden_count}")
         print()
 
@@ -137,11 +181,17 @@ def main():
     print("=== Garden Management System Demo ===")
     manager = GardenManager()
     manager.create_garden_network("Alice", "Bob")
-
-    manager.add_plant("Alice", Plant("Rose", 10, 5))
-    manager.add_plant("Alice", Plant("Sunflower", 51, 30))
-    manager.add_plant("Bob", Plant("Rose", 3, 1))
-    manager.add_plant("X", Plant("Rose", 10, 5))
+    manager.add_plant("X", Plant("Rose", 10))
+    manager.add_plant("Alice", Plant("Oak", 101))
+    manager.add_plant("Alice", FloweringPlant("Rose", 101, "red"))
+    manager.add_plant("Alice", FloweringPlant("Sunflower", 101, "yellow"))
+    manager.add_plant("Bob", FloweringPlant("Rose", 101, "yellow"))
+    manager.add_plant("Bob", PrizeFlower("Tulip", 15, "black"))
+    manager.grow("Alice")
+    manager.grow("Alice")
+    manager.grow("Alice")
+    manager.grow("Bob")
+    manager.grow("Bob")
     print()
     manager.report()
 
