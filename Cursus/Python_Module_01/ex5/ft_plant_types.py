@@ -22,11 +22,15 @@ class Flower(Plant):
         self._color = color
 
     def bloom(self):
-        pass
+        if self._age > 15:
+            print(f"{self._name} is blooming beautifully")
+        else:
+            print(f"{self._name} hasn't bloomed yet")
 
     def get_info(self):
         print(f"{self._name} (Flower): {self._height}cm, ", end="")
         print(f"{self._age} days, {self._color} color")
+        self.bloom()
 
 
 class Tree(Plant):
@@ -37,11 +41,13 @@ class Tree(Plant):
         self._trunk_diameter = trunk_diameter
 
     def produce_shade(self):
-        pass
+        print(f"{self._name} provides {0.156 * self._height}", end="")
+        print(" square meters of shade")
 
     def get_info(self):
         print(f"{self._name} (Tree): {self._height}cm, ", end="")
         print(f"{self._age} days, {self._trunk_diameter}cm diameter")
+        self.produce_shade()
 
 
 class Vegetable(Plant):
@@ -63,12 +69,16 @@ def main():
 
     plants: dict[str, Plant | Flower | Tree | Vegetable] = {
         "rose": Flower("Rose", 25, 30, "red"),
+        "sunflower": Flower("Sunflower", 5, 2, "yellow"),
         "oak": Tree("Oak", 500, 1825, 50),
+        "pine": Tree("Pine", 150, 500, 16),
         "tomato": Vegetable("Tomato", 80, 90, "summer", "rich in vitamin C"),
+        "carrot": Vegetable("Carrot", 15, 20, "summer", "rich in vitamin B"),
     }
 
     for key in plants:
         plants[key].get_info()
+        print()
 
 
 if __name__ == "__main__":
