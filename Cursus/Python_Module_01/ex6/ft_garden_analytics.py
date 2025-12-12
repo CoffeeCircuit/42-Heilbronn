@@ -4,12 +4,21 @@
 class Plant:
     """Plant class"""
 
-    plant_data = {"Rose": {"growth": 1}}
+    plant_data = {"Rose": {"growth_rate": 1, "blooming_age": 20}}
 
     def __init__(self, name: str, height: int, age: int):
         self.name = name
         self.height = height
         self.age = age
+
+    def info(self):
+        print(f"{self.name}: {self.height}cm")
+
+    def check_height(self) -> bool:
+        valid = False
+        if self.height > 0:
+            valid = True
+        return valid
 
 
 class FloweringPlant(Plant):
@@ -33,14 +42,14 @@ class GardenManager:
         self.gardens: dict[str, GardenManager.GardenStats] = {}
 
     class GardenStats:
-        plant_count = 0
-
         def __init__(self, name: str) -> None:
             self.name = name
+            self.count: int = 0
+            self.growth: int = 0
             self.plants: dict[str, Plant] = {}
-            self.regular: int
-            self.flowering: int
-            self.prize: int
+            self.regular: int = 0
+            self.flowering: int = 0
+            self.prize: int = 0
 
     @classmethod
     def _new_garden(cls, name: str) -> GardenStats:
@@ -57,9 +66,9 @@ class GardenManager:
     @staticmethod
     def log(msg: str, is_serror: bool = False):
         if is_serror:
-            print(f"[ Manager Error ] {msg}")
+            print(f"[ Garden Error ] {msg}")
         else:
-            print(f"[ Manager Info  ] {msg}")
+            print(f"[ Garden Info  ] {msg}")
 
     def list_gardens(self) -> None:
         print("Existing gardens: ", end="")
@@ -85,28 +94,54 @@ class GardenManager:
                 return
             self.gardens[garden].plants[plant.name] = plant
             GardenManager.log(f"Added {plant.name} to {garden} garden")
-            self.gardens[garden].plant_count += 1
+            self.gardens[garden].count += 1
 
     def update(self):
         pass
 
-    def report(self, garden: str | None = None):
+    def validate_height(self):
+        valid = True
+        for garden in self.gardens:
+            plants = self.gardens[garden].plants
+            for pkey in plants:
+                if plants[pkey].check_height() is False:
+                    valid = False
+        return valid
+
+    def report(self):
         """Prints a report of existing (or specific) garden(s)"""
-        print("=== Garden Management System ===")
+        for key in self.gardens:
+            garden = self.gardens[key]
+            plants = garden.plants
+            print(f"=== {garden.name}'s Garden Report ===")
+            print("    Plants in garden:")
+            for pkey in plants:
+                print("\t- ", end="")
+                plants[pkey].info()
+            print()
+            print(f"    Plants added: {garden.count}, ", end="")
+            print(f"Total growth: {garden.growth}")
+            print(f"    Plant types: {garden.regular} regular, ", end="")
+            print(f"{garden.flowering} flowering, ", end="")
+            print(f"{garden.prize} prize flowers")
+            print()
+        print(f"Height validation test: {self.validate_height()}")
+
+        print("Garden scores -:", end="")
+
+        print(f"Total gardesns managed: {self.garden_count}")
         print()
-        if garden is None:
-            GardenManager.list_gardens(self)
-        pass
 
 
 def main():
+    print("=== Garden Management System Demo ===")
     manager = GardenManager()
-    manager.create_garden_network("Alice", "Bob", "Mike")
+    manager.create_garden_network("Alice", "Bob")
 
     manager.add_plant("Alice", Plant("Rose", 10, 5))
+    manager.add_plant("Alice", Plant("Sunflower", 51, 30))
+    manager.add_plant("Bob", Plant("Rose", 3, 1))
     manager.add_plant("X", Plant("Rose", 10, 5))
-    manager.add_plant("Alice", Plant("Rose", 10, 5))
-    manager.add_plant("Bob", Plant("Rose", 10, 5))
     print()
     manager.report()
 
