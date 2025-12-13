@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+"""
+Exercise 1: Score Cruncher
+List manipulation
+"""
 
 from sys import argv
 

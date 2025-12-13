@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+"""
+Exercise 0: Command Quest
+Intro into argument parsing
+"""
 
 from sys import argv
 
