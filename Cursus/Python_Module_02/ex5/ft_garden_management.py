@@ -7,6 +7,11 @@ class PlantException(Exception):
         self.name = name
 
 
+class GardenException(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
 class Plant:
 
     def __init__(self, name: str | None, water: int, health: int) -> None:
@@ -37,8 +42,12 @@ class Plant:
 
     @water.setter
     def water(self, water: int):
+        msg: str | None = None
         if water < 0:
             msg = f"Plant '{self._name}': Negative water value '{water}'"
+            raise PlantException(msg, name=self._name)
+        if water > 10:
+            msg = f"Plant '{self._name}': High water level '{water}'"
             raise PlantException(msg, name=self._name)
         self._water = water
 
@@ -59,6 +68,7 @@ class Plant:
 
 
 class GardenManager:
+    tank = 3
 
     def __init__(self) -> None:
         self.plants: dict[str, Plant] = {}
@@ -71,19 +81,68 @@ class GardenManager:
         except PlantException as e:
             print("Error:", e)
 
+    def water_plants(self):
+        plant_list = self.plants
+        plant_name = None
+        print("Opening watering system")
+        for plant_name in plant_list:
+            try:
+                plant_list[plant_name].water += 1
+                print(f"\tWathering {plant_name}")
+            except PlantException as e:
+                print("Error:", e)
+        print("Closing watering system (cleanup)")
+
+    def check_health(self):
+        plant_list = self.plants
+        pname = None
+        print("Checking plant health")
+        try:
+            for pname in plant_list:
+                if plant_list[pname].health < 2:
+                    msg = f"Plant '{pname}': Low health"
+                    raise PlantException(msg, name=pname)
+                print(f"\tChecking {pname}")
+        except PlantException as e:
+            print("Error:", e)
+
+    def test_system(self):
+        print("Testing error recovery...")
+        try:
+            if self.tank < 4:
+                msg = "Not enough water in tank"
+                raise GardenException(msg)
+        except GardenException as e:
+            print("Error:", e)
+        finally:
+            print("System recovered and continuing...")
+        print()
+        print("Garden management system test complete!")
+
 
 def main():
     print("=== Garden Management System ===")
+    print()
     manager = GardenManager()
-    manager.add_plant("Rose", 5, 10)
-    manager.add_plant("Tomato", 10, 12)
-    manager.add_plant("Lettuce", 1, 2)
+    manager.add_plant("Rose", 5, 5)
+    manager.add_plant("Tomato", 9, 9)
+    manager.add_plant("Lettuce", 10, 4)
+    manager.add_plant("Sunflower", 3, 1)
 
     # error testing
-    manager.add_plant(None, 5, 10)
-    manager.add_plant("", 5, 10)
-    manager.add_plant("Foo", -5, 10)
-    manager.add_plant("Bar", 5, -10)
+    print()
+    manager.add_plant(None, 5, 2)
+    manager.add_plant("", 5, 3)
+    manager.add_plant("Foo", -5, 2)
+    manager.add_plant("Bar", 5, -2)
+
+    # testing functionality
+    print()
+    manager.water_plants()
+    print()
+    manager.check_health()
+    print()
+    manager.test_system()
 
 
 if __name__ == "__main__":
