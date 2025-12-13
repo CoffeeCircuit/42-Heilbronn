@@ -3,33 +3,36 @@
 from sys import argv
 
 
-def main(argv: list[str]):
+def ft_score_analytics(argv: list[str]) -> None:
+    """Program will parse a list of player scores (ints)"""
+    print("=== Player Score Analytics ===")
     argc = len(argv)
-    scores = []
+    if argc < 2:
+        print("No scores provided. ", end="")
+        print("Usage: python3 ft_score_analytics.py <score1> <score2> ...")
+    else:
+        scores: list[int] = []
 
-    try:
-        scores = [int(val) for val in argv]
-    except ValueError as e:
-        print(e)
-    finally:
-        print("Terminating program...")
+        try:
+            scores = [int(val) for val in argv[1:]]
+        except ValueError as e:
+            print(e)
+            print("Terminating program...")
+            return
 
-    print("=== Player Scire Analytics ===")
-    print(f"Scores processed: {argv[1:]}")
-    print(f"Total players: {argc - 1}")
-    print(f"Total score: {sum(scores)}")
+        s_len = len(scores)
+        s_sum = sum(scores)
+        s_max = max(scores)
+        s_min = min(scores)
+        s_range = s_max - s_min
+        print(f"Scores processed: {scores}")
+        print(f"Total players: {s_len}")
+        print(f"Total score: {s_sum}")
+        print(f"Average score: {s_sum/s_len}")
+        print(f"High score: {s_max}")
+        print(f"Low score: {s_min}")
+        print(f"Score range: {s_range}")
 
-    print(f"Argumens received : {len(argv[1:])}")
-    while i < argc:
-        print(f"Argument {i:<8} : {argv[i]}")
-        i += 1
-    print(f"Total arguments   : {argc}")
-
-
-print(f"Average score: 1930.0")
-print(f"High score: 2300")
-print(f"Low score: 1500")
-print(f"Score range: 800")
 
 if __name__ == "__main__":
-    main(argv)
+    ft_score_analytics(argv)
