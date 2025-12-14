@@ -47,7 +47,7 @@ def ft_achievement_tracker():
     common_set = common_set.intersection(players["Charlie"])
     print("Common to all players: ", common_set)
 
-    rare = players["Alice"].union(players["Bob"])
+    rare = players["Alice"].union(players["Bob"])``````````````````````````````````````
     rare = rare.union(players["Charlie"])
     print("Rare", rare)
 
@@ -60,12 +60,3 @@ def ft_achievement_tracker():
 
 if __name__ == "__main__":
     ft_achievement_tracker()
-
-
-""""
-• Track unique achievements (no "First Kill" counted twice!)
-• Find achievements shared by multiple players (the "common ground")
-• Spot the ultra-rare achievements (bragging rights material!)
-• See who’s missing what achievements (gotta catch ’em all!)
-• Build player communities based on shared accomplishments
-"""
