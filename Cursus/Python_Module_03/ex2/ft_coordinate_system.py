@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Exercise 2: Position Tracker
-Tuple manipulation
+$ python ./ex2/ft_coordinate_system.py "$(python data_generator.py 2)
 """
 
 from sys import argv
@@ -20,6 +20,20 @@ def dist(
 
 def ft_coordinate_system(argv: list[str]) -> None:
     print("=== Game Coordinate System ===")
+    print()
+    arg_list = argv[1][2:-2]
+    for coord in arg_list.split("), ("):
+        x, y, z = coord.split(", ")
+        try:
+            print(f"Parsing coordinates: '{x}, {y}, {z}'")
+            x, y, z = int(x), int(y), int(z)
+            print(f"Parsed position: ({x}, {y}, {z})")
+            d = dist((0, 0, 0), (x, y, z))
+            print(f"Distance between (0, 0, 0) and ({x}, {y}, {z}): {d:.2f}")
+            print()
+        except ValueError as e:
+            print("Error: ", e)
+            print()
 
 
 if __name__ == "__main__":

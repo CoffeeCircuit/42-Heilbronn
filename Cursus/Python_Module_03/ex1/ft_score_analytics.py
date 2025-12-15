@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Exercise 1: Score Cruncher
-List manipulation
+python ./ex1/ft_score_analytics.py 
+        "$(python data_generator.py 1 --format argv)"
 """
 
 from sys import argv
@@ -18,7 +19,7 @@ def ft_score_analytics(argv: list[str]) -> None:
         scores: list[int] = []
 
         try:
-            scores = [int(val) for val in argv[1:]]
+            scores = [int(val) for val in argv[1].split()]
         except ValueError as e:
             print(e)
             print("Terminating program...")
