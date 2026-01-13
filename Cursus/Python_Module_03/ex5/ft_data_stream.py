@@ -4,6 +4,8 @@ Exercise 5: Stream Wizard
 Authorized: yield, next(), iter(), range(), len(), print(), for loops
 """
 
+from sys import argv
+
 
 def fib(n):
     i = 0
@@ -27,6 +29,7 @@ def prime(n):
             while j > 1:
                 if i % j == 0:
                     is_prime = False
+                    break
                 j -= 1
             if is_prime is True:
                 k += 1
@@ -37,9 +40,14 @@ def prime(n):
         i += 1
 
 
-def ft_data_stream():
+def ft_data_stream(argv):
 
     print("=== Generator Demonstration ===")
+
+    for arg in argv[1][2:-2].split("}, {"):
+        print(arg)
+        print()
+
     print("Fibonacci sequence (first 10): ", end="")
     fib_nums = fib(10)
     for num in fib_nums:
@@ -53,4 +61,4 @@ def ft_data_stream():
 
 
 if __name__ == "__main__":
-    ft_data_stream()
+    ft_data_stream(argv)

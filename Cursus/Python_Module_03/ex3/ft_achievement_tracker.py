@@ -47,7 +47,7 @@ def ft_achievement_tracker():
     common_set = common_set.intersection(players["Charlie"])
     print("Common to all players: ", common_set)
 
-    rare = players["Alice"].union(players["Bob"])``````````````````````````````````````
+    rare = players["Alice"].union(players["Bob"])
     rare = rare.union(players["Charlie"])
     print("Rare", rare)
 
