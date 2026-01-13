@@ -23,7 +23,7 @@ def dist(
 def ft_coordinate_system(argv: list[str]) -> None:
     """
     Calculates the distance between 0,0,0 and the tuple from argv
-    
+
     :param argv: Command line arguments
     :type argv: list[str]
     """
