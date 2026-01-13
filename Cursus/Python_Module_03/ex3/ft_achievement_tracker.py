@@ -9,7 +9,7 @@ Authorized: set(), len(), print(), union(), intersection(), difference()
 def ft_achievement_tracker():
     """Function will operate on sets"""
     print("=== Achievement Tracker System ===")
-    players: dict[str, set] = {
+    players: dict[str, set[str]] = {
         "Alice": {
             "first_kill",
             "level_10",
@@ -31,31 +31,37 @@ def ft_achievement_tracker():
         },
     }
 
+    alice = players["Alice"]
+    bob = players["Bob"]
+    charlie = players["Charlie"]
+
     print()
     for name in players:
         achievements = players[name]
-        print(f"Player {name} achivements: ", achievements)
+        print(f"Player {name} achievements: ", achievements)
 
     print()
     print("=== Achievement Analytics ===")
-    all_achvmnts = {achvmnts for name in players for achvmnts in players[name]}
+    all_achvmnts = {a for s in players.values() for a in s}
     print("All unique achievements: ", all_achvmnts)
     print("Total unique achievements: ", len(all_achvmnts))
 
     print()
-    common_set = players["Alice"].intersection(players["Bob"])
-    common_set = common_set.intersection(players["Charlie"])
+    common_set = alice.intersection(bob, charlie)
     print("Common to all players: ", common_set)
 
-    rare = players["Alice"].union(players["Bob"])
-    rare = rare.union(players["Charlie"])
-    print("Rare", rare)
+    rare = {
+        x for x in all_achvmnts
+        if (x in alice) + (x in bob) + (x in charlie) == 1
+    }
+
+    print("Rare achievements (1 player): ", rare)
 
     print()
-    alice_bob_common = players["Alice"].intersection(players["Bob"])
-    print("Alice vs Bob commmon: ", alice_bob_common)
-    print("Alice unique: ", players["Alice"].difference(players["Bob"]))
-    print("Bob unique: ", players["Bob"].difference(players["Alice"]))
+    alice_bob_common = alice.intersection(bob)
+    print("Alice vs Bob common: ", alice_bob_common)
+    print("Alice unique: ", alice.difference(bob))
+    print("Bob unique: ", bob.difference(alice))
 
 
 if __name__ == "__main__":
