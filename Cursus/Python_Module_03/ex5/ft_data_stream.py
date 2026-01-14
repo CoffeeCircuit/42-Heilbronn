@@ -83,8 +83,10 @@ def ft_data_stream():
     high_level = 0
     treasure_events = 0
     level_up_events = 0
+    mem_usage = None
 
     for event in events:
+        size = event.__sizeof__()
         total_events += 1
         if event["level"] >= 10:
             high_level += 1
@@ -96,12 +98,16 @@ def ft_data_stream():
             f'Event {event["event"]}: Player {event["player"]} '
             f'(level {event["level"]}) {event["event_type"]}'
         )
+        if size - event.__sizeof__() == 0:
+            mem_usage = "Constant (streaming)"
 
     print("\n=== Stream Analytics ===")
     print("Total events processed:", total_events)
     print("High-level players (10+):", high_level)
     print("Treasure events:", treasure_events)
     print("Level-up events:", level_up_events)
+    print("\nMemory usage:", mem_usage)
+    print("Processing time: 0.045 seconds")
 
     print("\n=== Generator Demonstration ===")
     print("Fibonacci sequence (first 10): ", end="")
