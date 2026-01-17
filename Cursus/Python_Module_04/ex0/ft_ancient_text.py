@@ -17,7 +17,7 @@ def ft_ancient_text():
         print("\nRECOVERED DATA:")
         print(fp.read())
         print("\nData recovery complete. Storage unit disconnected.")
-    except FileNotFoundError:
+    except Exception:
         print("ERROR: Storage vault not found")
     finally:
         if fp:

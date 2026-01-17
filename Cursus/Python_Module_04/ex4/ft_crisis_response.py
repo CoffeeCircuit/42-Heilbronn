@@ -38,7 +38,7 @@ def ft_crisis_response():
     print("ROUTINE ACCESS: Attempting access to 'standard_archive.txt'...")
     try:
         with open("standard_archive.txt", "r+") as fp:
-            print(f"SUCCESS: Archive recovered - ``{fp.read()}")
+            print(f"SUCCESS: Archive recovered - ``{fp.read()}''")
     except FileNotFoundError:
         print("RESPONSE: Archive not found in storage matrix")
     finally:
