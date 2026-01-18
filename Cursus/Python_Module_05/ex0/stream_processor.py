@@ -112,16 +112,13 @@ class LogProcessor(DataProcessor):
 def run_process(
     proc: Union[TextProcessor, NumericProcessor, LogProcessor], data: Any
 ) -> None:
-    print()
-    validation_msg = "Validation: "
 
-    print(f"Initializing {proc.ptype} Processor...")
-
+    print(f"\nInitializing {proc.ptype} Processor...")
     print(f"Processing data: {data}")
     if proc.validate(data):
-        print(validation_msg, f"{proc.ptype} data verified")
+        print("Validation: ", f"{proc.ptype} data verified")
     else:
-        print(validation_msg, f"{proc.ptype} data error")
+        print("Validation: ", f"{proc.ptype} data error")
 
     result = proc.process(data)
     print("Output: ", proc.format_output(result))
@@ -133,6 +130,9 @@ def stream_processor():
     run_process(NumericProcessor(), [1, 2, 3, 4, 5])
     run_process(TextProcessor(), "Hello Nexus World")
     run_process(LogProcessor(), "ERROR: Connection timeout")
+
+    print("\n=== Polymorphic Processing Demo ===")
+    print("Processing multiple data types through same interface...")
 
 
 if __name__ == "__main__":
