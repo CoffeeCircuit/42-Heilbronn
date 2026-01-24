@@ -25,7 +25,6 @@ from pydantic import BaseModel, Field, model_validator  # type: ignore
 from pydantic import ValidationError  # type: ignore
 from pydantic import AwareDatetime  # type: ignore
 from enum import IntFlag, auto
-from datetime import datetime
 
 
 class RankEnum(IntFlag):
@@ -50,7 +49,7 @@ class SpaceMission(BaseModel):
     mission_id: str = Field(min_length=5, max_length=15)
     mission_name: str = Field(min_length=3, max_length=100)
     destination: str = Field(min_length=3, max_length=50)
-    launch_date: AwareDatetime
+    launch_date: AwareDatetime | str
     duration_days: int = Field(ge=1, le=3650)
     crew: list[CrewMember] = Field(min_length=1, max_length=12)
     mission_status: str = Field(default="planned")
@@ -94,7 +93,7 @@ def space_crew():
             mission_id="M2024_MARS",
             mission_name="Mars Colony Establishment",
             destination="Mars",
-            launch_date=datetime(2024, 7, 1, 9, 0, 0).astimezone(),
+            launch_date="2024-07-01T09:00:00Z",
             duration_days=900,
             budget_millions=2500.0,
             crew=[
@@ -151,7 +150,7 @@ def space_crew():
             mission_id="M2024_MOON",
             mission_name="Lunar Base Setup",
             destination="Moon",
-            launch_date=datetime(2024, 8, 1, 9, 0, 0).astimezone(),
+            launch_date="2024-09-15T14:00:00Z",
             duration_days=180,
             budget_millions=500.0,
             crew=[

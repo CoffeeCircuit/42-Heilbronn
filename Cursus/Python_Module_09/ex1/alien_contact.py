@@ -25,7 +25,6 @@ from pydantic import BaseModel, Field, model_validator  # type: ignore
 from pydantic import ValidationError  # type: ignore
 from pydantic import AwareDatetime  # type: ignore
 from enum import IntFlag, auto
-from datetime import datetime
 
 
 class ContactType(IntFlag):
@@ -37,7 +36,7 @@ class ContactType(IntFlag):
 
 class AlienContactLog(BaseModel):
     contact_id: str = Field(min_length=5, max_length=15)
-    timestamp: AwareDatetime
+    timestamp: AwareDatetime | str
     location: str = Field(min_length=3, max_length=100)
     contact_type: ContactType
     signal_strength: float = Field(ge=0.0, le=10.0)
@@ -72,7 +71,7 @@ def alien_contact():
     try:
         contact = AlienContactLog(
             contact_id="AC_2024_001",
-            timestamp=datetime(2024, 6, 15, 22, 30, 0).astimezone(),
+            timestamp="2024-01-15T10:30:00Z",
             location="Area 51, Nevada",
             contact_type=ContactType.radio,
             signal_strength=8.5,
@@ -94,7 +93,7 @@ def alien_contact():
     try:
         contact = AlienContactLog(
             contact_id="AC_2024_002",
-            timestamp=datetime(2024, 6, 16, 3, 15, 0).astimezone(),
+            timestamp="2024-06-16T03:15:00Z",
             location="Roswell, New Mexico",
             contact_type=ContactType.telepathic,
             signal_strength=6.5,

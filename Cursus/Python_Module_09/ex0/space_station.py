@@ -23,7 +23,6 @@ if not pydantic_version or not pydantic_version.startswith("2."):
 from pydantic import BaseModel, Field  # type: ignore
 from pydantic import ValidationError  # type: ignore
 from pydantic import AwareDatetime  # type: ignore
-from datetime import datetime
 
 
 class SpaceStation(BaseModel):
@@ -32,7 +31,7 @@ class SpaceStation(BaseModel):
     crew_size: int = Field(ge=1, le=20)
     power_level: float = Field(ge=0.0, le=100.0)
     oxygen_level: float = Field(ge=0.0, le=100.0)
-    last_maintenance: AwareDatetime
+    last_maintenance: AwareDatetime | str
     is_operational: bool = Field(default=True)
     notes: str | None = Field(default=None, max_length=200)
 
@@ -48,7 +47,7 @@ def main():
             crew_size=18,
             power_level=95.5,
             oxygen_level=98.0,
-            last_maintenance=datetime(2023, 5, 15, 10, 0, 0).astimezone(),
+            last_maintenance="2023-05-15T10:00:00Z",
             is_operational=True,
             notes="All systems nominal.",
         )
@@ -68,7 +67,7 @@ def main():
             crew_size=30,  # Invalid crew size
             power_level=95.5,
             oxygen_level=98.0,
-            last_maintenance=datetime(2023, 5, 15, 10, 0, 0).astimezone(),
+            last_maintenance="2023-05-15T10:00:00Z",
             is_operational=True,
             notes="All systems nominal.",
         )
