@@ -1,3 +1,4 @@
+# !/usr/bin/env python3
 """
 oracle
 Directory: ex02/
@@ -25,7 +26,7 @@ class Oracle:
     def load(self) -> None:
         try:
             from os import getenv
-            from dotenv import load_dotenv
+            from dotenv import load_dotenv  # type: ignore
 
             if not load_dotenv():
                 raise FileNotFoundError(".env file not found")
@@ -40,9 +41,9 @@ class Oracle:
             print("Error: python-dotenv module not found")
             print("Please install it using the following commands:")
             print("uv venv")
-            print("source venv/bin/activate")
             print("uv pip install python-dotenv")
             print("cp .env.example .env")
+            print("uv run oracle.py")
             exit(1)
 
         except FileNotFoundError as e:

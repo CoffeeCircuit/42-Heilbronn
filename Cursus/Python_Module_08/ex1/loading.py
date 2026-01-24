@@ -7,9 +7,9 @@ Authorized: pandas, requests, matplotlib, numpy, sys, importlib
 """
 
 try:
-    import pandas as pd
-    import numpy as np
-    import matplotlib.pyplot as plt
+    import pandas as pd  # type: ignore
+    import numpy as np  # type: ignore
+    import matplotlib.pyplot as plt  # type: ignore
 except ImportError as e:
     print(f"Missing module: {e.name}. Please install all dependencies.")
     exit(1)
@@ -59,12 +59,12 @@ def loading() -> None:
     df = pd.DataFrame(escape)
 
     print("Generating visualization...")
-    plt.imshow(escape, cmap="turbo")
+    plt.imshow(df, cmap="turbo")
     plt.colorbar(label="Iterations")
     plt.title("Mandelbrot Set")
     plt.savefig("matrix_analysis.png")
     plt.show()
-    
+
     print("\nAnalysis complete!")
     print("Results saved to: matrix_analysis.png")
 
