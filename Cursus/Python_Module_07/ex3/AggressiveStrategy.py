@@ -1,4 +1,7 @@
-class AggressiveStrategy:
+from ex3.GameStrategy import GameStrategy
+
+
+class AggressiveStrategy(GameStrategy):
     def execute_turn(self, hand: list, battlefield: list) -> dict:
         return {}
 

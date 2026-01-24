@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-
 from ex0 import Card
 
 

@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
 
 
-# GameStrategy (Abstract Interface)
 class GameStrategy(ABC):
+    def __init__(self) -> None:
+        super().__init__()
+        self.name: str = "Abstract Strategy"
 
     @abstractmethod
     def execute_turn(self, hand: list, battlefield: list) -> dict:
