@@ -16,8 +16,17 @@ class GameEngine:
     class Turn:
         """Represents a single game turn with damage tracking."""
 
-        def __init__(self, damage) -> None:
-            self.damage = damage
+        def __init__(
+            self,
+            cards_played: list[str],
+            mana_used: int,
+            targets_attacked: list[str],
+            damage_dealt: int,
+        ) -> None:
+            self.cards_played = cards_played
+            self.mana_used = mana_used
+            self.targets_attacked = targets_attacked
+            self.damage_dealt = damage_dealt
 
     def __init__(self):
         """Initialize game engine with empty state."""
@@ -28,12 +37,6 @@ class GameEngine:
         self.hand: list[Card] = []
         self.turn: list[GameEngine.Turn] = []
         self.cooldowns = {}
-        self.status = {
-            "turns_simulated": len(self.turn),
-            "strategy_used": None,
-            "total_damage": sum(turn.damage for turn in self.turn),
-            "cards_created": sum(map(len, [self.hand, self.battlefield])),
-        }
 
     def configure_engine(self, factory: CardFactory, strategy: GameStrategy):
         """Configure the game engine with a card factory and game strategy."""
@@ -57,9 +60,19 @@ class GameEngine:
             hand=self.hand,
             battlefield=self.battlefield,
         )
-        self.turn.append(GameEngine.Turn(damage=result.get("damage_dealt", 0)))
+        if result["mana_used"] <= self.available_mana:
+            self.available_mana -= result["mana_used"]
+            self.turn.append(self.Turn(**result))
         return result
 
     def get_engine_status(self) -> dict:
         """Return the current game engine status and statistics."""
-        return self.status
+        return {
+            "turns_simulated": len(self.turn),
+            "strategy_used": (
+                self.strategy.get_strategy_name() if self.strategy else None
+            ),
+            "total_damage": sum(t.damage_dealt for t in self.turn),
+            "cards_created": len(self.hand)
+            + len([c for c in self.battlefield if isinstance(c, Card)]),
+        }

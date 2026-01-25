@@ -1,30 +1,43 @@
-# Expected Output Example:
-# === DataDeck Game Engine ===
-#
-# Configuring Fantasy Card Game...
-# Factory: FantasyCardFactory
-# Strategy: AggressiveStrategy
-# Available types: {'creatures': ['dragon', 'goblin'], 'spells': ['fireball'],
-# 'artifacts': ['mana_ring']}
-#
-# Simulating aggressive turn...
-# Hand: [Fire Dragon (5), Goblin Warrior (2), Lightning Bolt (3)]
-#
-# Turn execution:
-# Strategy: AggressiveStrategy
-# Actions: {'cards_played': ['Goblin Warrior', 'Lightning Bolt'],
-# 'mana_used': 5, 'targets_attacked': ['Enemy Player'],
-# 'damage_dealt': 8}
-#
-# Game Report:
-# {'turns_simulated': 1, 'strategy_used': 'AggressiveStrategy',
-# 'total_damage': 8, 'cards_created': 3}
-#
-# Abstract Factory + Strategy Pattern: Maximum flexibility achieved!
+from ex3.GameEngine import GameEngine
+from ex3.FantasyCardFactory import FantasyCardFactory
+from ex3.AggressiveStrategy import AggressiveStrategy
 
 
 def main() -> None:
-    pass
+    print("\n=== DataDeck Game Engine ===\n")
+
+    print("Configuring Fantasy Card Game...")
+    engine = GameEngine()
+    factory = FantasyCardFactory()
+    strategy = AggressiveStrategy()
+    engine.configure_engine(factory=factory, strategy=strategy)
+
+    print("Factory:", factory.__class__.__name__)
+    print("Strategy:", strategy.__class__.__name__)
+    print("Available types:", factory.get_supported_types())
+
+    print("\nSimulating aggressive turn...")
+    engine.hand = [
+        factory.create_creature("Goblin Warrior"),
+        factory.create_creature("Orc Warrior"),
+        factory.create_spell("Lightning bolt"),
+    ]
+
+    engine.battlefield = [factory.create_creature("Elf Archer")]
+    print("Hand:", [f"{card.name} ({card.cost})" for card in engine.hand])
+    result = engine.simulate_turn()
+
+    print("\nTurn execution:")
+    print("Strategy:", strategy.get_strategy_name())
+    print("Actions:", result)
+
+    print("\nGame Report:")
+    status = engine.get_engine_status()
+    print(status)
+    print(
+        "\nAbstract Factory + Strategy Pattern:",
+        "Maximum flexibility achieved!",
+    )
 
 
 if __name__ == "__main__":
