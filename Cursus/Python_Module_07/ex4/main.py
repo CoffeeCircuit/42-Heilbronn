@@ -30,12 +30,22 @@ def main() -> None:
     )
 
     print(f"\n{card1.name} (ID: {card1.id}):")
-    print(f"- Interfaces: {[base.__name__ for base in card1.__class__.__bases__]}")
+    print("- Interfaces: [", end="")
+    for i, base in enumerate(card1.__class__.__bases__):
+        if i:
+            print(", ", end="")
+        print(f"{base.__name__}", end="")
+    print("]")
     print(f"- Rating: {card1.rating}")
     print(f"- Record: {card1.wins}-{card1.losses}")
 
     print(f"\n{card2.name} (ID: {card2.id}):")
-    print(f"- Interfaces: {[base.__name__ for base in card2.__class__.__bases__]}")
+    print("- Interfaces: [", end="")
+    for i, base in enumerate(card2.__class__.__bases__):
+        if i:
+            print(", ", end="")
+        print(f"{base.__name__}", end="")
+    print("]")
     print(f"- Rating: {card2.rating}")
     print(f"- Record: {card2.wins}-{card2.losses}")
 
@@ -50,7 +60,8 @@ def main() -> None:
     leaderboard = platform.get_leaderboard()
     for rank, card in enumerate(leaderboard, start=1):
         print(
-            f"{rank}. {card.name} - Rating: {card.rating} ({card.wins}-{card.losses})"
+            f"{rank}. {card.name} - Rating: {card.rating}"
+            f" ({card.wins}-{card.losses})"
         )
 
     report = platform.generate_tournament_report()

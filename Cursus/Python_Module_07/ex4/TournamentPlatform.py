@@ -45,9 +45,14 @@ class TournamentPlatform:
         return self.cards
 
     def generate_tournament_report(self) -> dict:
+        avg_rating = (
+            sum(card.rating for card in self.cards) / len(self.cards)
+            if self.cards
+            else 0
+        )
         return {
             "matches_played": self.matches,
             "total_cards": len(self.cards),
-            "avg_rating": sum(card.rating for card in self.cards) / len(self.cards),
+            "avg_rating": avg_rating,
             "platform_status": "active",
         }
