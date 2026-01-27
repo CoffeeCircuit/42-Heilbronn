@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/26 23:27:58 by abalcu            #+#    #+#             */
-/*   Updated: 2026/01/27 04:48:49 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/01/27 04:52:00 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ int	main(int argc, char **argv)
 {
 	t_args	args;
 
-	if (!validate_args(argc, argv) || !parse_positional_args(argc, argv, &args))
+	if (!validate_args(argc, argv) || !parse_args(argc, argv, &args))
 	{
 		print_help(stderr, argv[0]);
 		return (EXIT_FAILURE);

@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/26 23:38:42 by abalcu            #+#    #+#             */
-/*   Updated: 2026/01/27 04:35:21 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/01/27 04:52:04 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ typedef struct s_args
 }				t_args;
 
 void			print_help(FILE *stream, char *program_name);
-int				parse_positional_args(int argc, char **argv, t_args *args);
+int				parse_args(int argc, char **argv, t_args *args);
 int				is_positive_integer(const char *str);
 int				is_valid_scheduler(const char *str);
 int				validate_args(int argc, char **argv);

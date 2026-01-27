@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/27 04:30:26 by abalcu            #+#    #+#             */
-/*   Updated: 2026/01/27 04:47:14 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/01/27 04:51:55 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void	print_help(FILE *stream, char *program_name)
 	fprintf(stream, str, program_name, program_name, program_name);
 }
 
-int	parse_positional_args(int argc, char **argv, t_args *args)
+int	parse_args(int argc, char **argv, t_args *args)
 {
 	if (argc < 8)
 		return (0);
