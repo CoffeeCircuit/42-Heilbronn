@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/26 23:27:58 by abalcu            #+#    #+#             */
-/*   Updated: 2026/01/27 04:14:34 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/01/27 04:19:08 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,28 +39,25 @@ void log_action(double timestamp, int coder_no, t_action action)
 
 void print_help(FILE* stream, char *program_name)
 {
-	const char *str = "Usage: %s [OPTIONS]...\n"
+	const char *str = "Usage: %s ARGS...\n"
 		"\n"
-		"Options:\n"
-		"  -n <number_of_coders>      Number of coders\n"
-		"  -b <time_to_burnout>       Time (in ms) to coder burns out\n"
-		"  -c <time_to_compile>       Time (in ms) to compile code\n"
-		"  -d <time_to_debug>         Time (in ms) to debug code\n"
-		"  -r <time_to_refactor>      Time (in ms) to refactor code\n"
-		"  -l <compile_limit>         Number of compilations before ending"
+		"Arguments:\n"
+		"  <number_of_coders>      Number of coders\n"
+		"  <time_to_burnout>       Time (in ms) to coder burns out\n"
+		"  <time_to_compile>       Time (in ms) to compile code\n"
+		"  <time_to_debug>         Time (in ms) to debug code\n"
+		"  <time_to_refactor>      Time (in ms) to refactor code\n"
+		"  <compile_limit>         Number of compilations before ending"
 		" simulation\n"
-		"  -q <dongle_cooldown>       Time (in ms) for dongle cooldown\n"
-		"  -s <scheduler>             Scheduler type (FIFO | EDF)\n"
+		"  <dongle_cooldown>       Time (in ms) for dongle cooldown\n"
+		"  <scheduler>             Scheduler type (FIFO | EDF)\n"
 		"  -h                         Display this help message\n"
 		"\n"
 		"Observations:\n"
 		" - All arguments are mandatory and must be positive integers.\n"
 		" - The scheduler must be either 'FIFO' or 'EDF' (case insensitive).\n"
-		" - If options are not used, arguments can be provided in the"
-		" order displayed above:\n"
 		"\n"
 		"Example:\n"
-		"  %s -n 5 -b 800 -c 200 -d 100 -r 150 -l 10 -q 50 -s FIFO\n"
 		"  %s 5 800 200 100 150 10 50 FIFO\n";
 	
 	fprintf(stream, str, program_name, program_name, program_name);

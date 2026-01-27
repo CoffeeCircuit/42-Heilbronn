@@ -6,7 +6,7 @@
 #    By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/26 23:38:12 by abalcu            #+#    #+#              #
-#    Updated: 2026/01/26 23:38:15 by abalcu           ###   ########.fr        #
+#    Updated: 2026/01/27 04:23:52 by abalcu           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,13 +31,10 @@ $(NAME): $(OBJS)
 	$(CC) $(CFLAGS) -I $(INCLUDES) -c $< -o $@
 
 clean:
-	@echo "Cleaning object files..."
 	rm -f $(OBJS)
 
 fclean: clean
-	@echo "Cleaning up binary files..."
 	rm -f $(NAME)
 
 re: fclean all
-	@echo "Rebuilding everything."
 
