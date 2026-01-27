@@ -6,12 +6,12 @@
 #    By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/26 23:38:12 by abalcu            #+#    #+#              #
-#    Updated: 2026/01/27 04:23:52 by abalcu           ###   ########.fr        #
+#    Updated: 2026/01/27 04:39:53 by abalcu           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME=codexion
-SRCS = codexion.c
+SRCS = codexion.c argparse.c
 OBJS = $(SRCS:.c=.o)
 INCLUDES = coders/
 
