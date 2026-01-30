@@ -6,11 +6,12 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/27 04:30:26 by abalcu            #+#    #+#             */
-/*   Updated: 2026/01/27 04:51:55 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/01/30 07:12:31 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
+#include <stdio.h>
 
 void	print_help(FILE *stream, char *program_name)
 {
@@ -34,28 +35,14 @@ void	print_help(FILE *stream, char *program_name)
 		"Example:\n"
 		"  %s 5 800 200 100 150 10 50 FIFO\n";
 
-	fprintf(stream, str, program_name, program_name, program_name);
+	fprintf(stream, str, program_name, program_name);
 }
 
-int	parse_args(int argc, char **argv, t_args *args)
-{
-	if (argc < 8)
-		return (0);
-	args->number_of_coders = atoi(argv[1]);
-	args->time_to_burnout = atoi(argv[2]);
-	args->time_to_compile = atoi(argv[3]);
-	args->time_to_debug = atoi(argv[4]);
-	args->time_to_refactor = atoi(argv[5]);
-	args->compile_limit = atoi(argv[6]);
-	args->dongle_cooldown = atoi(argv[7]);
-	strncpy(args->scheduler, argv[8], 4);
-	args->scheduler[4] = '\0';
-	return (1);
-}
-
-int	is_positive_integer(const char *str)
+static int	is_positive_integer(const char *str)
 {
 	if (*str == '\0')
+		return (0);
+	if (str[0] == '0' && str[1] != '\0')
 		return (0);
 	while (*str)
 	{
@@ -66,7 +53,7 @@ int	is_positive_integer(const char *str)
 	return (1);
 }
 
-int	is_valid_scheduler(const char *str)
+static int	is_valid_scheduler(const char *str)
 {
 	int		i;
 	char	lower_str[5];
@@ -74,14 +61,14 @@ int	is_valid_scheduler(const char *str)
 	i = 0;
 	while (str[i] && i < 4)
 	{
-		lower_str[i] = str[i] & ~32;
+		lower_str[i] = str[i] & ~32; //TODO "FIFO123" → also OK, because you only copy the first 4 chars
 		i++;
 	}
 	lower_str[i] = '\0';
 	return (strcmp(lower_str, "FIFO") == 0 || strcmp(lower_str, "EDF") == 0);
 }
 
-int	validate_args(int argc, char **argv)
+static int	validate_args(int argc, char **argv)
 {
 	int	i;
 
@@ -93,5 +80,25 @@ int	validate_args(int argc, char **argv)
 			return (0);
 	if (!is_valid_scheduler(argv[argc - 1]))
 		return (0);
+	return (1);
+}
+
+int	parse_arguments(int argc, char **argv, t_sim *sim)
+{
+	int	i;
+
+	if (!validate_args(argc, argv))
+		return (0);
+	sim->number_of_coders = atoi(argv[1]); //TODO integer overflow??
+	sim->time_to_burnout = atoi(argv[2]);
+	sim->time_to_compile = atoi(argv[3]);
+	sim->time_to_debug = atoi(argv[4]);
+	sim->time_to_refactor = atoi(argv[5]);
+	sim->number_of_compiles_required = atoi(argv[6]);
+	sim->dongle_cooldown = atoi(argv[7]);
+	i = 0;
+	while (i < 4)
+		sim->scheduler[i] = argv[8][i++];
+	sim->scheduler[4] = '\0';
 	return (1);
 }

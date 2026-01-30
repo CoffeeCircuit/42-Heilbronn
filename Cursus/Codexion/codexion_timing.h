@@ -1,23 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   codexion.c                                         :+:      :+:    :+:   */
+/*   codexion_timing.h                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/26 23:27:58 by abalcu            #+#    #+#             */
-/*   Updated: 2026/01/30 06:56:19 by abalcu           ###   ########.fr       */
+/*   Created: 2026/01/30 05:25:00 by abalcu            #+#    #+#             */
+/*   Updated: 2026/01/30 06:02:51 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "codexion.h"
+#ifndef CODEXION_TIMING_H
+# define CODEXION_TIMING_H
+# include <sys/time.h>
 
-int	main(int argc, char **argv)
-{
-	t_sim	sim;
+long	get_timestamp(struct timeval *start);
 
-	if (!parse_arguments(argc, argv, &sim))
-		return (print_help(stderr, "codexion"), 1);
-
-	return (0);
-}
+#endif

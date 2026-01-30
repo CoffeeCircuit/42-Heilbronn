@@ -1,23 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   codexion.c                                         :+:      :+:    :+:   */
+/*   timing.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/26 23:27:58 by abalcu            #+#    #+#             */
-/*   Updated: 2026/01/30 06:56:19 by abalcu           ###   ########.fr       */
+/*   Created: 2026/01/30 05:17:23 by abalcu            #+#    #+#             */
+/*   Updated: 2026/01/30 06:05:36 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "codexion.h"
+#include "codexion_timing.h"
+#include <stddef.h>
+#include <sys/time.h>
 
-int	main(int argc, char **argv)
+long	get_timestmap(struct timeval *start)
 {
-	t_sim	sim;
+	struct timeval	now;
+	long			delta_sec;
+	long			delta_usec;
 
-	if (!parse_arguments(argc, argv, &sim))
-		return (print_help(stderr, "codexion"), 1);
-
-	return (0);
+	gettimeofday(&now, NULL);
+	delta_sec = now.tv_sec - start->tv_sec;
+	delta_usec = now.tv_usec - start->tv_usec;
+	if (delta_usec < 0)
+	{
+		delta_sec -= 1;
+		delta_usec += 1000000;
+	}
+	return (delta_sec * 1000 + delta_usec / 1000);
 }
