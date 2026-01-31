@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/30 05:25:00 by abalcu            #+#    #+#             */
-/*   Updated: 2026/01/30 06:02:51 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/01/31 22:54:43 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define CODEXION_TIMING_H
 # include <sys/time.h>
 
-long	get_timestamp(struct timeval *start);
+long	get_timestmap(struct timeval *start);
+void	set_timeout(struct timespec *timeout, long duration_ms);
 
 #endif

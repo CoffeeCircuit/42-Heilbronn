@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/30 03:48:44 by abalcu            #+#    #+#             */
-/*   Updated: 2026/01/30 06:59:42 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/01/31 23:19:13 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ typedef struct s_sim
 	pthread_mutex_t		print_lock;
 	pthread_mutex_t		sim_stop_lock;
 	struct timeval		sim_start;
-	char 				scheduler[5]
+	char 				scheduler[5];
 }						t_sim;
 
 typedef struct s_coder
