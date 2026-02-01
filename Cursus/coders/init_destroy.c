@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 02:50:25 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/01 02:55:14 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/01 04:02:43 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,8 @@ int	init_sim(t_sim *sim)
 		return (0);
 	if (pthread_mutex_init(&sim->sim_stop_lock, NULL) != 0)
 		return (0);
+	if (pthread_cond_init(&sim->sim_stop_cond, NULL) != 0)
+		return (0);
 	sim->coders = (t_coder *)malloc(sim->number_of_coders * sizeof(t_coder));
 	if (!sim->coders)
 		return (0);
@@ -130,4 +132,5 @@ void	destroy_sim(t_sim *sim)
 	}
 	pthread_mutex_destroy(&sim->print_lock);
 	pthread_mutex_destroy(&sim->sim_stop_lock);
+	pthread_cond_destroy(&sim->sim_stop_cond);
 }

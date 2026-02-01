@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/30 03:48:44 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/01 02:59:13 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/01 03:40:28 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ typedef struct s_sim
 	t_dongle			*dongles;
 	pthread_t			monitor;
 	pthread_mutex_t		print_lock;
+	pthread_cond_t		sim_stop_cond;
 	pthread_mutex_t		sim_stop_lock;
 	struct timeval		sim_start;
 	t_strat				scheduler;

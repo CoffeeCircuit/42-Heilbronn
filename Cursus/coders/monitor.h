@@ -1,25 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   codexion.h                                         :+:      :+:    :+:   */
+/*   monitor.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/30 06:27:35 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/01 04:19:03 by abalcu           ###   ########.fr       */
+/*   Created: 2026/02/01 04:17:18 by abalcu            #+#    #+#             */
+/*   Updated: 2026/02/01 04:18:00 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CODEXION_H
-# define CODEXION_H
+#ifndef MONITOR_H
+# define MONITOR_H
 
-# include "argparse.h"
-# include "logging.h"
-# include "monitor.h"
-# include "timing.h"
-# include "types.h"
+void	*monitor_job(void *args);
 
-// # include "queue.h"
-// # include "sim.h"
+#endif // MONITOR_H
 
-#endif // CODEXION_H
