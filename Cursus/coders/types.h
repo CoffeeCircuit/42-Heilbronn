@@ -6,17 +6,38 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/30 03:48:44 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/01 03:40:28 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/02 03:55:25 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef TYPES_H
 # define TYPES_H
-
 # include <pthread.h>
 # include <sys/time.h>
 
+typedef int				t_flag;
+typedef int				(*t_init_fn)(void *ctx, int index);
+typedef void			(*t_cleanup_fn)(void *ctx, int index);
 typedef struct s_coder	t_coder;
+
+typedef struct s_init_flags
+{
+	t_flag				coders_allocated;
+	t_flag				dongles_allocated;
+	t_flag				coder_mutexes;
+	t_flag				coder_conds;
+	t_flag				dongle_mutexes;
+	t_flag				dongle_conds;
+	t_flag				queues_initialized;
+	t_flag				monitor_created;
+	t_flag				coder_threads_created;
+}						t_init_flags;
+
+typedef struct s_step
+{
+	t_init_fn			init;
+	t_cleanup_fn		cleanup;
+}						t_step;
 
 typedef enum e_action
 {
@@ -48,8 +69,8 @@ typedef struct s_qentry
 
 typedef struct s_queue
 {
-	int					queue_length;
-	int					queue_capacity;
+	int					qlength;
+	int					qcapacity;
 	t_qentry			*entries;
 }						t_queue;
 
@@ -82,6 +103,7 @@ typedef struct s_sim
 	pthread_cond_t		sim_stop_cond;
 	pthread_mutex_t		sim_stop_lock;
 	struct timeval		sim_start;
+	t_init_flags		init_flags;
 	t_strat				scheduler;
 }						t_sim;
 

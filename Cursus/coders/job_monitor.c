@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 04:15:46 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/01 04:16:45 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/01 04:32:33 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,7 @@ void	*monitor_job(void *args)
 			if (coder_i != -1)
 			{
 				sim->sim_stop = 1;
-				log_burnout(&sim->coders[coder_i], get_timestamp(&timestamp));
-					// TODO make get_timestamp to refence sim.start
+				log_action(sim, coder_i, BURNOUT);
 				pthread_cond_broadcast(&sim->sim_stop_cond);
 				break ;
 			}

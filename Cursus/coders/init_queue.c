@@ -1,25 +1,34 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   logging.h                                          :+:      :+:    :+:   */
+/*   init_queue.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/30 05:25:18 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/01 03:00:29 by abalcu           ###   ########.fr       */
+/*   Created: 2026/02/02 01:53:38 by abalcu            #+#    #+#             */
+/*   Updated: 2026/02/02 03:54:31 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LOGGING_H
-# define LOGGING_H
-# include "types.h"
+#include "codexion.h"
 
-void	log_compile(t_coder *coder, long timestamp);
-void	log_debug(t_coder *coder, long timestamp);
-void	log_refactor(t_coder *coder, long timestamp);
-void	log_pick_dongle(t_coder *coder, long timestamp);
-void	log_burnout(t_coder *coder, long timestamp);
+int	init_queue(t_queue **qptr, int capacity)
+{
+	t_queue	*queue;
 
-void	log_action(t_sim *sim, int coder_id, t_action action);
-
-#endif
+	*qptr = NULL;
+	queue = (t_queue *)malloc(sizeof(t_queue));
+	if (!queue)
+		return (0);
+	queue->qlength = 0;
+	queue->qcapacity = capacity;
+	queue->entries = malloc(sizeof(t_qentry) * capacity);
+	if (!queue->entries)
+	{
+		free(queue);
+		*qptr = NULL;
+		return (0);
+	}
+	*qptr = queue;
+	return (1);
+}

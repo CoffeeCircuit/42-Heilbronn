@@ -1,21 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   argparse.h                                         :+:      :+:    :+:   */
+/*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/30 06:44:38 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/01 03:04:50 by abalcu           ###   ########.fr       */
+/*   Created: 2026/02/02 02:30:18 by abalcu            #+#    #+#             */
+/*   Updated: 2026/02/02 02:30:21 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef ARGPARSE_H
-# define ARGPARSE_H
-# include <stdio.h>
-# include "types.h"
+#include "codexion.h"
 
-int		parse_arguments(int argc, char **argv, t_sim *sim);
-void	print_help(FILE *stream, char *program_name);
+int	run_init_steps(void *ctx, int count, t_step *steps)
+{
+	int	i;
 
-#endif // CODEXION_ARGPARSE_H
+	i = 0;
+	while (i < count)
+	{
+		if (!steps[i].init(ctx, i))
+		{
+			while (--i >= 0)
+				steps[i].cleanup(ctx, i);
+			return (0);
+		}
+	}
+	return (1);
+}

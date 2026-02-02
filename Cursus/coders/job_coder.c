@@ -1,21 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   init_destroy.h                                     :+:      :+:    :+:   */
+/*   job_coder.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/01 02:53:21 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/01 03:00:13 by abalcu           ###   ########.fr       */
+/*   Created: 2026/02/02 04:11:21 by abalcu            #+#    #+#             */
+/*   Updated: 2026/02/02 04:16:58 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef INIT_DESTROY_H
-# define INIT_DESTROY_H
-# include "types.h"
+#include "codexion.h"
 
-int		init_sim(t_sim *sim);
-void	join_threads(t_sim *sim);
-void	destroy_sim(t_sim *sim);
+static void	compile(void *vcoder)
+{
+}
 
-#endif
+static void	debug(void *vcoder)
+{
+}
+
+static void	refactor(void *vcoder)
+{
+}
+
+void	*coder_job(void *args)
+{
+	while (1)
+	{
+		compile(args);
+		debug(args);
+		refactor(args);
+	}
+}
