@@ -1,20 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   codexion_timing.h                                  :+:      :+:    :+:   */
+/*   init_queue.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/30 05:25:00 by abalcu            #+#    #+#             */
-/*   Updated: 2026/01/31 22:54:43 by abalcu           ###   ########.fr       */
+/*   Created: 2026/02/02 01:53:38 by abalcu            #+#    #+#             */
+/*   Updated: 2026/02/03 04:43:24 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CODEXION_TIMING_H
-# define CODEXION_TIMING_H
-# include <sys/time.h>
+#include "codexion.h"
+#include <stdlib.h>
 
-long	get_timestmap(struct timeval *start);
-void	set_timeout(struct timespec *timeout, long duration_ms);
+int	init_queue(t_queue **qptr, int capacity)
+{
+	t_queue	*queue;
 
-#endif
+	*qptr = NULL;
+	queue = (t_queue *)malloc(sizeof(t_queue));
+	if (!queue)
+		return (0);
+	queue->qlength = 0;
+	queue->qcapacity = capacity;
+	queue->entries = malloc(sizeof(t_qentry) * capacity);
+	if (!queue->entries)
+	{
+		free(queue);
+		*qptr = NULL;
+		return (0);
+	}
+	*qptr = queue;
+	return (1);
+}

@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/27 04:30:26 by abalcu            #+#    #+#             */
-/*   Updated: 2026/01/31 23:57:50 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/03 22:11:05 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,8 +75,6 @@ static int	validate_args(int argc, char **argv)
 
 int	parse_arguments(int argc, char **argv, t_sim *sim)
 {
-	int	i;
-
 	if (!validate_args(argc, argv))
 		return (0);
 	sim->number_of_coders = atoi(argv[1]);
@@ -86,10 +84,10 @@ int	parse_arguments(int argc, char **argv, t_sim *sim)
 	sim->time_to_refactor = atoi(argv[5]);
 	sim->number_of_compiles_required = atoi(argv[6]);
 	sim->dongle_cooldown = atoi(argv[7]);
-	i = -1;
-	while (++i < 4)
-		sim->scheduler[i] = argv[8][i];
-	sim->scheduler[4] = '\0';
+	if (strcmp(argv[8], "FIFO") == 0)
+		sim->scheduler = FIFO;
+	if (strcmp(argv[8], "EDF") == 0)
+		sim->scheduler = EDF;
 	return (1);
 }
 
