@@ -6,14 +6,14 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/30 06:27:35 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/02 04:27:55 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/03 03:13:05 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CODEXION_H
 # define CODEXION_H
-# include <stdio.h>
 # include "types.h"
+# include <stdio.h>
 
 int		parse_arguments(int argc, char **argv, t_sim *sim);
 void	print_help(FILE *stream, char *program_name);
@@ -37,5 +37,11 @@ long	get_timestamp(struct timeval *start);
 void	set_timeout_ts(struct timespec *timeout, long duration_ms);
 void	set_timeout_tv(struct timeval *timeout, long duration_ms);
 void	update_timeout(struct timeval *last, long duration_ms);
+
+void	queue_push(t_queue *queue, t_coder *coder);
+void	queue_pop(t_queue *queue, t_coder *coder);
+t_coder	*fifo_select(t_queue *queue);
+t_coder	*edf_select(t_queue *queue);
+t_coder	*scheduler_select(t_dongle *dongle);
 
 #endif // CODEXION_H
