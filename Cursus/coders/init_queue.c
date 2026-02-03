@@ -6,11 +6,12 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 01:53:38 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/02 03:54:31 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/03 04:43:24 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
+#include <stdlib.h>
 
 int	init_queue(t_queue **qptr, int capacity)
 {

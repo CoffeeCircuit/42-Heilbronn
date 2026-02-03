@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/30 06:27:35 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/03 03:13:05 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/03 04:33:17 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 int		parse_arguments(int argc, char **argv, t_sim *sim);
 void	print_help(FILE *stream, char *program_name);
 
-int		run_init_steps(void *ctx, int count, t_step *steps);
+int		run_init_steps(void *ctx, int count, int num_steps, t_step *steps);
 int		init_queue(t_queue **qptr, int capacity);
 int		init_dongles(t_sim *sim);
 int		init_coders(t_sim *sim);
@@ -43,5 +43,7 @@ void	queue_pop(t_queue *queue, t_coder *coder);
 t_coder	*fifo_select(t_queue *queue);
 t_coder	*edf_select(t_queue *queue);
 t_coder	*scheduler_select(t_dongle *dongle);
+
+void	destroy_sim(t_sim *sim);
 
 #endif // CODEXION_H

@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/30 04:42:38 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/01 00:10:11 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/03 04:36:43 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,16 +16,19 @@
 void	log_compile(t_coder *coder, long timestamp)
 {
 	printf("%ld %d is compiling\n", timestamp, coder->id);
+	fflush(stdout);
 }
 
 void	log_debug(t_coder *coder, long timestamp)
 {
 	printf("%ld %d is debugging\n", timestamp, coder->id);
+	fflush(stdout);
 }
 
 void	log_refactor(t_coder *coder, long timestamp)
 {
 	printf("%ld %d is refactoring\n", timestamp, coder->id);
+	fflush(stdout);
 }
 
 void	log_pick_dongle(t_coder *coder, long timestamp)

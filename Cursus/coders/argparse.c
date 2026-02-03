@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/27 04:30:26 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/01 03:03:30 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/03 04:42:41 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ int	parse_arguments(int argc, char **argv, t_sim *sim)
 
 void	print_help(FILE *stream, char *program_name)
 {
-	const char	*str = "Usage: %s ARGS...\n"
+	const char *str = "Usage: %s ARGS...\n"
 		"\n"
 		"Arguments:\n"
 		"  <number_of_coders>      Number of coders\n"
@@ -112,6 +112,5 @@ void	print_help(FILE *stream, char *program_name)
 		"\n"
 		"Example:\n"
 		"  %s 5 800 200 100 150 10 50 FIFO\n";
-
 	fprintf(stream, str, program_name, program_name);
 }

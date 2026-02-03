@@ -6,11 +6,12 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 00:23:57 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/02 03:30:50 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/03 04:42:47 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
+#include <stdlib.h>
 
 void	destroy_sim(t_sim *sim)
 {

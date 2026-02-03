@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/30 04:42:38 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/01 00:10:34 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/03 04:26:48 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ void	log_action(t_sim *sim, int coder_id, t_action action)
 	long	timestamp;
 	t_coder	*coder;
 
-	coder = &sim->coders[coder_id - 1];
+	coder = &sim->coders[coder_id];
 	timestamp = get_timestamp(&sim->sim_start);
 	pthread_mutex_lock(&sim->print_lock);
 	if (action == COMPILE)

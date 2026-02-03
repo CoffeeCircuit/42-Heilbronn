@@ -1,25 +1,67 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   monitor.c                                          :+:      :+:    :+:   */
+/*   job_monitor.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 04:15:46 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/01 04:32:33 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/03 04:55:37 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 #include <errno.h>
 
+int	found_burnout(t_coder *coders)
+{
+	int		i;
+	long	elapsed;
+
+	i = 0;
+	while (i < coders[0].sim->number_of_coders)
+	{
+		pthread_mutex_lock(&coders[i].state_lock);
+		if (coders[i].ts_comp_start.tv_sec != 0)
+		{
+			elapsed = get_timestamp(&coders[i].ts_comp_start);
+			if (elapsed > coders[i].sim->time_to_burnout)
+			{
+				pthread_mutex_unlock(&coders[i].state_lock);
+				return (i);
+			}
+		}
+		pthread_mutex_unlock(&coders[i].state_lock);
+		i++;
+	}
+	return (-1);
+}
+
+int	reached_comp_count(t_coder *coders)
+{
+	int	i;
+
+	i = 0;
+	while (i < coders[0].sim->number_of_coders)
+	{
+		pthread_mutex_lock(&coders[i].state_lock);
+		if (coders[i].compilations < coders[i].sim->number_of_compiles_required)
+		{
+			pthread_mutex_unlock(&coders[i].state_lock);
+			return (0);
+		}
+		pthread_mutex_unlock(&coders[i].state_lock);
+		i++;
+	}
+	return (1);
+}
+
 void	*monitor_job(void *args)
 {
-	t_sim *sim;
-	int coder_i;
-	int retcode;
-	struct timespec timeout;
-	struct timeval timestamp;
+	t_sim			*sim;
+	int				coder_i;
+	int				retcode;
+	struct timespec	timeout;
 
 	retcode = 0;
 	sim = (t_sim *)args;
@@ -31,7 +73,7 @@ void	*monitor_job(void *args)
 				&sim->sim_stop_lock, &timeout);
 		if (retcode == ETIMEDOUT)
 		{
-			coder_i = found_burnout(sim->coders); // TODO implementation
+			coder_i = found_burnout(sim->coders);
 			if (coder_i != -1)
 			{
 				sim->sim_stop = 1;
@@ -39,7 +81,7 @@ void	*monitor_job(void *args)
 				pthread_cond_broadcast(&sim->sim_stop_cond);
 				break ;
 			}
-			if (reached_comp_count(sim->coders)) // TODO implementation
+			if (reached_comp_count(sim->coders))
 			{
 				sim->sim_stop = 1;
 				printf("Compilation finished\n");
@@ -50,4 +92,4 @@ void	*monitor_job(void *args)
 	}
 	pthread_mutex_unlock(&sim->sim_stop_lock);
 	return (NULL);
-} // TODO break in multiple functions
+}

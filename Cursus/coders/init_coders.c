@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 01:53:38 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/02 03:16:09 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/03 04:43:14 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,18 +39,24 @@ int	init_coders(t_sim *sim)
 	int				i;
 	t_coder			*coders;
 	static t_step	steps[] = {{coder_mutex_init, coder_mutex_cleanup},
-	{coder_cond_init, coder_cond_cleanup}};
+			{coder_cond_init, coder_cond_cleanup}};
 
-	if (!run_init_steps(sim, sim->number_of_coders, steps))
+	if (!run_init_steps(sim, sim->number_of_coders, sizeof(steps)
+			/ sizeof(steps[0]), steps))
 		return (0);
 	i = 0;
 	coders = sim->coders;
 	while (i < sim->number_of_coders)
 	{
-		coders[i] = (t_coder){.id = i, .compilations = 0, .state = OK,
-			.ts_burnout = sim->sim_start, .ldongle = &sim->dongles[(2 * i - 1
-				+ sim->number_of_coders) % sim->number_of_coders],
-			.rdongle = &sim->dongles[(2 * i + 1) % sim->number_of_coders]};
+		coders[i].id = i;
+		coders[i].compilations = 0;
+		coders[i].state = OK;
+		coders[i].ts_burnout = sim->sim_start;
+		coders[i].ts_comp_start.tv_sec = 0;
+		coders[i].ts_comp_start.tv_usec = 0;
+		coders[i].ldongle = &sim->dongles[i];
+		coders[i].rdongle = &sim->dongles[(i + 1) % sim->number_of_coders];
+		coders[i].sim = sim;
 		update_timeout(&coders[i].ts_burnout, sim->time_to_burnout);
 		i++;
 	}

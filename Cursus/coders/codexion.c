@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/26 23:27:58 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/02 04:20:01 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/03 04:40:27 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ int	main(int argc, char **argv)
 				&sim.coders[i]) != 0)
 			break ;
 		sim.init_flags.coder_threads_created++;
+		i++;
 	}
 	join_threads(&sim);
 	destroy_sim(&sim);

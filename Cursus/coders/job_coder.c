@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 04:11:21 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/03 04:02:36 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/03 04:56:27 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ static void	compile(t_coder *coder)
 
 	first = coder->ldongle;
 	second = coder->rdongle;
-	if (first->id > second->id)
+	if (coder->id == coder->sim->number_of_coders - 1)
 	{
 		tmp = first;
 		first = second;
@@ -71,33 +71,35 @@ static void	compile(t_coder *coder)
 		return ;
 	if (!pick_dongle(coder, second))
 	{
-		release_dongle(first);
+		pthread_mutex_lock(&first->dongle_lock);
+		first->is_free = 1;
+		pthread_cond_broadcast(&first->free_cond);
+		pthread_mutex_unlock(&first->dongle_lock);
 		return ;
 	}
 	pthread_mutex_lock(&coder->state_lock);
 	gettimeofday(&coder->ts_comp_start, NULL);
+	coder->compilations++;
 	pthread_mutex_unlock(&coder->state_lock);
-	pthread_mutex_lock(&coder->sim->print_lock);
 	log_action(coder->sim, coder->id, COMPILE);
-	pthread_mutex_unlock(&coder->sim->print_lock);
 	usleep(coder->sim->time_to_compile * 1000);
+	pthread_mutex_lock(&coder->state_lock);
+	coder->ts_comp_start.tv_sec = 0;
+	coder->ts_comp_start.tv_usec = 0;
+	pthread_mutex_unlock(&coder->state_lock);
 	release_dongle(first);
 	release_dongle(second);
 }
 
 static void	debug(t_coder *coder)
 {
-	pthread_mutex_lock(&coder->sim->print_lock);
 	log_action(coder->sim, coder->id, DEBUG);
-	pthread_mutex_unlock(&coder->sim->print_lock);
 	usleep(coder->sim->time_to_debug * 1000);
 }
 
 static void	refactor(t_coder *coder)
 {
-	pthread_mutex_lock(&coder->sim->print_lock);
 	log_action(coder->sim, coder->id, REFACTOR);
-	pthread_mutex_unlock(&coder->sim->print_lock);
 	usleep(coder->sim->time_to_refactor * 1000);
 }
 
@@ -111,13 +113,18 @@ void	*coder_job(void *args)
 	sim = coder->sim;
 	while (1)
 	{
-		// Check if simulation should stop
 		pthread_mutex_lock(&sim->sim_stop_lock);
 		stop = sim->sim_stop;
 		pthread_mutex_unlock(&sim->sim_stop_lock);
 		if (stop)
 			break ;
 		compile(coder);
+		// Check if we should stop after compile (may have returned early)
+		pthread_mutex_lock(&sim->sim_stop_lock);
+		stop = sim->sim_stop;
+		pthread_mutex_unlock(&sim->sim_stop_lock);
+		if (stop)
+			break ;
 		debug(coder);
 		refactor(coder);
 	}
