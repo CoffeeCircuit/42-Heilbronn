@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/26 23:27:58 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/03 04:40:27 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/04 00:10:55 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ int	main(int argc, char **argv)
 	t_sim	sim;
 
 	if (!parse_arguments(argc, argv, &sim))
-		return (print_help(stderr, "codexion"), EXIT_FAILURE);
+		return (print_help(stderr, "codexion", "Invalid arguments"), 1);
 	if (!init_sim(&sim))
 		return (EXIT_FAILURE);
 	if (pthread_create(&sim.monitor, NULL, monitor_job, &sim) != 0)

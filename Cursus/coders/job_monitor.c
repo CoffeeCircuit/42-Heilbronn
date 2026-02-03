@@ -6,14 +6,14 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 04:15:46 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/03 04:55:37 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/03 23:44:53 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 #include <errno.h>
 
-int	found_burnout(t_coder *coders)
+static int	found_burnout(t_coder *coders)
 {
 	int		i;
 	long	elapsed;
@@ -28,6 +28,9 @@ int	found_burnout(t_coder *coders)
 			if (elapsed > coders[i].sim->time_to_burnout)
 			{
 				pthread_mutex_unlock(&coders[i].state_lock);
+				coders->sim->sim_stop = 1;
+				log_action(coders->sim, i, BURNOUT);
+				pthread_cond_broadcast(&coders->sim->sim_stop_cond);
 				return (i);
 			}
 		}
@@ -37,7 +40,7 @@ int	found_burnout(t_coder *coders)
 	return (-1);
 }
 
-int	reached_comp_count(t_coder *coders)
+static int	reached_comp_count(t_coder *coders)
 {
 	int	i;
 
@@ -53,13 +56,15 @@ int	reached_comp_count(t_coder *coders)
 		pthread_mutex_unlock(&coders[i].state_lock);
 		i++;
 	}
+	coders->sim->sim_stop = 1;
+	printf("Compilation finished\n");
+	pthread_cond_broadcast(&coders->sim->sim_stop_cond);
 	return (1);
 }
 
 void	*monitor_job(void *args)
 {
 	t_sim			*sim;
-	int				coder_i;
 	int				retcode;
 	struct timespec	timeout;
 
@@ -73,21 +78,10 @@ void	*monitor_job(void *args)
 				&sim->sim_stop_lock, &timeout);
 		if (retcode == ETIMEDOUT)
 		{
-			coder_i = found_burnout(sim->coders);
-			if (coder_i != -1)
-			{
-				sim->sim_stop = 1;
-				log_action(sim, coder_i, BURNOUT);
-				pthread_cond_broadcast(&sim->sim_stop_cond);
+			if (found_burnout(sim->coders) != -1)
 				break ;
-			}
 			if (reached_comp_count(sim->coders))
-			{
-				sim->sim_stop = 1;
-				printf("Compilation finished\n");
-				pthread_cond_broadcast(&sim->sim_stop_cond);
 				break ;
-			}
 		}
 	}
 	pthread_mutex_unlock(&sim->sim_stop_lock);

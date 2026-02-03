@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 02:33:34 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/03 03:53:02 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/03 22:21:11 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,16 +52,16 @@ t_coder	*scheduler_select(t_dongle *dongle)
 		return (edf_select(dongle->queue));
 }
 
-void queue_push(t_queue *queue, t_coder *coder)
+void	queue_push(t_queue *queue, t_coder *coder)
 {
-    t_qentry *e;
+	t_qentry	*e;
 
-    if (queue->qlength >= queue->qcapacity)
-        return;
-    e = &queue->entries[queue->qlength++];
-    e->coder = coder;
-    gettimeofday(&e->requests, NULL);
-    set_timeout_tv(&e->deadline, coder->sim->time_to_burnout);
+	if (queue->qlength >= queue->qcapacity)
+		return ;
+	e = &queue->entries[queue->qlength++];
+	e->coder = coder;
+	gettimeofday(&e->requests, NULL);
+	set_timeout_tv(&e->deadline, coder->sim->time_to_burnout);
 }
 
 void	queue_pop(t_queue *queue, t_coder *coder)

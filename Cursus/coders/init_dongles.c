@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 01:53:38 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/03 04:43:20 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/03 23:47:43 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ int	init_dongles(t_sim *sim)
 	int				i;
 	t_dongle		*dongles;
 	static t_step	steps[] = {{dongle_mutex_init, dongle_mutex_cleanup},
-			{dongle_cond_init, dongle_cond_cleanup}};
+	{dongle_cond_init, dongle_cond_cleanup}};
 
 	i = 0;
 	dongles = sim->dongles;
@@ -49,18 +49,13 @@ int	init_dongles(t_sim *sim)
 		return (0);
 	while (i < sim->number_of_coders)
 	{
-		dongles[i].id = i;
-		dongles[i].is_free = 1;
-		dongles[i].cooldown_duration = sim->dongle_cooldown;
-		dongles[i].strat = sim->scheduler;
+		dongles[i] = (t_dongle){.id = i, .is_free = 1,
+			.cooldown_duration = sim->dongle_cooldown, .strat = sim->scheduler};
 		if (!init_queue(&dongles[i].queue, 2 * sim->number_of_coders))
 		{
 			while (--i >= 0)
-			{
-				free(dongles[i].queue->entries);
-				free(dongles[i].queue);
-			}
-			return (0);
+				return (free(dongles[i].queue->entries), free(dongles[i].queue),
+					0);
 		}
 		i++;
 	}

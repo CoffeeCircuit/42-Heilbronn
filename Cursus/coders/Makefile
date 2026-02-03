@@ -6,14 +6,14 @@
 #    By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/26 23:38:12 by abalcu            #+#    #+#              #
-#    Updated: 2026/02/03 04:05:01 by abalcu           ###   ########.fr        #
+#    Updated: 2026/02/03 23:05:59 by abalcu           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = codexion
 SRCS = 	argparse.c codexion.c destructors.c init_coders.c init_dongles.c \
 		init_queue.c init_steps.c job_coder.c job_monitor.c logging_actions.c \
-		logging.c scheduler.c timing.c
+		logging.c scheduler.c timing.c job_coder_utils.c
 OBJS = $(SRCS:.c=.o)
 
 

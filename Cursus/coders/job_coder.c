@@ -6,101 +6,46 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 04:11:21 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/03 04:56:27 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/03 23:36:41 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
-#include <unistd.h>
 
-static int	pick_dongle(t_coder *coder, t_dongle *dongle)
+int	check_stop(t_coder *coder, t_dongle *dongle)
 {
-	t_sim	*sim;
-	t_coder	*next;
 	int		stop;
+	t_sim	*sim;
 
 	sim = coder->sim;
-	pthread_mutex_lock(&dongle->dongle_lock);
-	queue_push(dongle->queue, coder);
-	while (1)
+	pthread_mutex_lock(&sim->sim_stop_lock);
+	stop = sim->sim_stop;
+	pthread_mutex_unlock(&sim->sim_stop_lock);
+	if (stop)
 	{
-		pthread_mutex_lock(&sim->sim_stop_lock);
-		stop = sim->sim_stop;
-		pthread_mutex_unlock(&sim->sim_stop_lock);
-		if (stop)
-		{
-			queue_pop(dongle->queue, coder);
-			pthread_mutex_unlock(&dongle->dongle_lock);
-			return (0);
-		}
-		next = scheduler_select(dongle);
-		if (next == coder && dongle->is_free)
-			break ;
-		pthread_cond_wait(&dongle->free_cond, &dongle->dongle_lock);
+		queue_pop(dongle->queue, coder);
+		pthread_mutex_unlock(&dongle->dongle_lock);
+		return (0);
 	}
-	dongle->is_free = 0;
-	queue_pop(dongle->queue, coder);
-	pthread_mutex_unlock(&dongle->dongle_lock);
 	return (1);
 }
 
-static void	release_dongle(t_dongle *dongle)
+void	set_dongle_free(t_dongle *dongle)
 {
-	usleep(dongle->cooldown_duration * 1000);
 	pthread_mutex_lock(&dongle->dongle_lock);
 	dongle->is_free = 1;
 	pthread_cond_broadcast(&dongle->free_cond);
 	pthread_mutex_unlock(&dongle->dongle_lock);
+	return ;
 }
 
-static void	compile(t_coder *coder)
+void	switch_dongles(t_dongle *first, t_dongle *second)
 {
-	t_dongle	*first;
-	t_dongle	*second;
 	t_dongle	*tmp;
 
-	first = coder->ldongle;
-	second = coder->rdongle;
-	if (coder->id == coder->sim->number_of_coders - 1)
-	{
-		tmp = first;
-		first = second;
-		second = tmp;
-	}
-	if (!pick_dongle(coder, first))
-		return ;
-	if (!pick_dongle(coder, second))
-	{
-		pthread_mutex_lock(&first->dongle_lock);
-		first->is_free = 1;
-		pthread_cond_broadcast(&first->free_cond);
-		pthread_mutex_unlock(&first->dongle_lock);
-		return ;
-	}
-	pthread_mutex_lock(&coder->state_lock);
-	gettimeofday(&coder->ts_comp_start, NULL);
-	coder->compilations++;
-	pthread_mutex_unlock(&coder->state_lock);
-	log_action(coder->sim, coder->id, COMPILE);
-	usleep(coder->sim->time_to_compile * 1000);
-	pthread_mutex_lock(&coder->state_lock);
-	coder->ts_comp_start.tv_sec = 0;
-	coder->ts_comp_start.tv_usec = 0;
-	pthread_mutex_unlock(&coder->state_lock);
-	release_dongle(first);
-	release_dongle(second);
-}
-
-static void	debug(t_coder *coder)
-{
-	log_action(coder->sim, coder->id, DEBUG);
-	usleep(coder->sim->time_to_debug * 1000);
-}
-
-static void	refactor(t_coder *coder)
-{
-	log_action(coder->sim, coder->id, REFACTOR);
-	usleep(coder->sim->time_to_refactor * 1000);
+	tmp = first;
+	first = second;
+	second = tmp;
 }
 
 void	*coder_job(void *args)
@@ -119,7 +64,6 @@ void	*coder_job(void *args)
 		if (stop)
 			break ;
 		compile(coder);
-		// Check if we should stop after compile (may have returned early)
 		pthread_mutex_lock(&sim->sim_stop_lock);
 		stop = sim->sim_stop;
 		pthread_mutex_unlock(&sim->sim_stop_lock);

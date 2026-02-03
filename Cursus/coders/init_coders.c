@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 01:53:38 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/03 04:43:14 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/03 22:20:27 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ int	init_coders(t_sim *sim)
 	int				i;
 	t_coder			*coders;
 	static t_step	steps[] = {{coder_mutex_init, coder_mutex_cleanup},
-			{coder_cond_init, coder_cond_cleanup}};
+	{coder_cond_init, coder_cond_cleanup}};
 
 	if (!run_init_steps(sim, sim->number_of_coders, sizeof(steps)
 			/ sizeof(steps[0]), steps))
