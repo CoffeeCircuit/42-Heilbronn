@@ -5,36 +5,51 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/30 04:42:38 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/03 20:47:33 by abalcu           ###   ########.fr       */
+/*   Created: 2026/02/07 01:43:52 by abalcu            #+#    #+#             */
+/*   Updated: 2026/02/12 09:48:14 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
-#include <pthread.h>
 
-void	log_action(t_sim *sim, int coder_id, t_action action)
+long	get_timestamp(struct timeval *start)
 {
-	long	timestamp;
-	t_coder	*coder;
+	struct timeval	now;
+	long			elapsed_sec;
+	long			elapsed_usec;
 
-	coder = &sim->coders[coder_id];
-	timestamp = get_timestamp(&sim->sim_start);
-	pthread_mutex_lock(&sim->print_lock);
-	if (action == COMPILE && !coder->sim->sim_stop)
-		log_compile(coder, timestamp);
-	else if (action == DEBUG && !coder->sim->sim_stop)
-		log_debug(coder, timestamp);
-	else if (action == REFACTOR && !coder->sim->sim_stop)
-		log_refactor(coder, timestamp);
-	else if (action == PICK_DONGLE && !coder->sim->sim_stop)
-		log_pick_dongle(coder, timestamp);
-	else if (action == BURNOUT && !coder->sim->sim_stop)
-		log_burnout(coder, timestamp);
-	else
+	gettimeofday(&now, NULL);
+	elapsed_sec = (now.tv_sec - start->tv_sec);
+	elapsed_usec = (now.tv_usec - start->tv_usec);
+	if (elapsed_usec < 0)
 	{
-		pthread_mutex_unlock(&sim->print_lock);
-		return ;
+		elapsed_sec--;
+		elapsed_usec += 1000000;
 	}
-	pthread_mutex_unlock(&sim->print_lock);
+	return (elapsed_sec * 1000 + elapsed_usec / 1000);
+}
+
+void	log_action(t_coder *coder, t_act action)
+{
+	struct timeval	*ts_start;
+	const char		*action_str[] = {
+		"%ld %d has taken a dongle\n",
+		"%ld %d is compiling\n",
+		"%ld %d is debugging\n",
+		"%ld %d is refactoring\n",
+		"%ld %d burned out\n",
+		"%ld %d has finished\n",
+	};
+
+	ts_start = &coder->sim->sim_start;
+	pthread_mutex_lock(&coder->sim->lock_print);
+	printf(action_str[action], get_timestamp(ts_start), coder->id + 1);
+	pthread_mutex_unlock(&coder->sim->lock_print);
+}
+
+void	pthread_print(t_sim *sim, char *msg)
+{
+	pthread_mutex_lock(&sim->lock_print);
+	printf("%s\n", msg);
+	pthread_mutex_unlock(&sim->lock_print);
 }

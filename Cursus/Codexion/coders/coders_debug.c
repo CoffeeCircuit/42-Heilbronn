@@ -1,35 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   init_queue.c                                       :+:      :+:    :+:   */
+/*   coders_debug.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/02 01:53:38 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/03 04:43:24 by abalcu           ###   ########.fr       */
+/*   Created: 2026/02/12 10:12:05 by abalcu            #+#    #+#             */
+/*   Updated: 2026/02/12 10:18:46 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
-#include <stdlib.h>
 
-int	init_queue(t_queue **qptr, int capacity)
+int	debug(t_coder *coder)
 {
-	t_queue	*queue;
-
-	*qptr = NULL;
-	queue = (t_queue *)malloc(sizeof(t_queue));
-	if (!queue)
+	if (found_stop(coder))
 		return (0);
-	queue->qlength = 0;
-	queue->qcapacity = capacity;
-	queue->entries = malloc(sizeof(t_qentry) * capacity);
-	if (!queue->entries)
-	{
-		free(queue);
-		*qptr = NULL;
-		return (0);
-	}
-	*qptr = queue;
+	log_action(coder, ACT_DEBUG);
+	usleep(coder->sim->time_to_debug * 1000);
 	return (1);
 }

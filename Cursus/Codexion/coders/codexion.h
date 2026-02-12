@@ -5,52 +5,130 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/30 06:27:35 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/03 23:36:53 by abalcu           ###   ########.fr       */
+/*   Created: 2026/02/06 04:50:39 by abalcu            #+#    #+#             */
+/*   Updated: 2026/02/12 10:17:01 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CODEXION_H
 # define CODEXION_H
-# include "types.h"
+# ifndef _DEFAULT_SOURCE
+#  define _DEFAULT_SOURCE
+# endif
+# define SIM_STOP ((void *)1)
+# include <limits.h>
+# include <pthread.h>
+# include <stdbool.h>
 # include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
+# include <sys/time.h>
+# include <unistd.h>
 
-int		parse_arguments(int argc, char **argv, t_sim *sim);
-void	print_help(FILE *stream, char *program_name);
+struct				s_coder;
 
-int		run_init_steps(void *ctx, int count, int num_steps, t_step *steps);
-int		init_queue(t_queue **qptr, int capacity);
-int		init_dongles(t_sim *sim);
-int		init_coders(t_sim *sim);
+typedef enum e_act
+{
+	ACT_DONGLE_PICK,
+	ACT_COMPILE,
+	ACT_DEBUG,
+	ACT_REFACTOR,
+	ACT_BURNOUT,
+	ACT_FINISH,
+}					t_act;
 
-void	log_compile(t_coder *coder, long timestamp);
-void	log_debug(t_coder *coder, long timestamp);
-void	log_refactor(t_coder *coder, long timestamp);
-void	log_pick_dongle(t_coder *coder, long timestamp);
-void	log_burnout(t_coder *coder, long timestamp);
-void	log_action(t_sim *sim, int coder_id, t_action action);
+typedef enum e_scheduler
+{
+	SCHEDULER_FIFO,
+	SCHEDULER_EDF
+}					t_scheduler;
 
-void	*monitor_job(void *args);
-void	compile(t_coder *coder);
-void	debug(t_coder *coder);
-void	refactor(t_coder *coder);
-int		check_stop(t_coder *coder, t_dongle *dongle);
-void	set_dongle_free(t_dongle *dongle);
-void	switch_dongles(t_dongle *first, t_dongle *second);
+typedef struct s_qentry
+{
+	struct s_coder	*coder;
+	long			ts_request;
+	long			ts_deadline;
+}					t_qentry;
 
-void	*coder_job(void *args);
+typedef struct s_queue
+{
+	int				q_len;
+	int				q_cap;
+	t_qentry		*entries;
+}					t_queue;
 
-long	get_timestamp(struct timeval *start);
-void	set_timeout_ts(struct timespec *timeout, long duration_ms);
-void	set_timeout_tv(struct timeval *timeout, long duration_ms);
-void	update_timeout(struct timeval *last, long duration_ms);
+typedef struct s_dongle
+{
+	int				id;
+	bool			is_init;
+	bool			is_free;
+	int				cooldown;
+	t_queue			*queue;
+	pthread_mutex_t	lock_dongle;
+	pthread_cond_t	cond_free;
+}					t_dongle;
 
-void	queue_push(t_queue *queue, t_coder *coder);
-void	queue_pop(t_queue *queue, t_coder *coder);
-t_coder	*fifo_select(t_queue *queue);
-t_coder	*edf_select(t_queue *queue);
-t_coder	*scheduler_select(t_dongle *dongle);
+typedef struct s_sim
+{
+	int				number_of_coders;
+	int				time_to_burnout;
+	int				time_to_compile;
+	int				time_to_debug;
+	int				time_to_refactor;
+	int				number_of_compiles_required;
+	int				dongle_cooldown;
+	t_scheduler		scheduler;
+	bool			is_init;
+	bool			sim_stop;
+	char			*finished_coders;
+	struct s_coder	*coders;
+	t_dongle		*dongles;
+	pthread_t		job_monitor;
+	pthread_mutex_t	lock_print;
+	pthread_mutex_t	lock_sim;
+	pthread_cond_t	cond_sim;
+	struct timeval	sim_start;
+}					t_sim;
 
-void	destroy_sim(t_sim *sim);
+typedef struct s_coder
+{
+	int				id;
+	int				number_of_compiles;
+	bool			is_init;
+	bool			is_burntout;
+	t_dongle		*ldongle;
+	t_dongle		*rdongle;
+	pthread_t		job;
+	pthread_mutex_t	lock_state;
+	pthread_cond_t	cond_state;
+	struct timeval	ts_comp_start;
+	t_sim			*sim;
+}					t_coder;
 
-#endif // CODEXION_H
+int					parse_arguments(int argc, const char **argv, t_sim *sim);
+void				print_help(FILE *stream, char *program, char *err_msg);
+long				get_timestamp(struct timeval *start);
+void				log_action(t_coder *coder, t_act action);
+void				pthread_print(t_sim *sim, char *msg);
+
+void				sim_destroy(t_sim *sim);
+int					sim_init(t_sim *sim);
+
+void				coders_destroy(t_coder *coders, int i);
+int					coders_init(t_sim *sim);
+int					coder_jobs_init(t_sim *sim);
+int					found_stop(t_coder *coder);
+int					refactor(t_coder *coder);
+int					debug(t_coder *coder);
+
+void				dongles_destroy(t_dongle *dongles, int i);
+int					dongles_init(t_sim *sim);
+
+int					pick_dongle(t_coder *coder, t_dongle *dongle);
+void				release_dongle(t_dongle *dongle);
+t_coder				*scheduler_select(t_queue *q, t_scheduler type);
+
+void				*job_monitor(void *args);
+void				*job_coder(void *args);
+
+#endif

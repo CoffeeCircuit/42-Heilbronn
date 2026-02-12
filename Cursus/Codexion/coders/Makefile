@@ -6,28 +6,29 @@
 #    By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/26 23:38:12 by abalcu            #+#    #+#              #
-#    Updated: 2026/02/03 23:05:59 by abalcu           ###   ########.fr        #
+#    Updated: 2026/02/12 10:35:02 by abalcu           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = codexion
-SRCS = 	argparse.c codexion.c destructors.c init_coders.c init_dongles.c \
-		init_queue.c init_steps.c job_coder.c job_monitor.c logging_actions.c \
-		logging.c scheduler.c timing.c job_coder_utils.c
+NAME =	codexion
+SRCS =	argparse.c coders_debug.c coders_refactor.c dongles.c logging.c \
+		sim_init.c coders.c coders_init.c codexion.c dongles_init.c \
+		monitoring.c
 OBJS = $(SRCS:.c=.o)
-
-
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -pthread
+CFLAGS = -g -Wall -Wextra -Werror -pthread -std=c89
+CFLAGS_ASAN = $(CFLAGS) -fsanitize=address -fsanitize=leak
 LDFLAGS =
 
-
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re asan
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
 	$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(LDFLAGS)
+
+asan: $(OBJS)
+	$(CC) $(CFLAGS_ASAN) -o $(NAME) $(OBJS) $(LDFLAGS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@

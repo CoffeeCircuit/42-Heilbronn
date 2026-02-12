@@ -73,7 +73,10 @@ The implementation is in the coders/ directory and follows the requirements.
 
 - POSIX threads (pthreads) documentation.
 - Man pages for: pthread_create, pthread_mutex, pthread_cond, gettimeofday,
+- [HPC - POSIX Threads Programming](https://hpc-tutorials.llnl.gov/posix/) (archived)
+- [YoLinux - POSIX thread (pthread) libraries](https://www.yolinux.com/TUTORIALS/LinuxTutorialPosixThreads.html)
 - Video reources: [Unix Threads in C](https://youtube.com/playlist?list=PLfqABt5AS4FmuQf70psXrsMLEDQXNkLq2&si=Ap6CS8ZICSdDo5Hu)
+
 
 # Blocking cases handled
 
