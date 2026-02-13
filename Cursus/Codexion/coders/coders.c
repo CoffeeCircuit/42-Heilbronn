@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 05:17:44 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/12 10:19:50 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/13 07:55:35 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,10 @@ static int	compile(t_coder *coder)
 		return (release_dongle(coder->ldongle), 0);
 	log_action(coder, ACT_COMPILE);
 	usleep(coder->sim->time_to_compile * 1000);
+	gettimeofday(&coder->ts_comp_start, NULL);
+	coder->number_of_compiles++;
 	release_dongle(coder->ldongle);
 	release_dongle(coder->rdongle);
-	coder->number_of_compiles++;
 	return (1);
 }
 
@@ -85,27 +86,24 @@ static void	set_burnout(t_coder *coder)
 
 void	*job_coder(void *args)
 {
-	t_coder			*coder;
-	long			tdelta;
-	struct timeval	now;
+	t_coder	*coder;
+	long	tdelta;
 
 	coder = (t_coder *)args;
 	while (true)
 	{
 		if (found_stop(coder))
 			break ;
+		tdelta = get_timestamp(&coder->ts_comp_start);
+		if (tdelta >= coder->sim->time_to_burnout)
+		{
+			set_burnout(coder);
+			break ;
+		}
 		if (compile(coder))
 		{
 			if (!debug(coder) || !refactor(coder))
 				break ;
-			gettimeofday(&now, NULL);
-			tdelta = get_timestamp(&coder->ts_comp_start);
-			if (tdelta >= coder->sim->time_to_burnout)
-			{
-				set_burnout(coder);
-				break ;
-			}
-			coder->ts_comp_start = now;
 		}
 	}
 	return (NULL);

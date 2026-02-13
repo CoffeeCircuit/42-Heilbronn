@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 05:31:31 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/12 09:53:23 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/13 08:38:41 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,21 +75,14 @@ int	pick_dongle(t_coder *coder, t_dongle *dongle)
 	queue_push(dongle->queue, coder);
 	while (true)
 	{
-		pthread_mutex_lock(&coder->sim->lock_sim);
 		if (coder->sim->sim_stop)
 		{
-			pthread_mutex_unlock(&coder->sim->lock_sim);
 			queue_pop(dongle->queue, coder);
 			pthread_mutex_unlock(&dongle->lock_dongle);
 			return (0);
 		}
-		pthread_mutex_unlock(&coder->sim->lock_sim);
-		if (dongle->is_free)
-		{
-			if (scheduler_select(dongle->queue, coder->sim->scheduler) == coder)
-				break ;
-		}
-		pthread_cond_wait(&dongle->cond_free, &dongle->lock_dongle);
+		if (check_cooldown(coder, dongle) != 0)
+			break ;
 	}
 	dongle->is_free = false;
 	queue_pop(dongle->queue, coder);
@@ -99,9 +92,9 @@ int	pick_dongle(t_coder *coder, t_dongle *dongle)
 
 void	release_dongle(t_dongle *dongle)
 {
-	usleep(dongle->cooldown * 1000);
 	pthread_mutex_lock(&dongle->lock_dongle);
 	dongle->is_free = true;
+	gettimeofday(&dongle->ts_last_release, NULL);
 	pthread_cond_broadcast(&dongle->cond_free);
 	pthread_mutex_unlock(&dongle->lock_dongle);
 }

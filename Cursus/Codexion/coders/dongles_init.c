@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/09 01:48:14 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/12 09:33:07 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/13 08:01:43 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,8 @@ int	dongles_init(t_sim *sim)
 		sim->dongles[i].id = i;
 		sim->dongles[i].is_free = true;
 		sim->dongles[i].cooldown = sim->dongle_cooldown;
+		sim->dongles[i].ts_last_release.tv_sec = sim->sim_start.tv_sec - 1;
+		sim->dongles[i].ts_last_release.tv_usec = sim->sim_start.tv_usec;
 		sim->dongles[i].queue = (t_queue *)malloc(sizeof(t_queue));
 		if (!sim->dongles[i].queue)
 			return (dongles_destroy(sim->dongles, i), 0);

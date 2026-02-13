@@ -6,25 +6,11 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 03:18:44 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/12 10:40:27 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/13 08:24:09 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
-
-static void	set_delay_ts(struct timespec *abstime, long delay_ms)
-{
-	struct timeval	now;
-
-	gettimeofday(&now, NULL);
-	abstime->tv_sec = now.tv_sec + delay_ms / 1000;
-	abstime->tv_nsec = now.tv_usec * 1000 + (delay_ms % 1000) * 1000000;
-	if (abstime->tv_nsec >= 1000000000L)
-	{
-		abstime->tv_sec += 1;
-		abstime->tv_nsec -= 1000000000L;
-	}
-}
 
 static int	count_finished(char *finished_coders, int n)
 {
@@ -40,6 +26,20 @@ static int	count_finished(char *finished_coders, int n)
 		i++;
 	}
 	return (count);
+}
+
+void	set_delay_ts(struct timespec *abstime, long delay_ms)
+{
+	struct timeval	now;
+
+	gettimeofday(&now, NULL);
+	abstime->tv_sec = now.tv_sec + delay_ms / 1000;
+	abstime->tv_nsec = now.tv_usec * 1000 + (delay_ms % 1000) * 1000000;
+	if (abstime->tv_nsec >= 1000000000L)
+	{
+		abstime->tv_sec += 1;
+		abstime->tv_nsec -= 1000000000L;
+	}
 }
 
 void	*job_monitor(void *args)

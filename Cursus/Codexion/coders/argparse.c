@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/27 04:30:26 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/07 03:15:45 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/13 06:31:25 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ void	print_help(FILE *stream, char *program, char *err_msg)
 		"\n"
 		"Arguments:\n"
 		"  <number_of_coders>                Number of coders\n"
-		"  <time_to_burnout>                 Time (in ms) to coder burns out\n"
+		"  <time_to_burnout>                 Time (in ms) to coder burnout\n"
 		"  <time_to_compile>                 Time (in ms) to compile code\n"
 		"  <time_to_debug>                   Time (in ms) to debug code\n"
 		"  <time_to_refactor>                Time (in ms) to refactor code\n"

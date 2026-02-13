@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/06 04:50:39 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/12 10:17:01 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/13 08:39:11 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ typedef struct s_dongle
 	bool			is_init;
 	bool			is_free;
 	int				cooldown;
+	struct timeval	ts_last_release;
 	t_queue			*queue;
 	pthread_mutex_t	lock_dongle;
 	pthread_cond_t	cond_free;
@@ -121,6 +122,7 @@ int					found_stop(t_coder *coder);
 int					refactor(t_coder *coder);
 int					debug(t_coder *coder);
 
+int					check_cooldown(t_coder *coder, t_dongle *dongle);
 void				dongles_destroy(t_dongle *dongles, int i);
 int					dongles_init(t_sim *sim);
 
@@ -128,6 +130,7 @@ int					pick_dongle(t_coder *coder, t_dongle *dongle);
 void				release_dongle(t_dongle *dongle);
 t_coder				*scheduler_select(t_queue *q, t_scheduler type);
 
+void				set_delay_ts(struct timespec *abstime, long delay_ms);
 void				*job_monitor(void *args);
 void				*job_coder(void *args);
 
