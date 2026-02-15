@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/06 04:50:29 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/12 09:21:23 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/15 12:23:47 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,7 @@ int	main(int argc, const char **argv)
 	int		i;
 
 	if (!parse_arguments(argc, argv, &sim))
-		return (print_help(stderr, "codexion", "Invazlid arguments"),
-			EXIT_FAILURE);
+		return (print_help(stderr, "codexion"), EXIT_FAILURE);
 	if (!sim_init(&sim))
 		return (EXIT_FAILURE);
 	if (pthread_create(&sim.job_monitor, NULL, job_monitor, &sim) != 0)

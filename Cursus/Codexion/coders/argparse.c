@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/27 04:30:26 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/13 06:31:25 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/15 10:28:50 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,12 +58,26 @@ static int	validate_args(int argc, const char **argv)
 
 	i = 1;
 	if (argc < 2 || argc != 9)
+	{
+		fprintf(stderr, "Error: expected 8 arguments, got %d\n", argc - 1);
 		return (0);
+	}
 	while (i < argc - 1)
-		if (!is_valid_int(argv[i++]))
+	{
+		if (!is_valid_int(argv[i]))
+		{
+			fprintf(stderr, "Error: argument "
+				"%d ('%s') must be a positive integer\n", i, argv[i]);
 			return (0);
+		}
+		i++;
+	}
 	if (!is_valid_scheduler(argv[argc - 1]))
+	{
+		fprintf(stderr, "Error: scheduler must be 'FIFO' or 'EDF', got '%s'\n",
+			argv[argc - 1]);
 		return (0);
+	}
 	return (1);
 }
 
@@ -72,6 +86,11 @@ int	parse_arguments(int argc, const char **argv, t_sim *sim)
 	if (!validate_args(argc, argv))
 		return (0);
 	sim->number_of_coders = atoi(argv[1]);
+	if (sim->number_of_coders < 2)
+	{
+		fprintf(stderr, "Error: minimum 2 coders required\n");
+		return (0);
+	}
 	sim->time_to_burnout = atoi(argv[2]);
 	sim->time_to_compile = atoi(argv[3]);
 	sim->time_to_debug = atoi(argv[4]);
@@ -85,13 +104,12 @@ int	parse_arguments(int argc, const char **argv, t_sim *sim)
 	return (1);
 }
 
-void	print_help(FILE *stream, char *program, char *err_msg)
+void	print_help(FILE *stream, char *program)
 {
-	const char	*str = "Error: %s\n"
-		"\nUsage: ./%s ARGS...\n"
+	const char	*str = "\nUsage: ./%s ARGS...\n"
 		"\n"
 		"Arguments:\n"
-		"  <number_of_coders>                Number of coders\n"
+		"  <number_of_coders>                Number of coders (>= 2)\n"
 		"  <time_to_burnout>                 Time (in ms) to coder burnout\n"
 		"  <time_to_compile>                 Time (in ms) to compile code\n"
 		"  <time_to_debug>                   Time (in ms) to debug code\n"
@@ -106,7 +124,7 @@ void	print_help(FILE *stream, char *program, char *err_msg)
 		"- The scheduler must be either 'FIFO' or 'EDF' (case insensitive).\n"
 		"\n"
 		"Example:\n"
-		"  ./%s 5 800 200 100 150 10 50 FIFO\n";
+		"  ./%s 10 400 100 100 100 5 10 FIFO\n";
 
-	fprintf(stream, str, err_msg, program, program);
+	fprintf(stream, str, program, program);
 }

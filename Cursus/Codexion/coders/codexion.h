@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/06 04:50:39 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/13 08:39:11 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/15 11:49:57 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,9 +64,7 @@ typedef struct s_dongle
 	bool			is_free;
 	int				cooldown;
 	struct timeval	ts_last_release;
-	t_queue			*queue;
 	pthread_mutex_t	lock_dongle;
-	pthread_cond_t	cond_free;
 }					t_dongle;
 
 typedef struct s_sim
@@ -84,10 +82,13 @@ typedef struct s_sim
 	char			*finished_coders;
 	struct s_coder	*coders;
 	t_dongle		*dongles;
+	t_queue			*global_queue;
 	pthread_t		job_monitor;
 	pthread_mutex_t	lock_print;
 	pthread_mutex_t	lock_sim;
+	pthread_mutex_t	lock_sched;
 	pthread_cond_t	cond_sim;
+	pthread_cond_t	cond_sched;
 	struct timeval	sim_start;
 }					t_sim;
 
@@ -107,7 +108,7 @@ typedef struct s_coder
 }					t_coder;
 
 int					parse_arguments(int argc, const char **argv, t_sim *sim);
-void				print_help(FILE *stream, char *program, char *err_msg);
+void				print_help(FILE *stream, char *program);
 long				get_timestamp(struct timeval *start);
 void				log_action(t_coder *coder, t_act action);
 void				pthread_print(t_sim *sim, char *msg);
@@ -122,15 +123,19 @@ int					found_stop(t_coder *coder);
 int					refactor(t_coder *coder);
 int					debug(t_coder *coder);
 
-int					check_cooldown(t_coder *coder, t_dongle *dongle);
 void				dongles_destroy(t_dongle *dongles, int i);
 int					dongles_init(t_sim *sim);
+void				dongles_init_lock(t_coder *coder);
 
-int					pick_dongle(t_coder *coder, t_dongle *dongle);
-void				release_dongle(t_dongle *dongle);
+int					pick_dongles(t_coder *coder);
+void				release_dongles(t_coder *coder);
+bool				dongles_available(t_coder *coder);
+
+void				queue_pop(t_queue *q, t_coder *coder);
+void				queue_push(t_queue *q, t_coder *coder);
+void				set_delay_ts(struct timespec *abstime, long delay_ms);
 t_coder				*scheduler_select(t_queue *q, t_scheduler type);
 
-void				set_delay_ts(struct timespec *abstime, long delay_ms);
 void				*job_monitor(void *args);
 void				*job_coder(void *args);
 

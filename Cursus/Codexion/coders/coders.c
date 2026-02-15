@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 05:17:44 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/13 07:55:35 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/15 12:15:46 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,16 +20,13 @@ static int	compile(t_coder *coder)
 	if (coder->is_burntout
 		|| coder->number_of_compiles >= sim->number_of_compiles_required)
 		return (0);
-	if (!pick_dongle(coder, coder->ldongle))
+	if (!pick_dongles(coder))
 		return (0);
-	if (!pick_dongle(coder, coder->rdongle))
-		return (release_dongle(coder->ldongle), 0);
+	gettimeofday(&coder->ts_comp_start, NULL);
 	log_action(coder, ACT_COMPILE);
 	usleep(coder->sim->time_to_compile * 1000);
-	gettimeofday(&coder->ts_comp_start, NULL);
 	coder->number_of_compiles++;
-	release_dongle(coder->ldongle);
-	release_dongle(coder->rdongle);
+	release_dongles(coder);
 	return (1);
 }
 
@@ -54,6 +51,21 @@ static void	set_stop(t_coder *coder, bool *stop, bool *finished)
 	pthread_mutex_unlock(&sim->lock_sim);
 }
 
+static void	set_burnout(t_coder *coder)
+{
+	pthread_mutex_lock(&coder->sim->lock_sim);
+	coder->sim->sim_stop = true;
+	pthread_cond_broadcast(&coder->sim->cond_sim);
+	pthread_mutex_unlock(&coder->sim->lock_sim);
+	pthread_mutex_lock(&coder->lock_state);
+	coder->is_burntout = true;
+	pthread_mutex_unlock(&coder->lock_state);
+	pthread_mutex_lock(&coder->sim->lock_sched);
+	pthread_cond_broadcast(&coder->sim->cond_sched);
+	pthread_mutex_unlock(&coder->sim->lock_sched);
+	log_action(coder, ACT_BURNOUT);
+}
+
 int	found_stop(t_coder *coder)
 {
 	t_sim	*sim;
@@ -73,17 +85,6 @@ int	found_stop(t_coder *coder)
 	return (0);
 }
 
-static void	set_burnout(t_coder *coder)
-{
-	pthread_mutex_lock(&coder->sim->lock_sim);
-	coder->sim->sim_stop = true;
-	pthread_mutex_unlock(&coder->sim->lock_sim);
-	pthread_mutex_lock(&coder->lock_state);
-	coder->is_burntout = true;
-	pthread_mutex_unlock(&coder->lock_state);
-	log_action(coder, ACT_BURNOUT);
-}
-
 void	*job_coder(void *args)
 {
 	t_coder	*coder;
@@ -96,14 +97,18 @@ void	*job_coder(void *args)
 			break ;
 		tdelta = get_timestamp(&coder->ts_comp_start);
 		if (tdelta >= coder->sim->time_to_burnout)
-		{
-			set_burnout(coder);
-			break ;
-		}
+			return (set_burnout(coder), NULL);
 		if (compile(coder))
 		{
 			if (!debug(coder) || !refactor(coder))
 				break ;
+		}
+		else
+		{
+			if (get_timestamp(&coder->ts_comp_start)
+				&& tdelta >= coder->sim->time_to_burnout)
+				set_burnout(coder);
+			break ;
 		}
 	}
 	return (NULL);

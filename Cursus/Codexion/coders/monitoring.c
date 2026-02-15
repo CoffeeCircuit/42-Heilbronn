@@ -6,7 +6,7 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 03:18:44 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/13 08:24:09 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/14 07:30:07 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ void	*job_monitor(void *args)
 	if (all_finished)
 	{
 		pthread_print(sim, "All coders finished.");
-		return (SIM_STOP);
+		return (NULL);
 	}
 	return (NULL);
 }

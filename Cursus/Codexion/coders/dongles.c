@@ -6,95 +6,76 @@
 /*   By: abalcu <abalcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 05:31:31 by abalcu            #+#    #+#             */
-/*   Updated: 2026/02/13 08:38:41 by abalcu           ###   ########.fr       */
+/*   Updated: 2026/02/15 11:47:55 by abalcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-void	queue_push(t_queue *q, t_coder *coder)
+bool	dongles_available(t_coder *coder)
 {
-	if (q->q_len >= q->q_cap)
-		return ;
-	q->entries[q->q_len].coder = coder;
-	q->entries[q->q_len].ts_request = get_timestamp(&coder->sim->sim_start);
-	q->entries[q->q_len].ts_deadline = get_timestamp(&coder->ts_comp_start)
-		+ coder->sim->time_to_burnout;
-	q->q_len++;
-}
+	t_dongle	*ldongle;
+	t_dongle	*rdongle;
+	bool		avail;
+	long		time_since_release;
 
-void	queue_pop(t_queue *q, t_coder *coder)
-{
-	int	i;
-
-	i = 0;
-	while (q->entries[i].coder != coder && i < q->q_len)
-		i++;
-	if (i == q->q_len)
-		return ;
-	while (i < q->q_len - 1)
+	ldongle = coder->ldongle;
+	rdongle = coder->rdongle;
+	pthread_mutex_lock(&ldongle->lock_dongle);
+	pthread_mutex_lock(&rdongle->lock_dongle);
+	avail = (ldongle->is_free && rdongle->is_free);
+	if (avail)
 	{
-		q->entries[i] = q->entries[i + 1];
-		i++;
+		time_since_release = get_timestamp(&ldongle->ts_last_release);
+		if (time_since_release < ldongle->cooldown)
+			avail = false;
+		time_since_release = get_timestamp(&rdongle->ts_last_release);
+		if (time_since_release < rdongle->cooldown)
+			avail = false;
 	}
-	q->q_len--;
+	pthread_mutex_unlock(&rdongle->lock_dongle);
+	pthread_mutex_unlock(&ldongle->lock_dongle);
+	return (avail);
 }
 
-t_coder	*scheduler_select(t_queue *q, t_scheduler type)
+int	pick_dongles(t_coder *coder)
 {
-	int		i;
-	int		earliest_idx;
-	long	earliest_deadline;
+	t_sim			*sim;
+	struct timespec	timeout;
+	long			tdelta;
 
-	if (q->q_len == 0)
-		return (NULL);
-	if (type == SCHEDULER_FIFO)
-		return (q->entries[0].coder);
-	if (type == SCHEDULER_EDF)
-	{
-		i = 1;
-		earliest_idx = 0;
-		earliest_deadline = q->entries[0].ts_deadline;
-		while (i < q->q_len)
-		{
-			if (q->entries[i].ts_deadline < earliest_deadline)
-			{
-				earliest_deadline = q->entries[i].ts_deadline;
-				earliest_idx = i;
-			}
-			i++;
-		}
-		return (q->entries[earliest_idx].coder);
-	}
-	return (NULL);
-}
-
-int	pick_dongle(t_coder *coder, t_dongle *dongle)
-{
-	pthread_mutex_lock(&dongle->lock_dongle);
-	queue_push(dongle->queue, coder);
+	sim = coder->sim;
+	pthread_mutex_lock(&sim->lock_sched);
+	queue_push(sim->global_queue, coder);
 	while (true)
 	{
-		if (coder->sim->sim_stop)
-		{
-			queue_pop(dongle->queue, coder);
-			pthread_mutex_unlock(&dongle->lock_dongle);
-			return (0);
-		}
-		if (check_cooldown(coder, dongle) != 0)
-			break ;
+		if (sim->sim_stop)
+			return (queue_pop(sim->global_queue, coder),
+				pthread_mutex_unlock(&sim->lock_sched), 0);
+		tdelta = get_timestamp(&coder->ts_comp_start);
+		if (tdelta >= sim->time_to_burnout)
+			return (queue_pop(sim->global_queue, coder),
+				pthread_mutex_unlock(&sim->lock_sched), 0);
+		if (dongles_available(coder))
+			if (coder == scheduler_select(sim->global_queue, sim->scheduler))
+				return (dongles_init_lock(coder), 1);
+		set_delay_ts(&timeout, 1);
+		pthread_cond_timedwait(&sim->cond_sched, &sim->lock_sched, &timeout);
 	}
-	dongle->is_free = false;
-	queue_pop(dongle->queue, coder);
-	pthread_mutex_unlock(&dongle->lock_dongle);
-	return (1);
+	return (0);
 }
 
-void	release_dongle(t_dongle *dongle)
+void	release_dongles(t_coder *coder)
 {
-	pthread_mutex_lock(&dongle->lock_dongle);
-	dongle->is_free = true;
-	gettimeofday(&dongle->ts_last_release, NULL);
-	pthread_cond_broadcast(&dongle->cond_free);
-	pthread_mutex_unlock(&dongle->lock_dongle);
+	pthread_mutex_lock(&coder->ldongle->lock_dongle);
+	coder->ldongle->is_free = true;
+	gettimeofday(&coder->ldongle->ts_last_release, NULL);
+	pthread_mutex_unlock(&coder->ldongle->lock_dongle);
+	pthread_mutex_lock(&coder->rdongle->lock_dongle);
+	coder->rdongle->is_free = true;
+	gettimeofday(&coder->rdongle->ts_last_release, NULL);
+	pthread_mutex_unlock(&coder->rdongle->lock_dongle);
+	pthread_mutex_lock(&coder->sim->lock_sched);
+	pthread_cond_broadcast(&coder->sim->cond_sched);
+	pthread_mutex_unlock(&coder->sim->lock_sched);
 }
