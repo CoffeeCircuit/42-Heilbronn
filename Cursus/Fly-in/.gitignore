@@ -1,0 +1,6 @@
+.github/
+test/
+__pycache__/
+.mypy_cache/
+*.tar
+*.gz
