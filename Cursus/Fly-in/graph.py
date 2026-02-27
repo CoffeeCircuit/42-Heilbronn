@@ -19,8 +19,8 @@ class Hub:
     def __init__(
         self,
         name: str,
-        x: int,
-        y: int,
+        x: float,
+        y: float,
         zone: Zone = Zone.NORMAL,
         color: str | None = None,
         max_drones: int = 1,
