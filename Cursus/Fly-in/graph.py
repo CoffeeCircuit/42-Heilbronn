@@ -1,34 +1,48 @@
-from enum import Enum, auto
+from enum import Enum
+from heapq import heappop, heappush
 
 
 class Zone(Enum):
-    NORMAL = auto()
-    BLOCKED = auto()
-    RESTRICTED = auto()
-    PRIORITY = auto()
+    NORMAL = "normal"
+    BLOCKED = "blocked"
+    RESTRICTED = "restricted"
+    PRIORITY = "priority"
 
 
 class Drone:
-    def __init__(self, id: int, x: int, y: int) -> None:
+    def __init__(self, id: int, hub) -> None:
         self.id = id
-        self.x = x
-        self.y = y
+        self.hub = hub
+        self.path: list
+        self.state: str
+
+    @property
+    def position(self) -> str:
+        return f"D{self.id}-{self.hub}"
 
 
 class Hub:
     def __init__(
         self,
+        htype: str,
         name: str,
-        x: float,
-        y: float,
-        zone: Zone = Zone.NORMAL,
+        x: int,
+        y: int,
+        zone: Zone | str = Zone.NORMAL,
         color: str | None = None,
         max_drones: int = 1,
     ) -> None:
+        self.type = htype
         self.name = name
         self.x = x
         self.y = y
-        self.zone = zone
+        if isinstance(zone, str):
+            try:
+                self.zone = Zone[zone.upper()]
+            except KeyError:
+                raise ValueError(f"Invalid zone type: {zone}")
+        else:
+            self.zone = zone
         self.color = color
         self.max_drones = max_drones
         self.drones: list[Drone] = []
@@ -38,6 +52,7 @@ class Hub:
             return NotImplemented
         return all(
             (
+                self.name == other.name,
                 self.x == other.x,
                 self.y == other.y,
                 self.zone == other.zone,
@@ -46,55 +61,267 @@ class Hub:
         )
 
     def __hash__(self) -> int:
-        return hash((self.x, self.y, self.zone, self.max_drones))
+        return hash((self.name, self.x, self.y, self.zone, self.max_drones))
+
+    def __lt__(self, other: object) -> bool:
+        """Enable comparison for heap operations in Dijkstra"""
+        if not isinstance(other, Hub):
+            return NotImplemented
+        return self.name < other.name
 
     def __str__(self) -> str:
         return f"{self.name}"
 
+    def __repr__(self) -> str:
+        return (
+            f"Hub({self.name}, x={self.x}, y={self.y}, zone={self.zone}, "
+            f"color={self.color}, max_drones={self.max_drones})"
+        )
+
 
 class Graph:
     """
-    Graph data stucture represented by an adjacency list
+    Graph data structure represented by an adjacency list
     """
 
     def __init__(self) -> None:
-        self.nb_drones: int = 0
-        self.graph: dict[Hub, list[tuple[Hub, int]]] = {}
+        self.adj_lst: dict[Hub, list[tuple[Hub, int]]] = {}
 
-    def add_hub(self, hub: Hub):
-        if not isinstance(hub, Hub):
-            raise TypeError(
-                f"'{type(hub).__name__}' not of type '{Hub.__name__}'"
-            )
-        if hub in self.graph:
-            raise KeyError(f"Duplicate hub definition: '{hub}'")
-        elif hub.name in {k.name for k in self.graph.keys()}:
-            raise ValueError(f"Hub name '{hub.name}' already allocated")
-        self.graph[hub] = []
+    def add_vertex(self, hub: Hub) -> None:
+        if hub not in self.adj_lst:
+            self.adj_lst[hub] = []
 
-    def add_connection(self, from_: Hub, to_: Hub, cap: int = 1):
-        connections = self.graph.get(from_)
-        if connections is None:
-            raise KeyError(f"Undefined hub: '{from_}'")
-        if to_ in connections:
-            raise ValueError(
-                f"Duplicate connection definition: '{from_}' -> '{to_}'"
-            )
-        if to_ in self.graph and from_ in self.graph[to_]:
-            raise ValueError(
-                (
-                    f"Duplicate connection: '{from_}' -> '{to_}'"
-                    f" with '{to_}' -> '{from_}'"
+    def add_edge(self, from_vert: Hub, to_vert: Hub, cap: int = 1) -> None:
+        self.add_vertex(from_vert)
+        self.add_vertex(to_vert)
+        self.adj_lst[from_vert].append((to_vert, cap))
+        self.adj_lst[to_vert].append((from_vert, cap))
+
+    @property
+    def start(self) -> Hub | None:
+        for vertex in self.adj_lst:
+            if vertex.type == "start_hub":
+                return vertex
+        return None
+
+    @property
+    def end(self) -> Hub | None:
+        for vertex in self.adj_lst:
+            if vertex.type == "end_hub":
+                return vertex
+        return None
+
+    def get_neighbors(self, hub: Hub) -> list[tuple[Hub, int]]:
+        return self.adj_lst.get(hub, [])
+
+    def get_edge_cost(self, to_hub: Hub) -> float:
+        """Calculate cost considering zone types"""
+        base_cost = 1.0
+
+        if to_hub.zone == Zone.BLOCKED:
+            return float("inf")
+        elif to_hub.zone == Zone.RESTRICTED:
+            base_cost = 2.0
+        elif to_hub.zone == Zone.PRIORITY:
+            base_cost = 0.5
+        elif to_hub.zone == Zone.NORMAL:
+            base_cost = 1.0
+        return base_cost
+
+    def get_edge_capacity(self, from_hub: Hub, to_hub: Hub) -> int:
+        """Get max_link_capacity for a connection"""
+        neighbors = self.get_neighbors(from_hub)
+        for neighbor, capacity in neighbors:
+            if neighbor == to_hub:
+                return capacity
+        return 1
+
+    def get_path_capacity(self, path: list[Hub]) -> int:
+        """
+        Find the minimum capacity along a path (the bottleneck)
+        """
+        if len(path) < 2:
+            return 999999  # Very large number for empty/single-node paths
+
+        min_capacity = float("inf")
+
+        for hub in path[1:-1]:
+            min_capacity = min(min_capacity, hub.max_drones)
+
+        for i in range(len(path) - 1):
+            connection_cap = self.get_edge_capacity(path[i], path[i + 1])
+            min_capacity = min(min_capacity, connection_cap)
+
+        # Handle infinity case or return reasonable default
+        if min_capacity == float("inf"):
+            return 999999
+
+        return int(min_capacity)
+
+    def build_from_tokens(self, tokens: list[dict[str, str | int]]) -> None:
+        for token in tokens:
+            token_type = token.get("type")
+
+            if token_type and str(token_type).endswith("hub"):
+                self.add_vertex(
+                    Hub(
+                        htype=str(token_type),
+                        name=str(token["name"]),
+                        x=int(token["x"]),
+                        y=int(token["y"]),
+                        zone=str(token.get("zone", Zone.NORMAL.value)),
+                        color=str(token["color"])
+                        if token.get("color")
+                        else None,
+                        max_drones=int(token.get("max_drones", 1)),
+                    )
+                )
+
+            elif token_type == "connection":
+                from_hub = next(
+                    (
+                        hub
+                        for hub in self.adj_lst
+                        if hub.name == token.get("from")
+                    ),
+                    None,
+                )
+
+                to_hub = next(
+                    (
+                        hub
+                        for hub in self.adj_lst
+                        if hub.name == token.get("to")
+                    ),
+                    None,
+                )
+
+                if from_hub is None or to_hub is None:
+                    raise ValueError(f"Hub not found for connection: {token}")
+
+                capacity = token.get("max_link_capacity", 1)
+                self.add_edge(from_hub, to_hub, int(capacity))
+
+    def dijkstra(self, start, end):
+        distances = {node: float("inf") for node in self.adj_lst}
+        previous = {}
+        distances[start] = 0
+        pq = [(0, start)]
+
+        while pq:
+            current_dist, current = heappop(pq)
+
+            if current == end:
+                break
+
+            if current_dist > distances[current]:
+                continue
+
+            for neighbor, capacity in self.adj_lst[current]:
+                # Use zone-aware cost instead of raw capacity
+                edge_cost = self.get_edge_cost(neighbor)
+                distance = current_dist + edge_cost
+                if distance < distances[neighbor]:
+                    distances[neighbor] = distance
+                    previous[neighbor] = current
+                    heappush(pq, (distance, neighbor))
+
+        path = []
+        current = end
+        while current in previous:
+            path.append(current)
+            current = previous[current]
+        path.append(start)
+        path.reverse()
+        return distances[end], path
+
+    def k_shortest_paths(
+        self, start: Hub, goal: Hub, k: int
+    ) -> list[list[Hub]]:
+        """
+        Find k diverse paths using Yen's algorithm with zone-aware costs
+        """
+        if not start or not goal:
+            return []
+
+        paths = []
+        candidates = []
+
+        # 1. Find the shortest path (using Dijkstra)
+        _, shortest = self.dijkstra(start, goal)
+        if not shortest or len(shortest) < 2:
+            return []
+        paths.append(shortest)
+
+        # 2. Iteratively find k-1 more paths
+        for k_iter in range(1, k):
+            for i in range(len(paths[-1]) - 1):
+                # Spur node: where we'll deviate from previous paths
+                spur_node = paths[-1][i]
+                root_path = paths[-1][: i + 1]
+
+                # Temporarily remove edges used by previous paths
+                removed_edges = []
+
+                for path in paths:
+                    if len(path) > i and path[: i + 1] == root_path:
+                        if i + 1 < len(path):
+                            edge = (path[i], path[i + 1])
+                            removed_edges.append(edge)
+                            # Remove from adjacency list
+                            self.adj_lst[path[i]] = [
+                                (n, c)
+                                for n, c in self.adj_lst[path[i]]
+                                if n != path[i + 1]
+                            ]
+                            self.adj_lst[path[i + 1]] = [
+                                (n, c)
+                                for n, c in self.adj_lst[path[i + 1]]
+                                if n != path[i]
+                            ]
+
+                # Find shortest path from spur to goal
+                _, spur_path = self.dijkstra(spur_node, goal)
+
+                # Restore removed edges
+                for from_hub, to_hub in removed_edges:
+                    cap = self.get_edge_capacity(from_hub, to_hub) or 1
+                    self.adj_lst[from_hub].append((to_hub, cap))
+                    self.adj_lst[to_hub].append((from_hub, cap))
+
+                if spur_path and len(spur_path) > 0:
+                    total_path = root_path[:-1] + spur_path
+                    if (
+                        total_path not in candidates
+                        and total_path not in paths
+                    ):
+                        candidates.append(total_path)
+
+            if not candidates:
+                break
+
+            # Sort by path cost (sum of edge costs)
+            candidates.sort(
+                key=lambda p: sum(
+                    self.get_edge_cost(p[i + 1]) for i in range(len(p) - 1)
                 )
             )
-        self.graph[from_].append((to_, cap))
+            paths.append(candidates.pop(0))
+
+        return paths
 
     def __iter__(self):
-        for k in self.graph:
-            yield k
+        return iter(self.adj_lst.keys())
+
+    def __repr__(self) -> str:
+        num_vertices = len(self.adj_lst)
+        num_edges = (
+            sum(len(neighbors) for neighbors in self.adj_lst.values()) // 2
+        )
+        return f"Graph(vertices={num_vertices}, edges={num_edges})"
 
     def __str__(self) -> str:
-        if not len(self.graph):
+        if not len(self.adj_lst):
             return "{}"
 
         from io import StringIO
@@ -102,14 +329,14 @@ class Graph:
         buf = StringIO()
         buf.write("{\n")
         outer_i = 0
-        for k, list_v in self.graph.items():
+        for k, list_v in self.adj_lst.items():
             buf.write(f"    {str(k)}: ")
             if not len(list_v):
                 buf.write("[]")
-                buf.write(",\n" if outer_i < len(self.graph) - 1 else "\n")
+                buf.write(",\n" if outer_i < len(self.adj_lst) - 1 else "\n")
             elif len(list_v) == 1:
                 buf.write(f"[({str(list_v[0][0])}, {list_v[0][1]})]")
-                buf.write(",\n" if outer_i < len(self.graph) - 1 else "\n")
+                buf.write(",\n" if outer_i < len(self.adj_lst) - 1 else "\n")
             else:
                 buf.write("[\n")
                 for inner_i, v in enumerate(list_v):
@@ -119,74 +346,8 @@ class Graph:
                     else:
                         buf.write("\n")
                 buf.write("    ]")
-                buf.write(",\n" if outer_i < len(self.graph) - 1 else "\n")
+                buf.write(",\n" if outer_i < len(self.adj_lst) - 1 else "\n")
             outer_i += 1
         buf.write("}\n")
 
         return buf.getvalue()
-
-
-# TODO
-
-# Hub Hash/Equality Consistency
-#   You hash on (x, y, zone, max_drones) but do not include name or color. If
-#   two hubs have the same coordinates, zone, and max_drones but different
-#   names/colors, they will be considered equal and duplicate.
-#   Is this intended? If not, include all relevant immutable properties in
-#   both __eq__ and __hash__.
-
-# Mutable Properties in Hash
-#   You do not include drones (a list) in the hash, which is correct. Including
-#   mutable types would break hashing.
-
-# Error Handling
-#   You raise KeyError for duplicate hubs, but the message is a string, so
-#   Python wraps it in quotes. Consider using ValueError for custom messages,
-#   or raise KeyError with the actual duplicate key.
-
-# Hub Name Uniqueness
-#   You check for duplicate names separately from the hash/equality check. This
-#   is good, but if you want name uniqueness to be primary, consider hashing on
-#   name.
-
-# Graph Connections
-#   The check for undirectional edges is good, but it only prevents adding the
-#   reverse edge if the forward edge exists. If you want true undirected graphs
-#   you may want to store connections in both directions.
-
-# String Representation
-#   The __str__ method is well-structured, but the inner and outer loop index
-#   reuse can cause formatting bugs (which you already fixed).
-
-# Zone Enum
-#   You use auto() for enum values, which is fine, but if you need string vals
-#   for serialization, consider using str or explicit values.
-
-# Type Checking
-#   You check isinstance(hub, Hub) in add_hub, which is good for robustness.
-
-# No Removal Methods
-#   There are no methods for removing hubs or connections. If you need
-#   mutability, consider adding them.
-
-# No Validation for Connection Existence
-#   In add_connection, you check if from_ exists, but not if to_ exists in the
-#   graph. You do check for reverse connections, which is good.
-
-# No Support for Metadata on Connections
-#   If you want to support metadata (e.g., weights, capacities), you’ll need to
-#   extend your connection storage.
-
-# No Handling for Edge Cases
-#   If the graph is empty, __str__ returns {}, which is fine.
-
-# No Docstrings for Methods
-#   Adding docstrings for methods would improve maintainability.
-
-# No Validation for Hub Properties
-#   You do not validate that max_drones is positive, or that name is valid (no
-#   spaces/dashes).
-
-# No Iteration Over Connections
-#   You only iterate over hubs, not connections. If you need to traverse edges,
-#   consider adding a method.

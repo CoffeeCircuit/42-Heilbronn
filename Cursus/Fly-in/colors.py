@@ -20,12 +20,12 @@ class Color(Enum):
     DARKRED = (88, "#8B0000")
     VIOLET = (93, "#8B00FF")
     BROWN = (94, "#8B4513")
+    LIME = (118, "#87FF00")
     CRIMSON = (160, "#DC143C")
+    MAGENTA = (201, "#FF00FF")
     ORANGE = (208, "#FFA500")
     GOLD = (214, "#FFD700")
     RAINBOW = (1000, "#FF0000")  # Special case
-    LIME = (1000, "#FF0000")  # TODO
-    MAGENTA = (1000, "#FF0000")  # TODO
 
     @property
     def ansi(self) -> int:
@@ -150,5 +150,3 @@ class ColorStr(str):
 
     def replace(self, old, new, count=-1):
         return self._with_same_color(super().replace(old, new, count))
-
-

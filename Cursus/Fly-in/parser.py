@@ -68,8 +68,7 @@ class Parser:
 
     def __init__(self) -> None:
         self.nb_drones = 0
-        self.hubs: list[dict[str, str | int | dict]] = []
-        self.connections: list[dict[str, str | int | dict]] = []
+        self.tokens: list[dict[str, str | int]] = []
         self.error: ErrorInfo = {
             "msg": None,
             "file": None,
@@ -155,15 +154,14 @@ class Parser:
             self.error["msg"] = "max_drones must be positive"
             raise ParserError(**self.error)
 
-        return {
-            "type": type,
-            "name": _val[0],
-            "x": _val[1],
-            "y": _val[2],
-            "meta": meta,
-        }
+        result = {"type": type, "name": _val[0], "x": _val[1], "y": _val[2]}
 
-    def parse_connection(self, val: str):
+        if meta:
+            result.update(meta)
+
+        return result
+
+    def parse_connection(self, val: str) -> dict[str, str | int]:
         meta: Optional[dict[str, str | int]] = None
         if (lb := val.find("[")) != -1 and (rb := val.rfind("]")) != -1:
 
@@ -210,11 +208,19 @@ class Parser:
             self.error["msg"] = "invalid connection definition"
             raise ParserError(**self.error)
 
-        if _val[0] not in {str(d["name"]) for d in self.hubs}:
+        if _val[0] not in {
+            str(d["name"])
+            for d in self.tokens
+            if d.get("type") != "connection"
+        }:
             self.error["msg"] = f"hub '{_val[0]}' not defined"
             raise ParserError(**self.error)
 
-        if _val[1] not in {str(d["name"]) for d in self.hubs}:
+        if _val[1] not in {
+            str(d["name"])
+            for d in self.tokens
+            if d.get("type") != "connection"
+        }:
             self.error["msg"] = f"hub '{_val[1]}' not defined"
             raise ParserError(**self.error)
 
@@ -224,16 +230,22 @@ class Parser:
 
         if tuple(sorted(_val)) in {
             tuple(sorted((str(d["from"]), str(d["to"]))))
-            for d in self.connections
+            for d in self.tokens
+            if d.get("type") == "connection"
         }:
             self.error["msg"] = "duplicate connection (A-B is the same as B-A)"
             raise ParserError(**self.error)
 
-        return {
+        result: dict[str, str | int] = {
+            "type": "connection",
             "from": _val[0],
             "to": _val[1],
-            "meta": meta,
         }
+
+        if meta:
+            result.update(meta)
+
+        return result
 
     def parse(self, file: StringPath):
         self.error["file"] = str(Path(file).resolve().relative_to(Path.cwd()))
@@ -265,7 +277,7 @@ class Parser:
 
                 match key:
                     case "nb_drones":
-                        if len(self.hubs):
+                        if len(self.tokens):
                             self.error["msg"] = "nb_drones should be first"
                             raise ParserError(**self.error)
 
@@ -285,35 +297,39 @@ class Parser:
                         self.nb_drones = val
 
                     case "start_hub":
-                        if "start_hub" in {str(d["type"]) for d in self.hubs}:
+                        if "start_hub" in {
+                            str(d["type"]) for d in self.tokens
+                        }:
                             self.error["msg"] = "duplicate start_hub"
                             raise ParserError(**self.error)
                         val = self.parse_hub(val, "start_hub")
-                        self.hubs.append(val)
+                        self.tokens.append(val)
 
                     case "end_hub":
-                        if "end_hub" in {str(d["type"]) for d in self.hubs}:
+                        if "end_hub" in {str(d["type"]) for d in self.tokens}:
                             self.error["msg"] = "duplicate end_hub"
                             raise ParserError(**self.error)
                         val = self.parse_hub(val, "end_hub")
-                        self.hubs.append(val)
+                        self.tokens.append(val)
 
                     case "hub":
                         val = self.parse_hub(val, "hub")
-                        if val["name"] in {str(h["name"]) for h in self.hubs}:
+                        if val["name"] in {
+                            str(h["name"]) for h in self.tokens
+                        }:
                             self.error["msg"] = "duplicate hub name"
                             raise ParserError(**self.error)
-                        self.hubs.append(val)
+                        self.tokens.append(val)
 
                     case "connection":
                         val = self.parse_connection(val)
-                        self.connections.append(val)
+                        self.tokens.append(val)
 
                     case _:
                         self.error["msg"] = f"invalid key {key}"
                         raise ParserError(**self.error)
 
-        hub_types = {str(d["type"]) for d in self.hubs}
+        hub_types = {str(d["type"]) for d in self.tokens}
 
         if "start_hub" not in hub_types:
             self.error["msg"] = "missing start_hub"
