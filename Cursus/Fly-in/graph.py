@@ -141,8 +141,7 @@ class Graph:
         Find the minimum capacity along a path (the bottleneck)
         """
         if len(path) < 2:
-            return 999999  # Very large number for empty/single-node paths
-
+            return 999999
         min_capacity = float("inf")
 
         for hub in path[1:-1]:
@@ -152,7 +151,6 @@ class Graph:
             connection_cap = self.get_edge_capacity(path[i], path[i + 1])
             min_capacity = min(min_capacity, connection_cap)
 
-        # Handle infinity case or return reasonable default
         if min_capacity == float("inf"):
             return 999999
 
@@ -247,20 +245,16 @@ class Graph:
         paths = []
         candidates = []
 
-        # 1. Find the shortest path (using Dijkstra)
         _, shortest = self.dijkstra(start, goal)
         if not shortest or len(shortest) < 2:
             return []
         paths.append(shortest)
 
-        # 2. Iteratively find k-1 more paths
         for k_iter in range(1, k):
             for i in range(len(paths[-1]) - 1):
-                # Spur node: where we'll deviate from previous paths
                 spur_node = paths[-1][i]
                 root_path = paths[-1][: i + 1]
 
-                # Temporarily remove edges used by previous paths
                 removed_edges = []
 
                 for path in paths:
@@ -280,10 +274,8 @@ class Graph:
                                 if n != path[i]
                             ]
 
-                # Find shortest path from spur to goal
                 _, spur_path = self.dijkstra(spur_node, goal)
 
-                # Restore removed edges
                 for from_hub, to_hub in removed_edges:
                     cap = self.get_edge_capacity(from_hub, to_hub) or 1
                     self.adj_lst[from_hub].append((to_hub, cap))
@@ -300,7 +292,6 @@ class Graph:
             if not candidates:
                 break
 
-            # Sort by path cost (sum of edge costs)
             candidates.sort(
                 key=lambda p: sum(
                     self.get_edge_cost(p[i + 1]) for i in range(len(p) - 1)

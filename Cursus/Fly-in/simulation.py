@@ -1,6 +1,5 @@
 from graph import Hub, Drone, Graph, Zone
 from typing import Optional
-from colors import Color, ColorStr
 
 
 class Simulator:
@@ -16,9 +15,7 @@ class Simulator:
         self.nb_drones = nb_drones
         self.drones: list[Drone] = []
         self.turn = 0
-        self.movements: list[str] = []  # Track all turn outputs
-
-        # Find start and end hubs
+        self.movements: list[str] = []
         self.start_hub: Optional[Hub] = None
         self.end_hub: Optional[Hub] = None
 
@@ -31,7 +28,6 @@ class Simulator:
         if not self.start_hub or not self.end_hub:
             raise ValueError("Graph must have start_hub and end_hub")
 
-        # Initialize drones at start
         for i in range(1, nb_drones + 1):
             drone = Drone(i, self.start_hub)
             drone.path = []
@@ -39,7 +35,6 @@ class Simulator:
             self.drones.append(drone)
             self.start_hub.drones.append(drone)
 
-        # Track drones in transit to restricted zones
         self.in_transit: dict[
             Drone, tuple[Hub, Hub]
         ] = {}  # drone -> (from, to)
@@ -77,40 +72,32 @@ class Simulator:
         if drone.state == "delivered":
             return False
 
-        # Check if destination is reachable
         neighbors = [n for n, _ in self.graph.get_neighbors(drone.hub)]
         if to_hub not in neighbors:
             return False
 
-        # Check if zone is blocked
         if to_hub.zone == Zone.BLOCKED:
             return False
 
-        # Handle restricted zones (2-turn movement)
         if to_hub.zone == Zone.RESTRICTED:
-            # First turn: enter transit
             if drone.state != "in_transit":
                 drone.state = "in_transit"
                 self.in_transit[drone] = (drone.hub, to_hub)
-                # Remove from current hub
                 if drone in drone.hub.drones:
                     drone.hub.drones.remove(drone)
                 return True
             else:
                 return False
 
-        # Check capacity
         if not self.can_move_to_hub(to_hub):
             return False
 
-        # Execute move
         if drone in drone.hub.drones:
             drone.hub.drones.remove(drone)
 
         drone.hub = to_hub
         to_hub.drones.append(drone)
 
-        # Check if reached goal
         if to_hub == self.end_hub:
             drone.state = "delivered"
         else:
@@ -126,9 +113,7 @@ class Simulator:
         completed_transits = []
 
         for drone, (from_hub, to_hub) in self.in_transit.items():
-            # Check if destination has capacity
             if self.can_move_to_hub(to_hub):
-                # Complete the transit
                 drone.hub = to_hub
                 to_hub.drones.append(drone)
 
@@ -139,10 +124,7 @@ class Simulator:
 
                 completed_transits.append(drone)
                 moves.append(f"D{drone.id}-{to_hub.name}")
-            # If no capacity, drone stays in transit (shouldn't happen with
-            # proper planning)
 
-        # Remove completed transits
         for drone in completed_transits:
             del self.in_transit[drone]
 
@@ -156,7 +138,6 @@ class Simulator:
         """
         turn_output = []
 
-        # First, handle drones entering transit to restricted zones
         transit_moves = []
         regular_moves = []
 
@@ -169,7 +150,6 @@ class Simulator:
             else:
                 regular_moves.append((drone, target))
 
-        # Process transit entries first
         for drone, target in transit_moves:
             if self.move_drone(drone, target):
                 from_hub, to_hub = self.in_transit[drone]
@@ -177,18 +157,16 @@ class Simulator:
                     f"D{drone.id}-{from_hub.name}-{to_hub.name}"
                 )
 
-        # Process regular moves
         for drone, target in regular_moves:
             if self.move_drone(drone, target):
                 turn_output.append(f"D{drone.id}-{target.name}")
 
-        # Process drones completing their transit
         completed = self.process_transit_drones()
         turn_output.extend(completed)
 
         self.turn += 1
         output = " ".join(sorted(turn_output))
-        if output:  # Only add non-empty turns
+        if output:
             self.movements.append(output)
 
         return output

@@ -7,19 +7,14 @@ from math import sqrt, atan2
 
 def get_complementary_color(hex_color: str) -> str:
     """Calculate complementary color for contrast"""
-    # Remove # if present
     hex_color = hex_color.lstrip("#")
 
-    # Convert to RGB
     r = int(hex_color[0:2], 16)
     g = int(hex_color[2:4], 16)
     b = int(hex_color[4:6], 16)
 
-    # Calculate luminance (perceived brightness)
     luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
 
-    # If dark background, use white; if light, use black
-    # This provides better readability than pure complementary
     if luminance < 0.5:
         return "#FFFFFF"
     else:
@@ -39,18 +34,17 @@ class GraphCanvas(tk.Canvas):
         self.bind("<Button-4>", self._scale)
         self.bind("<Button-5>", self._scale)
 
-        # Animation tracking
         self.node_positions = {}
-        self.hub_items = {}  # hub -> canvas item for tracking position after transforms
-        self.drone_items = {}  # drone_id -> canvas item
-        self.edge_items = []  # list of edge canvas item IDs for updating arrowshapes
+        self.hub_items = {}
+        self.drone_items = {}
+        self.edge_items = []
         self.animation_queue = []
         self.current_turn = 0
         self.is_animating = False
         self.is_paused = False
         self.auto_play = False
-        self.initial_positions = {}  # Store initial drone positions
-        self.tooltip = None  # Tooltip widget
+        self.initial_positions = {}
+        self.tooltip = None
 
     def _set_origin(self, event):
         self._origin["x"] = event.x
@@ -67,18 +61,15 @@ class GraphCanvas(tk.Canvas):
         if event.num == 4:
             self._cscale *= self._sc_up
             self.scale("all", event.x, event.y, self._sc_up, self._sc_up)
-            scale_factor = self._sc_up
         elif event.num == 5:
             self._cscale *= self._sc_down
             self.scale("all", event.x, event.y, self._sc_down, self._sc_down)
-            scale_factor = self._sc_down
         else:
             return
 
         self._font = (self._font[0], int(Configure.font[1] * self._cscale))
         self.itemconfig("text", font=self._font)
 
-        # Update arrow shapes to match new scale
         base_arrow_size = 1.5 * self._cscale
         d1, d2, d3 = tuple(map(lambda x: base_arrow_size * x, (8, 10, 3)))
         for edge_id in self.edge_items:
@@ -88,14 +79,12 @@ class GraphCanvas(tk.Canvas):
 
     def _show_tooltip(self, event, hub: Hub):
         """Show tooltip with hub information"""
-        self._hide_tooltip()  # Hide any existing tooltip
+        self._hide_tooltip()
 
-        # Create tooltip window
         self.tooltip = tk.Toplevel(self)
-        self.tooltip.wm_overrideredirect(True)  # Remove window decorations
+        self.tooltip.wm_overrideredirect(True)
         self.tooltip.wm_geometry(f"+{event.x_root + 10}+{event.y_root + 10}")
 
-        # Create tooltip content
         label = tk.Label(
             self.tooltip,
             text=f"Type: {hub.type}\nName: {hub.name}\nZone: {hub.zone}",
@@ -114,12 +103,10 @@ class GraphCanvas(tk.Canvas):
             self.tooltip.destroy()
             self.tooltip = None
 
-    def create_vertex(self, hub: Hub, original_hub: Hub = None):
+    def create_vertex(self, hub: Hub, original_hub: Hub | None = None):
         r = Configure.text_padding * self._font[1]
 
-        # Check if this is a rainbow color
         if str(hub.color).upper() == "RAINBOW":
-            # Create rainbow effect with concentric circles
             rainbow_colors = [
                 "#FF0000",
                 "#FFA500",
@@ -157,9 +144,8 @@ class GraphCanvas(tk.Canvas):
                 width=2,
             )
 
-        # Determine text color based on hub color
         if str(hub.color).upper() == "RAINBOW":
-            text_color = "#FFFFFF"  # White for rainbow
+            text_color = "#FFFFFF"
         else:
             text_color = get_complementary_color(
                 Color[str(hub.color).upper()].hex
@@ -169,7 +155,6 @@ class GraphCanvas(tk.Canvas):
             hub.x, hub.y, text=hub.max_drones, fill=text_color, tags="text"
         )
 
-        # Bind tooltip events if we have the original hub
         if original_hub and oval:
             self.tag_bind(
                 oval, "<Enter>", lambda e: self._show_tooltip(e, original_hub)
@@ -225,13 +210,11 @@ class GraphCanvas(tk.Canvas):
         )
 
     def create_graph(self, adj_lst: dict[Hub, list[tuple[Hub, int]]]):
-        # Extract nodes from adjacency list
         nodes = list(adj_lst.keys())
 
         if not nodes:
             return
 
-        # Initialize to first node
         x0_bbox = x1_bbox = nodes[0].x
         y0_bbox = y1_bbox = nodes[0].y
 
@@ -242,7 +225,6 @@ class GraphCanvas(tk.Canvas):
             x1_bbox = max(x1_bbox, x)
             y1_bbox = max(y1_bbox, y)
 
-        # Handle single point or line cases
         width_bbox = x1_bbox - x0_bbox
         height_bbox = y1_bbox - y0_bbox
 
@@ -253,35 +235,27 @@ class GraphCanvas(tk.Canvas):
         elif height_bbox == 0:
             scale_x = scale_y = Configure.width / width_bbox * 0.9
         else:
-            # Use independent scaling for x and y to fill the window
             scale_x = Configure.width / width_bbox * 0.9
             scale_y = Configure.height / height_bbox * 0.9
 
-        # Center of nodes
         x_c = (x0_bbox + x1_bbox) / 2
         y_c = (y0_bbox + y1_bbox) / 2
 
-        # Create a mapping from original nodes to scaled positions
         node_positions = {}
         for node in nodes:
             scaled_x = (node.x - x_c) * scale_x + Configure.width / 2
-            # Invert y-axis: screen coordinates increase downward, graph coordinates increase upward
             scaled_y = -(node.y - y_c) * scale_y + Configure.height / 2
             node_positions[node] = (scaled_x, scaled_y)
 
-        # Store for animation
         self.node_positions = node_positions
 
-        # Draw edges first (so they appear behind vertices)
         drawn_edges = set()
         for from_node, neighbors in adj_lst.items():
             from_x, from_y = node_positions[from_node]
             for to_node, capacity in neighbors:
-                # Avoid drawing duplicate edges for undirected graph
                 edge_key = tuple(sorted([id(from_node), id(to_node)]))
                 if edge_key not in drawn_edges:
                     to_x, to_y = node_positions[to_node]
-                    # Create temporary Hub objects with scaled coordinates
                     from_hub_scaled = Hub(
                         from_node.type,
                         from_node.name,
@@ -308,10 +282,8 @@ class GraphCanvas(tk.Canvas):
                     )
                     drawn_edges.add(edge_key)
 
-        # Draw vertices on top
         for node in nodes:
             x, y = node_positions[node]
-            # Create temporary Hub object with scaled coordinates
             hub_scaled = Hub(
                 node.type,
                 node.name,
@@ -327,13 +299,11 @@ class GraphCanvas(tk.Canvas):
     def get_current_hub_position(self, hub: Hub):
         """Get current canvas position of a hub (accounts for pan/zoom)"""
         if hub not in self.hub_items:
-            # Fallback to stored position
             return self.node_positions.get(hub, (0, 0))
 
         hub_item = self.hub_items[hub]
         coords = self.coords(hub_item)
         if coords:
-            # Return center of the oval
             x = (coords[0] + coords[2]) / 2
             y = (coords[1] + coords[3]) / 2
             return (x, y)
@@ -341,12 +311,10 @@ class GraphCanvas(tk.Canvas):
 
     def create_drone(self, drone_id: int, hub: Hub):
         """Create a drone marker at a specific hub"""
-        # Store initial position for restart
         self.initial_positions[drone_id] = hub
 
         x, y = self.get_current_hub_position(hub)
         size = Configure.text_padding * self._font[1] * 0.5  # Drone size
-        # Create drone as a small colored circle
         drone_item = self.create_oval(
             x - size,
             y - size,
@@ -358,7 +326,6 @@ class GraphCanvas(tk.Canvas):
             tags=("drone", f"drone_{drone_id}"),
         )
 
-        # Add drone ID label
         text_item = self.create_text(
             x,
             y,
@@ -381,23 +348,18 @@ class GraphCanvas(tk.Canvas):
     ):
         """Animate drone movement between hubs"""
         if drone_id not in self.drone_items:
-            # Create drone if it doesn't exist
             self.create_drone(drone_id, from_hub)
 
-        # Get current canvas positions (accounts for pan/zoom)
         from_x, from_y = self.get_current_hub_position(from_hub)
         to_x, to_y = self.get_current_hub_position(to_hub)
 
-        # Linear interpolation
         progress = step / total_steps
         current_x = from_x + (to_x - from_x) * progress
         current_y = from_y + (to_y - from_y) * progress
 
-        # Move drone and its label
         if drone_id in self.drone_items:
             drone_item, text_item = self.drone_items[drone_id]
 
-            # Get current position
             coords = self.coords(drone_item)
             if coords:
                 old_x = (coords[0] + coords[2]) / 2
@@ -435,7 +397,6 @@ class GraphCanvas(tk.Canvas):
         self.auto_play = False
         self.current_turn = 0
 
-        # Reset all drones to initial positions
         for drone_id in list(self.drone_items.keys()):
             if drone_id in self.initial_positions:
                 start_hub = self.initial_positions[drone_id]
@@ -491,19 +452,16 @@ class GraphCanvas(tk.Canvas):
         turn_movements = self.animation_queue[self.current_turn]
         total_steps = Configure.animation_steps
 
-        # Animate all drones in this turn
         for drone_id, (from_hub, to_hub) in turn_movements.items():
             self.animate_drone(drone_id, from_hub, to_hub, step, total_steps)
 
         if step < total_steps - 1:
-            # Continue animation for this turn
             if self.auto_play:
                 self.after(
                     Configure.animation_delay,
                     lambda: self._animate_step(step + 1),
                 )
         else:
-            # Move to next turn
             self.current_turn += 1
             if (
                 self.current_turn < len(self.animation_queue)

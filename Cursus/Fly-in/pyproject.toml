@@ -1,7 +1,10 @@
 [project]
-name = "fly-in"
+name = "Fly-in"
 version = "0.1.0"
-description = "Add your description here"
+description = "42 school project of routing drones through a graph"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+	"flake8",
+	"mypy",
+]

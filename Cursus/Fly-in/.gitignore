@@ -1,4 +1,5 @@
 .github/
+.venv/
 test/
 __pycache__/
 .mypy_cache/

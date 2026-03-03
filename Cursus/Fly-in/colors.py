@@ -3,8 +3,6 @@ from enum import Enum
 
 
 class Color(Enum):
-    # Format: (ansi_code, hex_color)
-    # Using 256-color palette for consistency
     RESET = (0, "#000000")
     BLACK = (16, "#000000")
     RED = (196, "#FF0000")
@@ -25,16 +23,14 @@ class Color(Enum):
     MAGENTA = (201, "#FF00FF")
     ORANGE = (208, "#FFA500")
     GOLD = (214, "#FFD700")
-    RAINBOW = (1000, "#FF0000")  # Special case
+    RAINBOW = (1000, "#FF0000")
 
     @property
     def ansi(self) -> int:
-        """Get ANSI color code for console output"""
         return self.value[0]
 
     @property
     def hex(self) -> str:
-        """Get hex color code for Tkinter"""
         return self.value[1]
 
 
@@ -61,7 +57,6 @@ class ColorStr(str):
     ):
         pass
 
-    # ...existing code...
     def set_color(
         self,
         fg: str,
@@ -88,7 +83,6 @@ class ColorStr(str):
         self.bold = bold
 
     def __str__(self) -> str:
-        # All colors now use 256-color format for consistency
         if self.fg.ansi == 0:
             fg = "39"
         elif self.fg == Color.DEFAULT:
@@ -96,7 +90,6 @@ class ColorStr(str):
         else:
             fg = f"38;5;{self.fg.ansi}"
 
-        # Handle background color
         if self.bg.ansi == 0:
             bg = "49"
         elif self.bg.ansi == 1000:
@@ -107,7 +100,6 @@ class ColorStr(str):
             bg = f"48;5;{self.bg.ansi}"
 
         if self.fg == Color.RAINBOW:
-            # Rainbow colors: red, orange, yellow, green, blue, indigo, violet
             r_fg = ("196", "208", "226", "46", "21", "54", "93")
             base_str = str.__str__(self)
             return "".join(
@@ -119,7 +111,6 @@ class ColorStr(str):
                 for i, c in enumerate(base_str)
             )
 
-        # Build escape sequence
         codes = [str(int(self.bold)), fg, bg]
         return (
             f"\033[{';'.join(codes)}m"

@@ -33,13 +33,11 @@ def edmonds_karp(
                         return parent
         return None
 
-    # Keep finding augmenting paths
     while True:
         parent = bfs_find_path()
         if not parent:
             break
 
-        # Find bottleneck capacity
         path_flow = float("inf")
         v = sink
         while v != source:
@@ -47,7 +45,6 @@ def edmonds_karp(
             path_flow = min(path_flow, capacity[u][v] - flow[u][v])
             v = u
 
-        # Update flow along path
         v = sink
         while v != source:
             u = parent[v]
@@ -73,14 +70,12 @@ class PathPlanner:
         k = min(5, self.nb_drones)
         paths = self.graph.k_shortest_paths(self.start, self.goal, k)
 
-        # Filter out invalid paths (must start at start and end at goal)
         paths = [
             p
             for p in paths
             if len(p) > 1 and p[0] == self.start and p[-1] == self.goal
         ]
 
-        # Fallback to simple Dijkstra if k-shortest fails or returns no valid paths
         if not paths:
             _, simple_path = self.graph.dijkstra(self.start, self.goal)
             if simple_path and len(simple_path) > 1:
@@ -94,7 +89,6 @@ class PathPlanner:
         source = 0
         sink = num_paths + 1
 
-        # Source to each path: capacity = min(nb_drones, path_bottleneck)
         for i, path in enumerate(paths):
             path_node = i + 1
             bottleneck = self.graph.get_path_capacity(path)
@@ -102,16 +96,13 @@ class PathPlanner:
                 self.nb_drones, bottleneck
             )
 
-        # Each path to sink: capacity = path_bottleneck
         for i, path in enumerate(paths):
             path_node = i + 1
             bottleneck = self.graph.get_path_capacity(path)
             capacity_matrix[path_node][sink] = bottleneck
 
-        # Run max-flow (Ford-Fulkerson or Edmonds-Karp)
         flow = edmonds_karp(capacity_matrix, source, sink)
 
-        # Extract assignments: how many drones per path
         assignments = {}
         drone_id = 1
         for i, path in enumerate(paths):
@@ -123,9 +114,7 @@ class PathPlanner:
                     assignments[drone_id] = path
                     drone_id += 1
 
-        # Fallback: if not all drones assigned, assign remaining to first valid path
         while drone_id <= self.nb_drones:
-            # Find first valid path (length > 1)
             valid_path = next((p for p in paths if len(p) > 1), None)
             if valid_path:
                 assignments[drone_id] = valid_path
@@ -153,27 +142,23 @@ class Scheduler:
         self.assignments = assignments
         self.logger = logging.getLogger("scheduler")
         self.visual = visual
-        self.movements_per_turn = []  # Track movements for animation
+        self.movements_per_turn = []
 
     def schedule_and_run(self) -> str:
         """
         Execute simulation turn-by-turn following assigned paths.
         Handles capacity constraints and strategic waiting.
         """
-        # Track progress on each drone's path
         drone_progress = {d_id: 0 for d_id in self.assignments}
 
         while not self.simulator.is_complete():
             moves = {}
-            # Track connection usage this turn: (from_hub, to_hub) -> count
             connection_usage = {}
 
-            # Plan moves for all drones
             for drone in self.simulator.drones:
                 if drone.state == "delivered" or drone.state == "in_transit":
                     continue
 
-                # Get assigned path
                 path = self.assignments.get(drone.id)
                 if not path:
                     self.logger.warning(
@@ -183,25 +168,20 @@ class Scheduler:
 
                 if len(path) <= 1:
                     self.logger.warning(
-                        f"Drone {drone.id} has invalid path (length={len(path)})"
+                        f"Drone {drone.id} of invalid path (len={len(path)})"
                     )
                     continue
 
-                # Get current progress
                 progress = drone_progress[drone.id]
 
-                # Check if already at goal
                 if progress >= len(path) - 1:
                     continue
 
-                # Next hub in path
                 next_hub = path[progress + 1]
 
-                # Check if we can move (capacity available)
                 if not self.simulator.can_move_to_hub(next_hub):
                     continue
 
-                # Check connection capacity
                 current_hub = drone.hub
                 connection_key = (current_hub, next_hub)
                 connection_capacity = self.simulator.get_connection_capacity(
@@ -211,39 +191,31 @@ class Scheduler:
                     connection_key, 0
                 )
 
-                # Only allow move if connection has capacity
                 if current_connection_usage < connection_capacity:
                     moves[drone] = next_hub
                     connection_usage[connection_key] = (
                         current_connection_usage + 1
                     )
-                # Otherwise drone waits this turn
 
-            # Track movements for animation (BEFORE executing the turn)
             if self.visual:
                 turn_movements = {}
                 for drone, to_hub in moves.items():
-                    # Get the from_hub (current position before move)
                     from_hub = drone.hub
                     turn_movements[drone.id] = (from_hub, to_hub)
                 if turn_movements:
                     self.movements_per_turn.append(turn_movements)
 
-            # Execute turn with planned moves
             turn_output = self.simulator.simulate_turn(moves)
 
-            # Print colored output if visual mode enabled
             if self.visual and turn_output:
                 self._print_colored_turn(self.simulator.graph, turn_output)
 
-            # Update progress for drones that successfully moved
             for drone in self.simulator.drones:
                 path = self.assignments.get(drone.id)
                 if not path:
                     continue
 
                 progress = drone_progress[drone.id]
-                # Check if drone moved to next position in path
                 if (
                     progress + 1 < len(path)
                     and drone.hub == path[progress + 1]
@@ -257,7 +229,7 @@ class Scheduler:
         return self.movements_per_turn
 
     def _print_colored_turn(self, graph: Graph, turn_output: str):
-        """Print turn output with colored drone movements based on zone types"""
+        """Print turn output with colored drone movements"""
         movements = turn_output.strip().split()
         colored_movements = []
 
