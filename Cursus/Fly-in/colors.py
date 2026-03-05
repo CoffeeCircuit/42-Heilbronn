@@ -41,7 +41,7 @@ class ColorStr(str):
         fg: Color = Color.DEFAULT,
         bg: Color = Color.DEFAULT,
         bold: bool = False,
-    ):
+    ) -> "ColorStr":
         obj = super().__new__(cls, text)
         obj.fg = fg
         obj.bg = bg
@@ -63,7 +63,7 @@ class ColorStr(str):
         /,
         bg: str = "DEFAULT",
         bold: bool = False,
-    ):
+    ) -> None:
         if not stdout.isatty():
             raise EnvironmentError("Environment does not support ANSI codes")
         try:
@@ -118,26 +118,26 @@ class ColorStr(str):
             f"\033[{Color.RESET.ansi}m"
         )
 
-    def _with_same_color(self, value: str):
+    def _with_same_color(self, value: str) -> "ColorStr":
         return ColorStr(value, self.fg, self.bg, self.bold)
 
     def __format__(self, format_spec: str) -> str:
         return self._with_same_color(super().__format__(format_spec))
 
-    def upper(self):
+    def upper(self) -> "ColorStr":
         return self._with_same_color(super().upper())
 
-    def lower(self):
+    def lower(self) -> "ColorStr":
         return self._with_same_color(super().lower())
 
-    def capitalize(self):
+    def capitalize(self) -> "ColorStr":
         return self._with_same_color(super().capitalize())
 
-    def title(self):
+    def title(self) -> "ColorStr":
         return self._with_same_color(super().title())
 
-    def swapcase(self):
+    def swapcase(self) -> "ColorStr":
         return self._with_same_color(super().swapcase())
 
-    def replace(self, old, new, count=-1):
+    def replace(self, old: str, new: str, count: int = -1) -> "ColorStr":  # type: ignore[override]  # noqa: E501
         return self._with_same_color(super().replace(old, new, count))

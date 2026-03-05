@@ -15,7 +15,7 @@ def edmonds_karp(
     n = len(capacity)
     flow = [[0] * n for _ in range(n)]
 
-    def bfs_find_path():
+    def bfs_find_path() -> list[int] | None:
         """Find augmenting path using BFS"""
         visited = [False] * n
         parent = [-1] * n
@@ -45,6 +45,7 @@ def edmonds_karp(
             path_flow = min(path_flow, capacity[u][v] - flow[u][v])
             v = u
 
+        path_flow = int(path_flow)
         v = sink
         while v != source:
             u = parent[v]
@@ -142,18 +143,23 @@ class Scheduler:
         self.assignments = assignments
         self.logger = logging.getLogger("scheduler")
         self.visual = visual
-        self.movements_per_turn = []
+        self.movements_per_turn: list[dict[int, tuple[Hub, Hub]]] = []
 
-    def schedule_and_run(self) -> str:
+    def schedule_and_run(self) -> list[dict[int, tuple[Hub, Hub]]]:
         """
         Execute simulation turn-by-turn following assigned paths.
         Handles capacity constraints and strategic waiting.
         """
         drone_progress = {d_id: 0 for d_id in self.assignments}
+        transit_midpoints: dict[int, Hub] = {}
 
         while not self.simulator.is_complete():
             moves = {}
-            connection_usage = {}
+            connection_usage: dict[tuple[Hub, Hub], int] = {}
+            planned_from_by_id: dict[int, Hub] = {}
+            # Track drones leaving and entering each hub this turn
+            leaving_hub: dict[Hub, int] = {}
+            entering_hub: dict[Hub, int] = {}
 
             for drone in self.simulator.drones:
                 if drone.state == "delivered" or drone.state == "in_transit":
@@ -178,11 +184,26 @@ class Scheduler:
                     continue
 
                 next_hub = path[progress + 1]
+                current_hub = drone.hub
 
-                if not self.simulator.can_move_to_hub(next_hub):
+                # Calculate effective capacity considering moves this turn
+                current_occupancy = self.simulator.get_hub_occupancy(next_hub)
+                drones_leaving = leaving_hub.get(next_hub, 0)
+                drones_entering = entering_hub.get(next_hub, 0)
+                effective_occupancy = (
+                    current_occupancy - drones_leaving + drones_entering
+                )
+
+                # Check capacity (start/end hubs have unlimited capacity)
+                can_enter = (
+                    next_hub == self.simulator.end_hub
+                    or next_hub == self.simulator.start_hub
+                    or effective_occupancy < next_hub.max_drones
+                )
+
+                if not can_enter:
                     continue
 
-                current_hub = drone.hub
                 connection_key = (current_hub, next_hub)
                 connection_capacity = self.simulator.get_connection_capacity(
                     current_hub, next_hub
@@ -193,22 +214,106 @@ class Scheduler:
 
                 if current_connection_usage < connection_capacity:
                     moves[drone] = next_hub
+                    planned_from_by_id[drone.id] = current_hub
                     connection_usage[connection_key] = (
                         current_connection_usage + 1
                     )
 
-            if self.visual:
-                turn_movements = {}
-                for drone, to_hub in moves.items():
-                    from_hub = drone.hub
-                    turn_movements[drone.id] = (from_hub, to_hub)
-                if turn_movements:
-                    self.movements_per_turn.append(turn_movements)
+                    # Track hub occupancy changes
+                    if current_hub != self.simulator.start_hub:
+                        leaving_hub[current_hub] = (
+                            leaving_hub.get(current_hub, 0) + 1
+                        )
+                    entering_hub[next_hub] = entering_hub.get(next_hub, 0) + 1
 
             turn_output = self.simulator.simulate_turn(moves)
 
+            if turn_output:
+                if self.visual:
+                    self._print_colored_turn(self.simulator.graph, turn_output)
+                else:
+                    print(turn_output)
+
             if self.visual and turn_output:
-                self._print_colored_turn(self.simulator.graph, turn_output)
+                turn_movements = {}
+                for movement_str in turn_output.split():
+                    parts = movement_str.split("-")
+                    if len(parts) < 2:
+                        continue
+
+                    drone_id_str = parts[0]
+                    if not drone_id_str.startswith("D"):
+                        continue
+
+                    try:
+                        drone_id = int(drone_id_str[1:])
+                    except ValueError:
+                        continue
+
+                    if len(parts) == 3:
+                        from_name = parts[1]
+                        to_name = parts[2]
+
+                        from_hub_opt = next(
+                            (
+                                h
+                                for h in self.simulator.graph.adj_lst
+                                if h.name == from_name
+                            ),
+                            None,
+                        )
+                        to_hub_opt = next(
+                            (
+                                h
+                                for h in self.simulator.graph.adj_lst
+                                if h.name == to_name
+                            ),
+                            None,
+                        )
+
+                        if from_hub_opt and to_hub_opt:
+                            mid_hub = Hub(
+                                "transit",
+                                (
+                                    "__transit__"
+                                    f"{from_hub_opt.name}__{to_hub_opt.name}"
+                                    f"__{drone_id}__{self.simulator.turn}"
+                                ),
+                                int((from_hub_opt.x + to_hub_opt.x) / 2),
+                                int((from_hub_opt.y + to_hub_opt.y) / 2),
+                                zone=to_hub_opt.zone,
+                                color=to_hub_opt.color,
+                                max_drones=1,
+                            )
+                            turn_movements[drone_id] = (from_hub_opt, mid_hub)
+                            transit_midpoints[drone_id] = mid_hub
+                    else:
+                        to_name = "-".join(parts[1:])
+                        to_hub_opt = next(
+                            (
+                                h
+                                for h in self.simulator.graph.adj_lst
+                                if h.name == to_name
+                            ),
+                            None,
+                        )
+
+                        if not to_hub_opt:
+                            continue
+
+                        if drone_id in transit_midpoints:
+                            from_hub_opt = transit_midpoints.pop(drone_id)
+                        else:
+                            from_hub_opt = planned_from_by_id.get(drone_id)
+
+                        if from_hub_opt:
+                            turn_movements[drone_id] = (
+                                from_hub_opt,
+                                to_hub_opt,
+                            )
+
+                if turn_movements:
+                    self.movements_per_turn.append(turn_movements)
 
             for drone in self.simulator.drones:
                 path = self.assignments.get(drone.id)
@@ -222,13 +327,13 @@ class Scheduler:
                 ):
                     drone_progress[drone.id] = progress + 1
 
-        return self.simulator.get_output()
+        return self.movements_per_turn
 
-    def get_movements_for_animation(self) -> list[dict]:
+    def get_movements_for_animation(self) -> list[dict[int, tuple[Hub, Hub]]]:
         """Return the recorded movements for animation"""
         return self.movements_per_turn
 
-    def _print_colored_turn(self, graph: Graph, turn_output: str):
+    def _print_colored_turn(self, graph: Graph, turn_output: str) -> None:
         """Print turn output with colored drone movements"""
         movements = turn_output.strip().split()
         colored_movements = []
@@ -250,10 +355,14 @@ class Scheduler:
                 move = ColorStr(f"{d}-{z1}", fg=Color[c_z1.upper()])
 
             if z2:
-                z2 = next(z2.__iter__())
-                c_z2 = next((h.color for h in graph.adj_lst if h.name == z2))
+                z2_str = z2[0]
+                c_z2 = next(
+                    (h.color for h in graph.adj_lst if h.name == z2_str), None
+                )
                 if c_z2:
-                    move = ColorStr(f"{d}-{z1}-{z2}", fg=Color[c_z2.upper()])
+                    move = ColorStr(
+                        f"{d}-{z1}-{z2_str}", fg=Color[c_z2.upper()]
+                    )
 
             colored_movements.append(move)
 

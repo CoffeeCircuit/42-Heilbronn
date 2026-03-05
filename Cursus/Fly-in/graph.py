@@ -1,5 +1,6 @@
 from enum import Enum
 from heapq import heappop, heappush
+from typing import Iterator
 
 
 class Zone(Enum):
@@ -10,10 +11,10 @@ class Zone(Enum):
 
 
 class Drone:
-    def __init__(self, id: int, hub) -> None:
+    def __init__(self, id: int, hub: "Hub") -> None:
         self.id = id
         self.hub = hub
-        self.path: list
+        self.path: list[Hub]
         self.state: str
 
     @property
@@ -200,11 +201,11 @@ class Graph:
                 capacity = token.get("max_link_capacity", 1)
                 self.add_edge(from_hub, to_hub, int(capacity))
 
-    def dijkstra(self, start, end):
+    def dijkstra(self, start: Hub, end: Hub) -> tuple[float, list[Hub]]:
         distances = {node: float("inf") for node in self.adj_lst}
         previous = {}
-        distances[start] = 0
-        pq = [(0, start)]
+        distances[start] = 0.0
+        pq = [(0.0, start)]
 
         while pq:
             current_dist, current = heappop(pq)
@@ -215,7 +216,7 @@ class Graph:
             if current_dist > distances[current]:
                 continue
 
-            for neighbor, capacity in self.adj_lst[current]:
+            for neighbor, _ in self.adj_lst[current]:
                 # Use zone-aware cost instead of raw capacity
                 edge_cost = self.get_edge_cost(neighbor)
                 distance = current_dist + edge_cost
@@ -262,7 +263,6 @@ class Graph:
                         if i + 1 < len(path):
                             edge = (path[i], path[i + 1])
                             removed_edges.append(edge)
-                            # Remove from adjacency list
                             self.adj_lst[path[i]] = [
                                 (n, c)
                                 for n, c in self.adj_lst[path[i]]
@@ -301,7 +301,7 @@ class Graph:
 
         return paths
 
-    def __iter__(self):
+    def __iter__(self) -> "Iterator[Hub]":
         return iter(self.adj_lst.keys())
 
     def __repr__(self) -> str:

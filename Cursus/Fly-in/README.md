@@ -29,11 +29,12 @@ Fly-in is an advanced drone routing and pathfinding simulator that optimizes mul
 ### Installation
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd Fly-in
+# Install dependencies using uv (recommended)
+make install
 
-# No external dependencies required (uses Python standard library + tkinter)
+# Or manually with uv
+uv sync --python 3.10
+
 # Ensure Python 3.10+ is installed
 python3 --version
 ```
@@ -43,10 +44,13 @@ python3 --version
 #### Basic Execution
 
 ```bash
-# Run simulation on a map file
-python3 flyin.py <path-to-map-file>
+# Run simulation on a map file using make
+make run ARGS="maps/easy/01_linear_path.txt"
 
-# Example
+# Or run directly with uv
+uv run python3 flyin.py maps/easy/01_linear_path.txt
+
+# Or with standard python
 python3 flyin.py maps/easy/01_linear_path.txt
 ```
 
@@ -54,17 +58,34 @@ python3 flyin.py maps/easy/01_linear_path.txt
 
 ```bash
 # Enable colored terminal output and GUI visualization
-python3 flyin.py maps/easy/02_simple_fork.txt --visual
-# or
-python3 flyin.py maps/medium/01_dead_end_trap.txt -v
+make run ARGS="maps/easy/02_simple_fork.txt --visual"
+
+# Or directly
+uv run python3 flyin.py maps/medium/01_dead_end_trap.txt -v
 ```
 
 #### Debug Mode
 
 ```bash
-# Enable debug logging
-python3 flyin.py maps/hard/01_maze_nightmare.txt --debug -v
+# Enable debug logging with make
+make debug ARGS="maps/hard/01_maze_nightmare.txt --debug -v"
+
+# Or run directly
+uv run python3 -m pdb flyin.py maps/hard/01_maze_nightmare.txt
 ```
+
+#### Benchmark Mode
+
+Run all test maps and compare against performance targets:
+
+```bash
+make benchmark
+```
+
+This will execute all maps and display:
+- Steps taken for each map
+- Whether it meets the target performance
+- Summary of passed/failed tests
 
 ### Map File Format
 
@@ -106,28 +127,84 @@ connection: waypoint-goal
 ### Performance Targets
 
 - **Easy maps**: ≤10 turns
+  - `01_linear_path.txt`: Target ≤6 turns
+  - `02_simple_fork.txt`: Target ≤6 turns
+  - `03_basic_capacity.txt`: Target ≤8 turns
 - **Medium maps**: 10-30 turns
+  - `01_dead_end_trap.txt`: Target ≤15 turns
+  - `02_circular_loop.txt`: Target ≤20 turns
+  - `03_priority_puzzle.txt`: Target ≤12 turns
 - **Hard maps**: ≤60 turns
-- **Challenger map**: Aim for <41 turns (optional, advanced)
+  - `01_maze_nightmare.txt`: Target ≤45 turns
+  - `02_capacity_hell.txt`: Target ≤60 turns
+  - `03_ultimate_challenge.txt`: Target ≤35 turns
+- **Challenger map**: Aim for ≤41 turns (optional, advanced)
+  - `01_the_impossible_dream.txt`: Reference record: 41 turns
 
 ## Project Structure
 
 ```
 Fly-in/
-├── flyin.py          # Main entry point
+├── flyin.py          # Main entry point and argument parsing
 ├── parser.py         # Map file parsing with error handling
 ├── graph.py          # Graph structure, Dijkstra, k-shortest paths
 ├── scheduler.py      # Path planning (max-flow) and turn scheduling
 ├── simulation.py     # Turn-by-turn simulation engine
-├── visualizer.py     # Tkinter GUI with animation
+├── visualizer.py     # Tkinter GUI with animation and controls
 ├── colors.py         # ANSI and hex color definitions
 ├── config.py         # GUI configuration settings
+├── Makefile          # Build, run, lint, and benchmark commands
+├── pyproject.toml    # Python project configuration
+├── uv.lock           # Dependency lock file
+├── __init__.py       # Package initialization
 └── maps/             # Test maps by difficulty
+    ├── README.md
     ├── easy/
+    │   ├── 01_linear_path.txt
+    │   ├── 02_simple_fork.txt
+    │   └── 03_basic_capacity.txt
     ├── medium/
+    │   ├── 01_dead_end_trap.txt
+    │   ├── 02_circular_loop.txt
+    │   └── 03_priority_puzzle.txt
     ├── hard/
+    │   ├── 01_maze_nightmare.txt
+    │   ├── 02_capacity_hell.txt
+    │   └── 03_ultimate_challenge.txt
     └── challenger/
+        └── 01_the_impossible_dream.txt
 ```
+
+## Makefile Commands
+
+The project includes a comprehensive Makefile for common tasks:
+
+### Development Commands
+
+```bash
+make install       # Install dependencies using uv with Python 3.10
+make run          # Run simulation (use ARGS="path/to/map.txt")
+make debug        # Run with Python debugger (pdb)
+make clean        # Remove cache files and virtual environments
+```
+
+### Code Quality
+
+```bash
+make lint         # Run flake8 and mypy with standard checks
+make lint-strict  # Run strict type checking with mypy
+```
+
+### Testing
+
+```bash
+make benchmark    # Run all test maps and compare against targets
+```
+
+The benchmark command tests all maps and displays:
+- ✅ Pass/Fail status for each map based on target turns
+- Total tests passed vs. failed
+- Performance comparison (if exceeded, by how many turns)
 
 ## Algorithm Details
 
@@ -172,10 +249,3 @@ Fly-in/
 - Network flow optimization
 - Constraint satisfaction problems (CSP)
 - Turn-based simulation systems
-
----
-
-**Author**: Andrei Balcu (abalcu)  
-**Institution**: 42 Heilbronn  
-**License**: Educational Project
-

@@ -6,11 +6,11 @@ StringPath = str | Path
 
 
 class ErrorInfo(TypedDict):
-    msg: Optional[str]
-    file: Optional[str]
-    line: Optional[int]
-    col: Optional[int]
-    content: Optional[str]
+    msg: str
+    file: str
+    line: int
+    col: int
+    content: str
 
 
 class ParserError(Exception):
@@ -23,6 +23,7 @@ class ParserError(Exception):
         col: Optional[int] = None,
         content: Optional[str] = None,
     ) -> None:
+        self.err_msg: str
         if all(map(lambda f: f is not None, (file, line, col, content))):
             assert file is not None
             assert line is not None
@@ -57,7 +58,7 @@ class ParserError(Exception):
                 f"{ColorStr('~' * len(content.strip()), Color.GREEN)}"
             )
         else:
-            self.err_msg = msg
+            self.err_msg = msg if msg is not None else ""
         super().__init__(self.err_msg)
 
 
@@ -70,15 +71,17 @@ class Parser:
         self.nb_drones = 0
         self.tokens: list[dict[str, str | int]] = []
         self.error: ErrorInfo = {
-            "msg": None,
-            "file": None,
-            "line": None,
-            "col": None,
-            "content": None,
+            "msg": "",
+            "file": "",
+            "line": 0,
+            "col": 0,
+            "content": "",
         }
 
-    def parse_hub(self, val: str, type: str):
-        assert self.error["content"] is not None
+    def parse_hub(self, val: str, type: str) -> dict[str, str | int]:
+        content = self.error.get("content")
+        if not isinstance(content, str) or content == "":
+            raise ValueError("content must be set before parsing")
         meta: Optional[dict[str, str | int]] = None
         if (lb := val.find("[")) != -1 and (rb := val.rfind("]")) != -1:
 
@@ -101,23 +104,24 @@ class Parser:
             self.error["msg"] = "incorrect number of arguments"
             raise ParserError(**self.error)
 
+        content_str = str(self.error.get("content", ""))
         if "-" in str(_val[0]):
-            self.error["col"] = self.error["content"].find(str(_val[0]))
+            self.error["col"] = content_str.find(str(_val[0]))
             self.error["msg"] = f"invalid name '{_val[0]}'"
             raise ParserError(**self.error)
 
         if " " in str(_val[0]):
-            self.error["col"] = self.error["content"].find(str(_val[0]))
+            self.error["col"] = content_str.find(str(_val[0]))
             self.error["msg"] = f"invalid '{_val[0]}' (spaces not allowed)"
             raise ParserError(**self.error)
 
         if not isinstance(_val[1], int):
-            self.error["col"] = self.error["content"].find(_val[1])
+            self.error["col"] = content_str.find(_val[1])
             self.error["msg"] = f"hub coordinate '{_val[1]}' should be an int"
             raise ParserError(**self.error)
 
         if not isinstance(_val[2], int):
-            self.error["col"] = self.error["content"].find(_val[2])
+            self.error["col"] = content_str.find(_val[2])
             self.error["msg"] = f"hub coordinate '{_val[2]}' should be an int"
             raise ParserError(**self.error)
 
@@ -138,7 +142,7 @@ class Parser:
             and "max_drones" in meta.keys()
             and not isinstance(meta["max_drones"], int)
         ):
-            self.error["col"] = self.error["content"].rfind(meta["max_drones"])
+            self.error["col"] = content_str.rfind(meta["max_drones"])
             self.error["msg"] = f"invalid int '{meta['max_drones']}'"
             raise ParserError(**self.error)
 
@@ -148,9 +152,7 @@ class Parser:
             and isinstance(meta["max_drones"], int)
             and meta["max_drones"] <= 0
         ):
-            self.error["col"] = self.error["content"].rfind(
-                str(meta["max_drones"])
-            )
+            self.error["col"] = content_str.rfind(str(meta["max_drones"]))
             self.error["msg"] = "max_drones must be positive"
             raise ParserError(**self.error)
 
@@ -247,7 +249,7 @@ class Parser:
 
         return result
 
-    def parse(self, file: StringPath):
+    def parse(self, file: StringPath) -> None:
         self.error["file"] = str(Path(file).resolve().relative_to(Path.cwd()))
         with open(file) as fp:
             for i, line in enumerate(fp):
@@ -285,16 +287,18 @@ class Parser:
                             self.error["msg"] = "duplicate nb_drones"
                             raise ParserError(**self.error)
                         try:
-                            val = int(val)
+                            nb_drones_int = int(val)
                         except ValueError as err:
                             self.error["msg"] = str(err)
                             raise ParserError(**self.error)
 
-                        if val <= 0:
-                            self.error["msg"] = f"negative nb_drones '{val}'"
+                        if nb_drones_int <= 0:
+                            self.error["msg"] = (
+                                f"negative nb_drones '{nb_drones_int}'"
+                            )
                             raise ParserError(**self.error)
 
-                        self.nb_drones = val
+                        self.nb_drones = nb_drones_int
 
                     case "start_hub":
                         if "start_hub" in {
@@ -302,28 +306,28 @@ class Parser:
                         }:
                             self.error["msg"] = "duplicate start_hub"
                             raise ParserError(**self.error)
-                        val = self.parse_hub(val, "start_hub")
-                        self.tokens.append(val)
+                        hub_val = self.parse_hub(val, "start_hub")
+                        self.tokens.append(hub_val)
 
                     case "end_hub":
                         if "end_hub" in {str(d["type"]) for d in self.tokens}:
                             self.error["msg"] = "duplicate end_hub"
                             raise ParserError(**self.error)
-                        val = self.parse_hub(val, "end_hub")
-                        self.tokens.append(val)
+                        hub_val = self.parse_hub(val, "end_hub")
+                        self.tokens.append(hub_val)
 
                     case "hub":
-                        val = self.parse_hub(val, "hub")
-                        if val["name"] in {
+                        hub_val = self.parse_hub(val, "hub")
+                        if hub_val["name"] in {
                             str(h["name"]) for h in self.tokens
                         }:
                             self.error["msg"] = "duplicate hub name"
                             raise ParserError(**self.error)
-                        self.tokens.append(val)
+                        self.tokens.append(hub_val)
 
                     case "connection":
-                        val = self.parse_connection(val)
-                        self.tokens.append(val)
+                        conn_val = self.parse_connection(val)
+                        self.tokens.append(conn_val)
 
                     case _:
                         self.error["msg"] = f"invalid key {key}"

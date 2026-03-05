@@ -9,7 +9,7 @@ import tkinter as tk
 from scheduler import PathPlanner, Scheduler
 
 
-def main():
+def main() -> None:
     logging.basicConfig(
         level=logging.INFO, format="%(levelname)s:%(name)s: %(message)s"
     )
@@ -82,10 +82,8 @@ def main():
 
     try:
         scheduler = Scheduler(simulator, assignments, visual=visual_output)
-        output = scheduler.schedule_and_run()
+        scheduler.schedule_and_run()
 
-        if not visual_output:
-            print(output)
         logger.debug(f"Simulation completed in {simulator.turn} turns")
     except Exception as e:
         print(e)
@@ -93,7 +91,7 @@ def main():
     if visual_output:
         try:
             root = tk.Tk()
-            root.title(f"Drone Routing - {file_path.name}")
+            root.title(f"Fly-In - {file_path.name}")
             root.geometry("1920x1080")
 
             canvas = GraphCanvas(root, bg="#1e1e1e", highlightthickness=0)
@@ -102,6 +100,7 @@ def main():
             canvas.create_graph(graph.adj_lst)
 
             for drone in simulator.drones:
+                assert simulator.start_hub is not None
                 canvas.create_drone(drone.id, simulator.start_hub)
 
             movements = scheduler.get_movements_for_animation()
@@ -109,7 +108,8 @@ def main():
 
             control_frame = tk.Frame(root, bg="#2d2d2d")
             control_frame.pack(side=tk.BOTTOM, fill=tk.X)
-
+            assert simulator.start_hub is not None
+            assert simulator.end_hub is not None
             info_label = tk.Label(
                 control_frame,
                 text=(
@@ -135,7 +135,7 @@ def main():
             )
             turn_counter.pack(side=tk.LEFT, padx=20)
 
-            def update_turn_display():
+            def update_turn_display() -> None:
                 turn_counter.config(
                     text=(
                         f"Turn: {canvas.current_turn} / "

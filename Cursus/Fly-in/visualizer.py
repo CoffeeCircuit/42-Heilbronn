@@ -1,4 +1,5 @@
 import tkinter as tk
+from typing import Any
 from config import Configure
 from graph import Hub
 from colors import Color
@@ -22,42 +23,42 @@ def get_complementary_color(hex_color: str) -> str:
 
 
 class GraphCanvas(tk.Canvas):
-    def __init__(self, master, **kwargs):
+    def __init__(self, master: tk.Misc, **kwargs: Any) -> None:
         super().__init__(master, **kwargs)
         self._origin = {"x": 0, "y": 0}
         self._sc_up = 1.1
         self._sc_down = 0.9
-        self._cscale = 1
-        self._font = Configure.font
+        self._cscale: float = 1.0
+        self._font: tuple[str, int] = Configure.font
         self.bind("<ButtonPress-1>", self._set_origin)
         self.bind("<B1-Motion>", self._pan)
         self.bind("<Button-4>", self._scale)
         self.bind("<Button-5>", self._scale)
 
-        self.node_positions = {}
-        self.hub_items = {}
-        self.drone_items = {}
-        self.edge_items = []
-        self.animation_queue = []
+        self.node_positions: dict[Hub, tuple[float, float]] = {}
+        self.hub_items: dict[Hub, int] = {}
+        self.drone_items: dict[int, tuple[int, int]] = {}
+        self.edge_items: list[int] = []
+        self.animation_queue: list[dict[int, tuple[Hub, Hub]]] = []
         self.current_turn = 0
         self.is_animating = False
         self.is_paused = False
         self.auto_play = False
-        self.initial_positions = {}
-        self.tooltip = None
+        self.initial_positions: dict[int, Hub] = {}
+        self.tooltip: tk.Toplevel | None = None
 
-    def _set_origin(self, event):
+    def _set_origin(self, event: tk.Event) -> None:
         self._origin["x"] = event.x
         self._origin["y"] = event.y
 
-    def _pan(self, event):
+    def _pan(self, event: tk.Event) -> None:
         self.move(
             "all", event.x - self._origin["x"], event.y - self._origin["y"]
         )
         self._origin["x"] = event.x
         self._origin["y"] = event.y
 
-    def _scale(self, event):
+    def _scale(self, event: tk.Event) -> None:
         if event.num == 4:
             self._cscale *= self._sc_up
             self.scale("all", event.x, event.y, self._sc_up, self._sc_up)
@@ -67,7 +68,8 @@ class GraphCanvas(tk.Canvas):
         else:
             return
 
-        self._font = (self._font[0], int(Configure.font[1] * self._cscale))
+        new_font_size: int = int(float(Configure.font[1]) * self._cscale)
+        self._font = (self._font[0], new_font_size)
         self.itemconfig("text", font=self._font)
 
         base_arrow_size = 1.5 * self._cscale
@@ -77,7 +79,7 @@ class GraphCanvas(tk.Canvas):
                 edge_id, arrowshape=(d1, d2, d3), width=2 * self._cscale
             )
 
-    def _show_tooltip(self, event, hub: Hub):
+    def _show_tooltip(self, event: tk.Event, hub: Hub) -> None:
         """Show tooltip with hub information"""
         self._hide_tooltip()
 
@@ -97,14 +99,16 @@ class GraphCanvas(tk.Canvas):
         )
         label.pack()
 
-    def _hide_tooltip(self):
+    def _hide_tooltip(self) -> None:
         """Hide the tooltip"""
         if self.tooltip:
             self.tooltip.destroy()
             self.tooltip = None
 
-    def create_vertex(self, hub: Hub, original_hub: Hub | None = None):
-        r = Configure.text_padding * self._font[1]
+    def create_vertex(
+        self, hub: Hub, original_hub: Hub | None = None
+    ) -> int | None:
+        r: float = Configure.text_padding * self._font[1]
 
         if str(hub.color).upper() == "RAINBOW":
             rainbow_colors = [
@@ -163,9 +167,11 @@ class GraphCanvas(tk.Canvas):
 
         return oval
 
-    def create_edge(self, _from: Hub, _to: Hub, cap: int = 1, arrow_size=1.5):
+    def create_edge(
+        self, _from: Hub, _to: Hub, cap: int = 1, arrow_size: float = 1.5
+    ) -> None:
         d1, d2, d3 = tuple(map(lambda x: arrow_size * x, (8, 10, 3)))
-        r = Configure.text_padding * self._font[1]
+        r: float = Configure.text_padding * self._font[1]
         x0, y0 = _from.x, _from.y
         x1, y1 = _to.x, _to.y
         dx = x1 - x0
@@ -209,14 +215,16 @@ class GraphCanvas(tk.Canvas):
             tags="text",
         )
 
-    def create_graph(self, adj_lst: dict[Hub, list[tuple[Hub, int]]]):
+    def create_graph(self, adj_lst: dict[Hub, list[tuple[Hub, int]]]) -> None:
         nodes = list(adj_lst.keys())
 
         if not nodes:
             return
 
-        x0_bbox = x1_bbox = nodes[0].x
-        y0_bbox = y1_bbox = nodes[0].y
+        x0_bbox: float = nodes[0].x
+        x1_bbox: float = nodes[0].x
+        y0_bbox: float = nodes[0].y
+        y1_bbox: float = nodes[0].y
 
         for node in nodes:
             x, y = node.x, node.y
@@ -228,8 +236,10 @@ class GraphCanvas(tk.Canvas):
         width_bbox = x1_bbox - x0_bbox
         height_bbox = y1_bbox - y0_bbox
 
+        scale_x: float
+        scale_y: float
         if width_bbox == 0 and height_bbox == 0:
-            scale_x = scale_y = 1
+            scale_x = scale_y = 1.0
         elif width_bbox == 0:
             scale_x = scale_y = Configure.height / height_bbox * 0.9
         elif height_bbox == 0:
@@ -241,7 +251,7 @@ class GraphCanvas(tk.Canvas):
         x_c = (x0_bbox + x1_bbox) / 2
         y_c = (y0_bbox + y1_bbox) / 2
 
-        node_positions = {}
+        node_positions: dict[Hub, tuple[float, float]] = {}
         for node in nodes:
             scaled_x = (node.x - x_c) * scale_x + Configure.width / 2
             scaled_y = -(node.y - y_c) * scale_y + Configure.height / 2
@@ -259,8 +269,8 @@ class GraphCanvas(tk.Canvas):
                     from_hub_scaled = Hub(
                         from_node.type,
                         from_node.name,
-                        from_x,
-                        from_y,
+                        int(from_x),
+                        int(from_y),
                         zone=from_node.zone,
                         color=from_node.color,
                         max_drones=from_node.max_drones,
@@ -268,8 +278,8 @@ class GraphCanvas(tk.Canvas):
                     to_hub_scaled = Hub(
                         to_node.type,
                         to_node.name,
-                        to_x,
-                        to_y,
+                        int(to_x),
+                        int(to_y),
                         zone=to_node.zone,
                         color=to_node.color,
                         max_drones=to_node.max_drones,
@@ -283,22 +293,40 @@ class GraphCanvas(tk.Canvas):
                     drawn_edges.add(edge_key)
 
         for node in nodes:
-            x, y = node_positions[node]
+            x_coord, y_coord = node_positions[node]
             hub_scaled = Hub(
                 node.type,
                 node.name,
-                x,
-                y,
+                int(x_coord),
+                int(y_coord),
                 zone=node.zone,
                 color=node.color,
                 max_drones=node.max_drones,
             )
             hub_item = self.create_vertex(hub_scaled, original_hub=node)
-            self.hub_items[node] = hub_item
+            if hub_item is not None:
+                self.hub_items[node] = hub_item
 
-    def get_current_hub_position(self, hub: Hub):
+    def get_current_hub_position(self, hub: Hub) -> tuple[float, float]:
         """Get current canvas position of a hub (accounts for pan/zoom)"""
         if hub not in self.hub_items:
+            if hub.type == "transit" and hub.name.startswith("__transit__"):
+                parts = hub.name.split("__")
+                if len(parts) >= 5:
+                    from_name = parts[2]
+                    to_name = parts[3]
+                    from_hub = next(
+                        (h for h in self.hub_items if h.name == from_name),
+                        None,
+                    )
+                    to_hub = next(
+                        (h for h in self.hub_items if h.name == to_name),
+                        None,
+                    )
+                    if from_hub and to_hub:
+                        fx, fy = self.get_current_hub_position(from_hub)
+                        tx, ty = self.get_current_hub_position(to_hub)
+                        return ((fx + tx) / 2, (fy + ty) / 2)
             return self.node_positions.get(hub, (0, 0))
 
         hub_item = self.hub_items[hub]
@@ -309,7 +337,7 @@ class GraphCanvas(tk.Canvas):
             return (x, y)
         return self.node_positions.get(hub, (0, 0))
 
-    def create_drone(self, drone_id: int, hub: Hub):
+    def create_drone(self, drone_id: int, hub: Hub) -> int:
         """Create a drone marker at a specific hub"""
         self.initial_positions[drone_id] = hub
 
@@ -345,7 +373,7 @@ class GraphCanvas(tk.Canvas):
         to_hub: Hub,
         step: int,
         total_steps: int,
-    ):
+    ) -> None:
         """Animate drone movement between hubs"""
         if drone_id not in self.drone_items:
             self.create_drone(drone_id, from_hub)
@@ -370,12 +398,14 @@ class GraphCanvas(tk.Canvas):
                 self.move(drone_item, dx, dy)
                 self.move(text_item, dx, dy)
 
-    def set_animation_data(self, movements_per_turn: list[dict]):
+    def set_animation_data(
+        self, movements_per_turn: list[dict[int, tuple[Hub, Hub]]]
+    ) -> None:
         """Set the movement data for animation"""
         self.animation_queue = movements_per_turn
         self.current_turn = 0
 
-    def play_animation(self):
+    def play_animation(self) -> None:
         """Start playing the animation automatically"""
         if self.is_animating or not self.animation_queue:
             return
@@ -385,12 +415,12 @@ class GraphCanvas(tk.Canvas):
         self.is_paused = False
         self._animate_step(0)
 
-    def pause_animation(self):
+    def pause_animation(self) -> None:
         """Pause the animation"""
         self.is_paused = True
         self.auto_play = False
 
-    def restart_animation(self):
+    def restart_animation(self) -> None:
         """Restart animation from the beginning"""
         self.is_animating = False
         self.is_paused = False
@@ -403,13 +433,13 @@ class GraphCanvas(tk.Canvas):
                 x, y = self.get_current_hub_position(start_hub)
                 self._move_drone_to(drone_id, x, y)
 
-    def next_turn(self):
+    def next_turn(self) -> None:
         """Move to the next turn"""
         if self.current_turn < len(self.animation_queue) - 1:
             self._execute_turn_instant(self.current_turn)
             self.current_turn += 1
 
-    def previous_turn(self):
+    def previous_turn(self) -> None:
         """Move to the previous turn"""
         if self.current_turn > 0:
             target_turn = self.current_turn - 1
@@ -418,7 +448,7 @@ class GraphCanvas(tk.Canvas):
                 self._execute_turn_instant(turn_idx)
             self.current_turn = target_turn
 
-    def _move_drone_to(self, drone_id: int, x: float, y: float):
+    def _move_drone_to(self, drone_id: int, x: float, y: float) -> None:
         """Move drone to specific coordinates instantly"""
         if drone_id in self.drone_items:
             drone_item, text_item = self.drone_items[drone_id]
@@ -431,7 +461,7 @@ class GraphCanvas(tk.Canvas):
                 self.move(drone_item, dx, dy)
                 self.move(text_item, dx, dy)
 
-    def _execute_turn_instant(self, turn_idx: int):
+    def _execute_turn_instant(self, turn_idx: int) -> None:
         """Execute a turn instantly without animation"""
         if turn_idx >= len(self.animation_queue):
             return
@@ -441,7 +471,7 @@ class GraphCanvas(tk.Canvas):
             x, y = self.get_current_hub_position(to_hub)
             self._move_drone_to(drone_id, x, y)
 
-    def _animate_step(self, step: int):
+    def _animate_step(self, step: int) -> None:
         """Animate a single step of the current turn"""
         if not self.auto_play or self.current_turn >= len(
             self.animation_queue
@@ -451,6 +481,12 @@ class GraphCanvas(tk.Canvas):
 
         turn_movements = self.animation_queue[self.current_turn]
         total_steps = Configure.animation_steps
+
+        # On step 0, position drones at their starting positions for this turn
+        if step == 0:
+            for drone_id, (from_hub, to_hub) in turn_movements.items():
+                x, y = self.get_current_hub_position(from_hub)
+                self._move_drone_to(drone_id, x, y)
 
         for drone_id, (from_hub, to_hub) in turn_movements.items():
             self.animate_drone(drone_id, from_hub, to_hub, step, total_steps)

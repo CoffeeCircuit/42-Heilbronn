@@ -38,6 +38,7 @@ class Simulator:
         self.in_transit: dict[
             Drone, tuple[Hub, Hub]
         ] = {}  # drone -> (from, to)
+        self.newly_transiting: set[Drone] = set()
 
     def get_hub_occupancy(self, hub: Hub) -> int:
         """Get current number of drones in a hub"""
@@ -83,6 +84,8 @@ class Simulator:
             if drone.state != "in_transit":
                 drone.state = "in_transit"
                 self.in_transit[drone] = (drone.hub, to_hub)
+                # Track that drone just entered transit
+                self.newly_transiting.add(drone)
                 if drone in drone.hub.drones:
                     drone.hub.drones.remove(drone)
                 return True
@@ -108,11 +111,15 @@ class Simulator:
     def process_transit_drones(self) -> list[str]:
         """Process drones in transit to restricted zones.
         Returns movement strings.
+        Drones that just entered transit are not processed until next turn.
         """
         moves = []
         completed_transits = []
 
         for drone, (from_hub, to_hub) in self.in_transit.items():
+            # Skip drones that just entered transit this turn
+            if drone in self.newly_transiting:
+                continue
             if self.can_move_to_hub(to_hub):
                 drone.hub = to_hub
                 to_hub.drones.append(drone)
@@ -164,6 +171,9 @@ class Simulator:
         completed = self.process_transit_drones()
         turn_output.extend(completed)
 
+        # Clear newly_transiting for next turn
+        self.newly_transiting.clear()
+
         self.turn += 1
         output = " ".join(sorted(turn_output))
         if output:
@@ -179,7 +189,7 @@ class Simulator:
         """Get the full simulation output"""
         return "\n".join(self.movements)
 
-    def print_state(self):
+    def print_state(self) -> None:
         """Debug: print current state"""
         print(f"\n=== Turn {self.turn} ===")
         for hub in self.graph.adj_lst.keys():
