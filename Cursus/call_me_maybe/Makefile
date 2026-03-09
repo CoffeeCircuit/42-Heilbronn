@@ -1,4 +1,4 @@
-.PHONY: install run debug clean lint lint-strict benchmark
+.PHONY: install run debug clean lint lint-strict
 
 
 install:

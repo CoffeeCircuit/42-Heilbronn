@@ -28,7 +28,7 @@ git clone <repository-url>
 cd call_me_maybe
 
 # Install dependencies (uv will create a virtual environment automatically)
-uv sync
+make install
 ```
 
 ### Running the Program
