@@ -1,0 +1,17 @@
+HF/
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+.venv/
+.python-version
+
+build/
+dist/
+*.egg-info/
+.eggs/
+
+.vscode/
+.env
+.env.*
+
+tempCodeRunnerFile.py
