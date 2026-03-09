@@ -57,7 +57,7 @@ build:
 		echo 'version = "1.0.0"' >> pyproject.toml; \
 		echo 'description = "Maze generation library"' >> pyproject.toml; \
 		echo 'readme = "mazegen/README.md"' >> pyproject.toml; \
-		echo 'requires-python = ">=3.11"' >> pyproject.toml; \
+		echo 'requires-python = ">=3.10"' >> pyproject.toml; \
 		echo 'dependencies = []' >> pyproject.toml; \
 		echo >> pyproject.toml; \
 		echo "[tool.setuptools]" >> pyproject.toml; \
