@@ -76,7 +76,7 @@ benchmark:
 			01_maze_nightmare.txt) check_result 45 ;; \
 			02_capacity_hell.txt) check_result 60 ;; \
 			03_ultimate_challenge.txt) check_result 35 ;; \
-			01_the_impossible_dream.txt) check_result 41 ;; \
+			01_the_impossible_dream.txt) check_result 45 ;; \
 		esac; \
 		echo ""; \
 	done; \
