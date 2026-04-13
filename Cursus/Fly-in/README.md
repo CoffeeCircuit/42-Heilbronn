@@ -48,7 +48,7 @@ python3 --version
 make run ARGS="maps/easy/01_linear_path.txt"
 
 # Or run directly with uv
-uv run python3 flyin.py maps/easy/01_linear_path.txt
+uv run flyin.py maps/easy/01_linear_path.txt
 
 # Or with standard python
 python3 flyin.py maps/easy/01_linear_path.txt
@@ -61,7 +61,7 @@ python3 flyin.py maps/easy/01_linear_path.txt
 make run ARGS="maps/easy/02_simple_fork.txt --visual"
 
 # Or directly
-uv run python3 flyin.py maps/medium/01_dead_end_trap.txt -v
+uv run flyin.py maps/medium/01_dead_end_trap.txt -v
 ```
 
 #### Debug Mode
@@ -206,7 +206,71 @@ The benchmark command tests all maps and displays:
 - Total tests passed vs. failed
 - Performance comparison (if exceeded, by how many turns)
 
-## Algorithm Details
+## Algorithm Explanation
+
+### Pathfinding Strategy
+
+Fly-in uses a sophisticated two-phase approach to optimize multi-drone routing:
+
+#### Phase 1: Path Discovery via K-Shortest Paths
+The system generates up to **k=5 candidate paths** from source to destination using a modified Dijkstra algorithm with path enumeration. This provides multiple disjoint and diverse routes rather than relying on a single optimal path, enabling parallel drone movement and better congestion management.
+
+**Cost Calculation:**
+- **Normal zones**: 1.0 unit cost
+- **Restricted zones**: 2.0 unit cost (requires transit through midpoint)
+- **Priority zones**: 0.5 unit cost (encouraged routes)
+- **Blocked zones**: Infinite cost (impassable)
+
+#### Phase 2: Optimal Drone Assignment via Max-Flow
+Once candidate paths are identified, drones are assigned to paths using the **Edmonds-Karp algorithm** (BFS-based maximum flow):
+
+1. **Flow network construction**: Create a flow network where:
+   - Source connects to each path with capacity = min(total_drones, path_bottleneck)
+   - Each path connects to sink with capacity = path_bottleneck (minimum edge capacity)
+
+2. **Flow computation**: Edmonds-Karp finds augmenting paths using BFS and computes maximum flow, ensuring drones are distributed across paths proportional to their capacities
+
+3. **Bottleneck capacity**: Each path's capacity is determined by its minimum edge capacity (the "weakest link")
+
+### Constraint Handling
+
+**Hub Capacity (max_drones)**
+- Each hub has a maximum occupancy limit (default: 1)
+- Drones queue outside hubs rather than violate constraints
+- Strategic waiting prevents capacity violations
+
+**Connection Capacity (max_link_capacity)**
+- Each edge has a maximum concurrent traversal limit
+- Enforced at the flow assignment phase via bottleneck calculation
+- Prevents congestion on critical network connections
+
+**Restricted Zone Transit**
+- Drones entering restricted zones enter a "transit" state
+- They occupy a midpoint for one full turn before arriving at destination
+- Ensures proper 2-turn traversal without double-counting positions
+
+### Turn-Based Scheduling & Conflict Resolution
+
+Each turn executes in this order:
+
+1. **Move planning**: Determine which drones move and where (respecting all constraints)
+2. **Transit processing**: Complete any in-transit drones moving through restricted zones
+3. **Capacity validation**: Verify no capacity violations after moves
+4. **Strategic waiting**: Drones unable to move remain in current hub, queuing for next turn
+
+This greedy approach with lookahead ensures deadlock-free routing while minimizing total turns.
+
+### Design Rationale
+
+| Decision | Rationale |
+|----------|-----------|
+| K-shortest paths | Avoids single-path bottlenecks; enables parallel routing |
+| Edmonds-Karp algorithm | Polynomial-time guarantee; practical for network constraints |
+| Bottleneck capacity | Respects edge constraints; prevents overloading links |
+| Greedy turn-by-turn execution | Distributes drones effectively while maintaining feasibility |
+| Strategic waiting | Resolves conflicts without complex backtracking |
+
+
 
 ### Pathfinding
 

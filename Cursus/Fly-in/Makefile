@@ -11,7 +11,7 @@ install:
 	uv sync --python 3.10
 
 run:
-	uv run python3 flyin.py $(ARGS)
+	uv run flyin.py $(ARGS)
 
 debug:
 	uv run python3 -m pdb flyin.py $(ARGS)
