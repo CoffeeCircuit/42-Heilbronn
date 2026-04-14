@@ -256,11 +256,30 @@ class Parser:
         self.error["file"] = str(Path(file).resolve().relative_to(Path.cwd()))
 
         def check_dup(token: dict[str, str | int]) -> None:
+            """Check for hubs with the same coordinates"""
             for e_tok in self.tokens:
-                e_x, e_y = e_tok['x'], e_tok['y']
-                if (token['x'], token['y']) == (e_x, e_y):
+                e_x, e_y = e_tok["x"], e_tok["y"]
+                if (token["x"], token["y"]) == (e_x, e_y):
                     self.error["msg"] = "duplicate hub coordinates"
                     raise ParserError(**self.error)
+
+        def def_col(token: dict[str, str | int]) -> None:
+            """Adds (if missing) default colors depending on the hub type"""
+            if (
+                token["type"] in {"start_hub", "hub", "end_hub"}
+                and "color" not in token
+            ):
+                match token['type']:
+                    case 'start_hub' | 'end_hub':
+                        token["color"] = "green"
+                    case 'hub' if token.get('zone', None) == 'restricted':
+                        token["color"] = "purple"
+                    case 'hub' if token.get('zone', None) == 'priority':
+                        token["color"] = "cyan"
+                    case 'hub' if token.get('zone', None) == 'blocked':
+                        token["color"] = "red"
+                    case 'hub' if token.get('zone', None) in {None, 'normal'}:
+                        token['color'] = 'blue'
 
         with open(file) as fp:
             for i, line in enumerate(fp):
@@ -319,6 +338,7 @@ class Parser:
                             raise ParserError(**self.error)
                         hub_val = self.parse_hub(val, "start_hub")
                         check_dup(hub_val)
+                        def_col(hub_val)
                         self.tokens.append(hub_val)
 
                     case "end_hub":
@@ -327,6 +347,7 @@ class Parser:
                             raise ParserError(**self.error)
                         hub_val = self.parse_hub(val, "end_hub")
                         check_dup(hub_val)
+                        def_col(hub_val)
                         self.tokens.append(hub_val)
 
                     case "hub":
@@ -337,6 +358,7 @@ class Parser:
                             self.error["msg"] = "duplicate hub name"
                             raise ParserError(**self.error)
                         check_dup(hub_val)
+                        def_col(hub_val)
                         self.tokens.append(hub_val)
 
                     case "connection":
@@ -347,7 +369,7 @@ class Parser:
                         self.error["msg"] = f"invalid key {key}"
                         raise ParserError(**self.error)
 
-        if 'connection' not in {d.get('type') for d in self.tokens}:
+        if "connection" not in {d.get("type") for d in self.tokens}:
             raise ParserError(msg="Missing connection")
 
         hub_types = {str(d["type"]) for d in self.tokens}

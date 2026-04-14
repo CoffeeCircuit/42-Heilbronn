@@ -262,7 +262,8 @@ class Graph:
                     if len(path) > i and path[: i + 1] == root_path:
                         if i + 1 < len(path):
                             edge = (path[i], path[i + 1])
-                            removed_edges.append(edge)
+                            cap = self.get_edge_capacity(path[i], path[i + 1])
+                            removed_edges.append((edge[0], edge[1], cap))
                             self.adj_lst[path[i]] = [
                                 (n, c)
                                 for n, c in self.adj_lst[path[i]]
@@ -276,8 +277,7 @@ class Graph:
 
                 _, spur_path = self.dijkstra(spur_node, goal)
 
-                for from_hub, to_hub in removed_edges:
-                    cap = self.get_edge_capacity(from_hub, to_hub) or 1
+                for from_hub, to_hub, cap in removed_edges:
                     self.adj_lst[from_hub].append((to_hub, cap))
                     self.adj_lst[to_hub].append((from_hub, cap))
 
