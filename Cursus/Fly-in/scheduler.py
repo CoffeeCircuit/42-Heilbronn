@@ -227,7 +227,6 @@ class Scheduler:
                     entering_hub[next_hub] = entering_hub.get(next_hub, 0) + 1
 
             turn_output = self.simulator.simulate_turn(moves)
-
             if turn_output:
                 if self.visual:
                     self._print_colored_turn(self.simulator.graph, turn_output)

@@ -83,14 +83,17 @@ class Parser:
         if not isinstance(content, str) or content == "":
             raise ValueError("content must be set before parsing")
         meta: Optional[dict[str, str | int]] = None
+
+        def parse_value(v: str) -> str | int:
+            try:
+                return int(v)
+            except ValueError:
+                return v
+
         if (lb := val.find("[")) != -1 and (rb := val.rfind("]")) != -1:
-
-            def parse_value(v: str) -> str | int:
-                try:
-                    return int(v)
-                except ValueError:
-                    return v
-
+            if "=" not in val:
+                self.error["msg"] = f"invalid metadata format '{val}'"
+                raise ParserError(**self.error)
             meta = dict(
                 (k, parse_value(v))
                 for arg in val[lb + 1: rb].split(" ")
@@ -251,6 +254,14 @@ class Parser:
 
     def parse(self, file: StringPath) -> None:
         self.error["file"] = str(Path(file).resolve().relative_to(Path.cwd()))
+
+        def check_dup(token: dict[str, str | int]) -> None:
+            for e_tok in self.tokens:
+                e_x, e_y = e_tok['x'], e_tok['y']
+                if (token['x'], token['y']) == (e_x, e_y):
+                    self.error["msg"] = "duplicate hub coordinates"
+                    raise ParserError(**self.error)
+
         with open(file) as fp:
             for i, line in enumerate(fp):
                 self.error["line"] = i
@@ -307,6 +318,7 @@ class Parser:
                             self.error["msg"] = "duplicate start_hub"
                             raise ParserError(**self.error)
                         hub_val = self.parse_hub(val, "start_hub")
+                        check_dup(hub_val)
                         self.tokens.append(hub_val)
 
                     case "end_hub":
@@ -314,6 +326,7 @@ class Parser:
                             self.error["msg"] = "duplicate end_hub"
                             raise ParserError(**self.error)
                         hub_val = self.parse_hub(val, "end_hub")
+                        check_dup(hub_val)
                         self.tokens.append(hub_val)
 
                     case "hub":
@@ -323,6 +336,7 @@ class Parser:
                         }:
                             self.error["msg"] = "duplicate hub name"
                             raise ParserError(**self.error)
+                        check_dup(hub_val)
                         self.tokens.append(hub_val)
 
                     case "connection":
@@ -332,6 +346,9 @@ class Parser:
                     case _:
                         self.error["msg"] = f"invalid key {key}"
                         raise ParserError(**self.error)
+
+        if 'connection' not in {d.get('type') for d in self.tokens}:
+            raise ParserError(msg="Missing connection")
 
         hub_types = {str(d["type"]) for d in self.tokens}
 

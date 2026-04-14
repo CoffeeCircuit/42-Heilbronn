@@ -55,6 +55,9 @@ def main() -> None:
     try:
         graph.build_from_tokens(file_parser.tokens)
         logger.debug(f"Built graph: {graph}")
+        for _hub, _conn in graph.adj_lst.items():
+            if not _conn and _hub.type != "end_hub":
+                raise ValueError(f"Hub '{_hub}' is isolated")
     except Exception as e:
         logger.error(f"Graph construction failed: {e}")
         raise SystemExit(1)
@@ -66,12 +69,8 @@ def main() -> None:
     try:
         planner = PathPlanner(graph, file_parser.nb_drones)
         assignments = planner.assign_drones()
-
     except Exception as e:
         logger.error(f"Path planning failed: {e}")
-        import traceback
-
-        traceback.print_exc()
         raise SystemExit(1)
 
     simulator = Simulator(graph, file_parser.nb_drones)

@@ -1,7 +1,9 @@
 .github/
 .venv/
+.vscode/
 test/
 __pycache__/
 .mypy_cache/
 *.tar
 *.gz
+test_*
