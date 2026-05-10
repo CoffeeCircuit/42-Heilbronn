@@ -9,6 +9,10 @@ KO := \033[0;31mKO\033[0m
 install:
 	UV_SKIP_WHEEL_FILENAME_CHECK=1 uv sync --python 3.10
 
+# use this to create the WebAssembly for itch.io
+build:
+	UV_SKIP_WHEEL_FILENAME_CHECK=1 uv run pygbag pac-man.py
+
 run:
 	uv run pac-man.py $(ARGS)
 
@@ -19,6 +23,7 @@ clean:
 	find . -type d -name __pycache__ -exec rm -rf {} +
 	find . -type d -name .mypy_cache -exec rm -rf {} +
 	find . -type d -name .venv -exec rm -rf {} +
+	find . -type d -name build -exec rm -rf {} +
 	find . -type d -name dist -exec rm -rf {} +
 	find . -name .pytest_cache -exec rm -rf {} +
 	find . -name .ruff_cache -exec rm -rf {} +

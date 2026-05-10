@@ -8,6 +8,7 @@ __pycache__/
 *.pyc
 *.pyo
 *.egg-info/
+build/
 dist/
 build/
 

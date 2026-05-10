@@ -14,7 +14,10 @@ dependencies = [
     "numpy",
     "pydantic==2.0.1",
     "pytest>=9.0.2",
+    "typing_extensions>=4.7.0",
     "mazegenerator",
+    "pygame",
+    "pygbag",
 ]
 
 [tool.uv.sources]
