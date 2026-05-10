@@ -11,7 +11,7 @@ install:
 
 # use this to create the WebAssembly for itch.io
 build:
-	UV_SKIP_WHEEL_FILENAME_CHECK=1 uv run pygbag pac-man.py
+	UV_SKIP_WHEEL_FILENAME_CHECK=1 uv run pygbag --disable-sound-format-error --no_opt pac-man.py
 
 run:
 	uv run pac-man.py $(ARGS)
