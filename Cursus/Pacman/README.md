@@ -31,6 +31,8 @@ Pygbag is ideal because:
 
 
 ## Resources
+- [Pacmancode](https://pacmancode.com/)
+- 
 
 ## Configuration
 

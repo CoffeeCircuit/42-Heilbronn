@@ -4,8 +4,8 @@
 		"level1",
 		"level2"
 	],
-	"width": 50,
-	"height": 50,
+	"width": 1920,
+	"height": 1080,
 	"lives": 3,
 	"pacgum": 42,
 	"points_per_pacgum": 10,

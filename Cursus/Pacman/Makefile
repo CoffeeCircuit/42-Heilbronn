@@ -1,9 +1,9 @@
-.PHONY: install run debug clean lint lint-strict benchmark
+.PHONY: install run debug clean lint lint-strict test re
 
 PY_FILES := pac-man.py 
 
-OK := \033[0;32mOK\033[0m
-KO := \033[0;31mKO\033[0m
+GREEN := \033[0;32mOK\033[0m
+RED := \033[0;31mKO\033[0m
 
 
 install:
@@ -29,6 +29,11 @@ clean:
 	find . -name .ruff_cache -exec rm -rf {} +
 	find . -name "*.pyc" -delete
 	find . -name "*.pyo" -delete
+
+# use this target to run the unit tests
+test:
+	pytest test -vv
+	@echo "WHEN PROJECT IF FINISHED REMOVE THE TEST FOLDER"
 
 lint:
 	UV_SKIP_WHEEL_FILENAME_CHECK=1 uv run flake8 $(PY_FILES)
