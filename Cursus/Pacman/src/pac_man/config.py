@@ -1,16 +1,18 @@
+import json
 from pydantic import BaseModel, ValidationError
 from typing import Optional
-import json
+from . import constants as const
 
 
 class ConfigData(BaseModel):
     width: int
     height: int
+    seed: int
 
 
 class Config:
     def __init__(self) -> None:
-        self.data: Optional[ConfigData] = None
+        self.data: ConfigData
 
     def read(self, file: str) -> bool:
         """
@@ -34,8 +36,12 @@ class Config:
 
     @property
     def width(self):
-        return self.data.width if self.data else None
+        return self.data.width
 
     @property
     def height(self):
-        return self.data.height if self.data else None
+        return self.data.height
+
+    @property
+    def seed(self):
+        return self.data.seed if self.data else 42

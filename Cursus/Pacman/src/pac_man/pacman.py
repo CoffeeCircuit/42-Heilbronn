@@ -1,5 +1,7 @@
 from .config import Config
 from .sprites import Spritesheet
+from .font import Text
+from .maze import Maze
 
 import pygame
 import time
@@ -12,7 +14,18 @@ def pacman(cfg_file_path):
         exit()
 
     pygame.init()
-    window = pygame.display.set_mode((cfg.width, cfg.height), vsync=1)
+    # Calculate window size based on maze dimensions (each cell is 32x32 pixels)
+    # Maze grid is (width*2+1) x (height*2+1) cells after rendering
+    TILE_SIZE = 32
+    window_width = (cfg.width * 2 + 1) * TILE_SIZE
+    window_height = (cfg.height * 2 + 1) * TILE_SIZE
+    window = pygame.display.set_mode((window_width, window_height), vsync=1)
+    pygame.display.set_caption("Pac-Man")
+    window.fill((0, 0, 0))
+    pygame.display.update()
+    
+    maze = Maze(window, cfg)
+
     running = True
 
     animation_frame_duration = 1.0 / 15.0  # 15 FPS for smoother animation
@@ -32,10 +45,6 @@ def pacman(cfg_file_path):
     time_1 = time.perf_counter()
     unprocessed = 0.0
     frame_times = []
-
-    print(f"Display: {cfg.width}x{cfg.height}")
-    print(f"VSync: Enabled")
-    print(f"Target FPS: {fps}")
 
     while running:
         for event in pygame.event.get():
@@ -64,18 +73,15 @@ def pacman(cfg_file_path):
             )
             frame_times.append(passed)
 
-            # Print timing stats every 60 frames
-            if frame_counter % 60 == 0 and frame_times:
-                avg_dt = sum(frame_times) / len(frame_times)
-                min_dt = min(frame_times)
-                max_dt = max(frame_times)
-                print(
-                    f"Timing - Avg: {avg_dt * 1000:.2f}ms, Min: {min_dt * 1000:.2f}ms, Max: {max_dt * 1000:.2f}ms"
-                )
-                frame_times = []
-
             window.fill((0, 0, 0))
+            maze.draw()
             window.blit(frames[frame_index], (x, 100))
+
+            font = Text()
+            font_surf = font.render("0123456")
+            window.blit(font_surf, (0, 0))
+
+
             pygame.display.flip()
 
     pygame.quit()
