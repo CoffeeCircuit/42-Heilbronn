@@ -1,23 +1,30 @@
-.PHONY: install run debug clean lint lint-strict test re
+.PHONY: install run debug clean lint lint-strict test re push
 
-PY_FILES := pac-man.py 
+ifneq (,$(wildcard ./.env))
+    include .env
+    export
+endif
+
+PY_FILES := pac-man.py $(shell find src -name '*.py' -type f)
 
 GREEN := \033[0;32mOK\033[0m
 RED := \033[0;31mKO\033[0m
 
 
 install:
-	UV_SKIP_WHEEL_FILENAME_CHECK=1 uv sync --python 3.10
+	UV_SKIP_WHEEL_FILENAME_CHECK=1 uv sync --python 3.12 --all-extras
+	uv tool install --upgrade pygbag
 
 # use this to create the WebAssembly for itch.io
 build:
-	UV_SKIP_WHEEL_FILENAME_CHECK=1 uv run pygbag --disable-sound-format-error --no_opt pac-man.py
+# 	UV_SKIP_WHEEL_FILENAME_CHECK=1 uv run pygbag --disable-sound-format-error --no_opt pac-man.py
+	pygbag --disable-sound-format-error --no_opt --cdn https://pygame-web.github.io/archives/0.8/ --build --html pac-man.py
 
 run:
-	uv run pac-man.py $(ARGS)
+	UV_SKIP_WHEEL_FILENAME_CHECK=1 uv run pac-man.py $(ARGS)
 
 debug:
-	uv run python3 -m pdb pac-man.py $(ARGS)
+	UV_SKIP_WHEEL_FILENAME_CHECK=1 uv run python3 -m pdb pac-man.py $(ARGS)
 
 clean:
 	find . -type d -name __pycache__ -exec rm -rf {} +
@@ -54,3 +61,7 @@ lint-strict:
 		--exclude '(^\.venv/)'
 
 re: clean install
+
+# push the build to itch.io
+push:build
+	BUTLER_API_KEY=$(BUTLER_API_KEY) butler/butler push ./build/web 42-HN-DreamTeam/pac-man:web

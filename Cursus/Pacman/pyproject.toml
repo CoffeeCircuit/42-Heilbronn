@@ -9,15 +9,19 @@ authors = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "flake8",
-    "mypy",
     "numpy",
-    "pydantic==2.0.1",
-    "pytest>=9.0.2",
+    "pydantic>=2.11",
     "typing_extensions>=4.7.0",
     "mazegenerator",
     "pygame",
     "pygbag",
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8",
+    "mypy",
+    "pytest>=9.0.2",
 ]
 
 [tool.uv.sources]

@@ -2,15 +2,11 @@
 The original Pacman had 28x36 cells (including the walls)
 """
 
-from typing import TYPE_CHECKING
 from pygame import SurfaceType
 import pygame
-from mazegenerator.mazegenerator import MazeGenerator  # type: ignore[import]
+from mazegenerator.mazegenerator import MazeGenerator
+from .config import Config
 from .sprites import Spritesheet
-
-
-if TYPE_CHECKING:
-    from .config import Config
 
 
 class Maze:
@@ -18,8 +14,13 @@ class Maze:
     Maze render class
     """
 
-    def __init__(self, screen: SurfaceType, conf: "Config") -> None:
-        self.seed = conf.seed
+    def __init__(
+        self,
+        screen: SurfaceType,
+        conf: Config,
+        seed: int | None = None,
+    ) -> None:
+        self.seed = seed if seed is not None else conf.seed
         self.screen = screen
         self.TILE_SIZE = 32
         try:
@@ -111,6 +112,47 @@ class Maze:
 
         return surface
 
-    def draw(self) -> None:
+    def draw(self, offset_y: int = 0) -> None:
         """Blit the pre-rendered maze surface."""
-        self.screen.blit(self.maze_surface, (0, 0))
+        self.screen.blit(self.maze_surface, (0, offset_y))
+
+    def is_walkable(self, row: int, col: int) -> bool:
+        """Check if a cell in the out grid is a walkable corridor."""
+        if row < 0 or row >= len(self.out):
+            return False
+        if col < 0 or col >= len(self.out[0]):
+            return False
+        return self.out[row][col] is None
+
+    def nearest_cell(self, r0: int, c0: int) -> tuple[int, int]:
+        """Return nearest reachable odd-indexed cell with exits."""
+        rows = len(self.out)
+        cols = len(self.out[0])
+        start = (r0 | 1, c0 | 1)
+        visited: set[tuple[int, int]] = set()
+        queue: list[tuple[int, int]] = [start]
+        while queue:
+            r, c = queue.pop(0)
+            if (r, c) in visited:
+                continue
+            visited.add((r, c))
+            if r % 2 == 1 and c % 2 == 1 and self.out[r][c] is None:
+                has_exit = any(
+                    self.is_walkable(r + dr, c + dc)
+                    for dr, dc in ((-1, 0), (1, 0), (0, -1), (0, 1))
+                )
+                if has_exit:
+                    return (r, c)
+            for dr, dc in ((-2, 0), (2, 0), (0, -2), (0, 2)):
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < rows and 0 <= nc < cols:
+                    if (nr, nc) not in visited:
+                        queue.append((nr, nc))
+        return start
+
+    @property
+    def center(self) -> tuple[int, int]:
+        """Return nearest reachable maze cell to the geometric center."""
+        rows = len(self.out)
+        cols = len(self.out[0])
+        return self.nearest_cell(rows // 2, cols // 2)

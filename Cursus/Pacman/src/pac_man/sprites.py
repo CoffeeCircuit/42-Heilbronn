@@ -6,7 +6,8 @@ class Spritesheet(object):
     def __init__(self, filename: str = "pacman.png"):
 
         sprite_path = os.path.join(
-            os.path.dirname(__file__), f"../../assets/sprites/{filename}"
+            os.path.dirname(os.path.abspath(__file__)),
+            f"../../assets/sprites/{filename}",
         )
         self.sheet = pygame.image.load(sprite_path).convert()
 

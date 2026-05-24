@@ -3,8 +3,5 @@ import sys
 from src.pac_man import pacman
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Error: config file required")
-        sys.exit(1)
-    else:
-        pacman(sys.argv[1])
+    config_file = sys.argv[1] if len(sys.argv) > 1 else "config.json"
+    pacman(config_file)

@@ -2,29 +2,76 @@ from typing import Sequence
 
 # Sprite and display constants
 TILE_SIZE = 32  # pixels
-PACMAN_SPEED = 2  # tiles per frame
-GHOST_SPEED = 1.5
+HUD_HEIGHT = 40  # pixels above maze
+PACMAN_SPEED = 5  # tiles per frame
+GHOST_SPEED = 3
 
 # Colors (RGB tuples)
 COLOR_BLACK = (0, 0, 0)
 COLOR_WHITE = (255, 255, 255)
 COLOR_YELLOW = (255, 255, 0)
 COLOR_RED = (255, 0, 0)
+COLOR_BLUE = (33, 33, 255)
+COLOR_GREY = (150, 150, 150)
+COLOR_PINK = (255, 184, 255)
+COLOR_TEAL = (0, 255, 255)
+COLOR_ORANGE = (255, 184, 82)
 
-# Game states
+SCATTER_TIME = 7.0
+CHASE_TIME = 20.0
+INVINCIBLE_TIME = 1.5
+FREIGHT_TIME = 7.0
+
+FREIGHT_SPEED_MULT = 0.5
+SPAWN_SPEED_MULT = 3.0
+LEVEL_COMPLETE_PAUSE = 3.0
+GHOST_SPEED_PER_LEVEL = 0.5
+FREIGHT_TIME_DECREASE = 0.5
+MIN_FREIGHT_TIME = 2.0
+NUM_LEVELS = 10
+
 STATE_PLAYING = "playing"
 STATE_GAME_OVER = "game_over"
 STATE_PAUSE = "pause"
+STATE_TITLE = "title"
+STATE_WAITING = "waiting"
+STATE_NAME_ENTRY = "name_entry"
+STATE_VICTORY = "victory"
+STATE_HIGHSCORES = "highscores"
+STATE_INSTRUCTIONS = "instructions"
 
 __all__: Sequence[str] = [
     "TILE_SIZE",
+    "HUD_HEIGHT",
     "PACMAN_SPEED",
     "GHOST_SPEED",
+    "SCATTER_TIME",
+    "CHASE_TIME",
+    "FREIGHT_TIME",
+    "INVINCIBLE_TIME",
+    "FREIGHT_SPEED_MULT",
+    "SPAWN_SPEED_MULT",
+    "LEVEL_COMPLETE_PAUSE",
+    "GHOST_SPEED_PER_LEVEL",
+    "FREIGHT_TIME_DECREASE",
+    "MIN_FREIGHT_TIME",
+    "NUM_LEVELS",
     "COLOR_BLACK",
     "COLOR_WHITE",
     "COLOR_YELLOW",
     "COLOR_RED",
+    "COLOR_BLUE",
+    "COLOR_GREY",
+    "COLOR_PINK",
+    "COLOR_TEAL",
+    "COLOR_ORANGE",
     "STATE_PLAYING",
     "STATE_GAME_OVER",
     "STATE_PAUSE",
+    "STATE_TITLE",
+    "STATE_WAITING",
+    "STATE_NAME_ENTRY",
+    "STATE_VICTORY",
+    "STATE_HIGHSCORES",
+    "STATE_INSTRUCTIONS",
 ]
